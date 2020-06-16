@@ -20,9 +20,10 @@ function getParam(sname) {
 }
 
 //인증키
-window.oauth_client_id = "g1rhyzp1s7y2d755xqjn1otspdgvc3";
+window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
-window.oauth_redirect_uri = "https://patrickmonster.github.io/tgd/";
+// window.oauth_redirect_uri = "https://patrickmonster.github.io/tgd/";
+window.oauth_redirect_uri = "http://localhost";
 
 const oauth = localStorage.getItem("oauth");
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
@@ -82,12 +83,13 @@ const bot = {
     }
 }
 
-function getChannel(user){
+function getApi(url,isOauth){ //  OAuth
 	var xmlhttp = new XMLHttpRequest(),channel="";
 	xmlhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200)channel=this.responseText};
-	xmlhttp.open("GET","https://id.twitch.tv/oauth2/" + ,false);
-	xmlhttp.setRequestHeader('Client-ID','OAuth '+oauth);
-	xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
+	xmlhttp.open("GET","https://id.twitch.tv/oauth2/" + url,false);
+    xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
+    xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
+    if(isOauth)xmlhttp.setRequestHeader("Authorization", isOauth + " " + oauth);
 	xmlhttp.send();
 	return channel;
 }
