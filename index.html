@@ -3,98 +3,11 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Leaderboards</title>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
-        <script src="https://patrickmonster.github.io/irc_chat_client/chat.js"></script>
-    <script>
-function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
-function make_qury(option,out){out =[];for(var i in option)out.push(i + "=" + option[i]);return "?"+out.join("&")}
-function getParam(sname) {
-    var params = location.search.substr(location.search.indexOf("?") + 1);
-    var sval = "";
-    params = params.split("&");
-    for (var i = 0; i < params.length; i++) {
-        temp = params[i].split("=");
-        if ([temp[0]] == sname) { sval = temp[1]; }
-    }
-    return sval;
-}
-
-//인증키
-window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
-//리다이렉션 url
-// window.oauth_redirect_uri = "https://patrickmonster.github.io/tgd/";
-window.oauth_redirect_uri = "http://localhost";
-
-const oauth = localStorage.getItem("oauth");
-// const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
-// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
-const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
-// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
-if (document.location.hash.indexOf("access_token")!=-1){
-	permiss();
-}else{
-	if(oauth){
-		if(!isPermiss()){
-			localStorage.removeItem("oauth");
-            alert("세션이 만료되어 로그아웃 되셧습니다!\n다시 로그인 해주세요!");
-            permiss();
-		}
-	}else permiss();
-}
-//=======================================================================================================
-
-if(!getParam("channel")){ 
-    document.write('<input id=user-input type="text" value="" onkeypress="if(event.keyCode!=13)return;setChannel()" placeholder="채널의 id를 입력해 주세요!"><button onclick="setChannel()">선택</button>');
-    function setChannel(){
-        var channel = document.getElementById("user-input").value;
-        if (/[a-zA-Z0-9_]/.test(channel) && channel.length > 2 )
-            location.href = location.origin + location.pathname + "?channel=" + channel; // 채널명으로 변경
-        else alert("똑바로 입력해 주세요!")
-    }
-}else{//=======================================================================================================
-
-window.channel = getParam("channel");
-if (!/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length < 2 ){
-    alert("채널명이 올바르지 않습니다");
-    location.href = location.origin + location.pathname;
-}
-
-window.onload = function() {
-    window.chatClientE = new chatClient({"channel":getParam("channel"),"password":oauth});
-    window.chatClientE.open();
-    window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
-    window.chatClientE.onCommand =function(message,parsed){
-        console.log(message)
-    };
-    window.chatClientE.onConsole=function(message){
-        console.log(message); // 처리 콘솔용
-    };
-}
-
-const bot = {
-    chatClient : null,
-    command: {
-        "명령어" : function(){
-            
-        },"팔로우":function(){
-            // https://api.twitch.tv/kraken/users/44322889/follows/channels/129454141
-            
-        }
-    }
-}
-
-function getApi(url,isOauth){ //  OAuth
-    var xmlhttp = new XMLHttpRequest(),channel="";
-    xmlhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200)channel=this.responseText};
-    xmlhttp.open("GET","https://id.twitch.tv/oauth2/" + url,false);
-    xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
-    xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
-    if(isOauth)xmlhttp.setRequestHeader("Authorization", isOauth + " " + oauth);
-    xmlhttp.send();
-    return channel;
-}
-}
-    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
+    <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
 	<style>
 *{
 	margin: 0px;
@@ -123,12 +36,334 @@ img{
     70% {opacity:1}
     100% {opacity:0}
 }
+/* =========================================================================== */
+table#console{
+    margin: 5px;
+    padding: 0px;
+    width: calc( 100% - 10px );
+    text-align: left;
+    background-color: cyan;
+}
+table#console>tr>td{
+    padding-left: 10px;
+}
+
+#console > tr > td:nth-child(2){
+    width: 90px;
+}
+.scroll{
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.block{
+    width: 400px;
+    height: 605px;
+    margin: 5px 5px 0 0;
+    border-radius: 30px;
+    float: left;
+}
+
+/* 유저 리스트 */
+#user.table{
+    width: 100%;
+}
+#user.table>tr>td>a{
+    float: right;
+    cursor: pointer;
+}
+#user.table>tr>td{
+    float: right;
+    width: 30px;
+}
+#command > tr > td:nth-child(2),
+#user > tr > td:nth-child(1){
+    text-align: left;
+    width: 100%;
+}
+#command > tr > td:nth-child(2){
+    width: 75%;
+}
+#user > tr > td:nth-child(n+2) {
+    cursor: pointer;
+}
+
+.bottom {
+    height: 300px;
+}
+/* ============================================================================= */
+
+.checkbox{
+    top: 40px;
+    right: 20px;
+    -webkit-appearance: none;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    outline: none;
+}
+
+.checkbox:checked{
+    background-color: #3498db;
+}
+
+.checkbox::before{
+    content: "";
+    position: inherit;
+    width: 12px;
+    height: 12px;
+    background-color: #fff;
+    border-radius: 20px;
+    transition: .3s linear;
+    margin: 4px 0 0 4px;
+    display: block;
+}
+
+.checkbox:checked::before{
+    margin-left: 23px;
+}
+/* ============================================================================= */
+a.tip {
+    border-bottom: 1px dashed;
+    text-decoration: none
+}
+a.tip:hover {
+    position: relative
+}
+a.tip span {
+    display: none
+}
+a.tip:hover span {
+    border: #c0c0c0 1px dotted;
+    padding: 5px;
+    display: block;
+    z-index: 100;
+    background: url(../images/status-info.png) #f0f0f0 no-repeat 100% 5%;
+    left: -100px;
+    margin: 10px;
+    width: 105px;
+    position: absolute;
+    top: 15px;
+    text-align: inherit;
+}
 	</style>
 </head>
 <body>
-    <div id="main_ui">
-        <!-- 매인  UI -->
-    </div>
+    <!-- <script src="https://patrickmonster.github.io/irc_chat_client/chat.js"></script> -->
+    <script src="chat.js"></script>
+    <script>
+Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return this.getAttribute("data-"+a[0]);else this.setAttribute("data-"+a[0],a[1]);return this;};
+Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+Element.prototype.addClass=function(className){this.classList.add(className);return this};
+Element.prototype.html=function(str){this.innerHTML = str;return this};
+String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
+String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
+Number.prototype.zf = function (len) { return this.toString().zf(len); };
+Date.prototype.format = function(f) {
+    if (!this.valueOf()) return " ";
+    var weekName = ["일", "월", "화", "수", "목", "금", "토"];
+    var d = this;
+    return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
+        switch ($1) {
+            case "yyyy": return d.getFullYear();
+            case "yy": return (d.getFullYear() % 1000).zf(2);
+            case "MM": return (d.getMonth() + 1).zf(2);
+            case "dd": return d.getDate().zf(2);
+            case "E": return weekName[d.getDay()];
+            case "HH": return d.getHours().zf(2);
+            case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2);
+            case "mm": return d.getMinutes().zf(2);
+            case "ss": return d.getSeconds().zf(2);
+            case "a/p": return d.getHours() < 12 ? "오전" : "오후";
+            default: return $1;
+        }
+    });
+};
 
+function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
+function make_qury(option,out){out =[];for(var i in option)out.push(i + "=" + option[i]);return "?"+out.join("&")}
+function getParams(name, address = window.location.href) {
+    let url;
+    let results = "";
+    url = new URL(address);
+    if (typeof url.searchParams === 'undefined') {
+        results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(address);
+        if (results == null) {
+            return null;
+        } else {
+            return decodeURI(results[1]) || 0;
+        }
+    } else {
+        return url.searchParams.get(name);
+    }
+}
+
+//인증키
+window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
+//리다이렉션 url
+// window.oauth_redirect_uri = "https://patrickmonster.github.io/tgd/";
+window.oauth_redirect_uri = "http://10.42.0.167/";
+
+const oauth = localStorage.getItem("oauth");
+// const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
+const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
+if (document.location.hash.indexOf("access_token")!=-1){
+    permiss(permissions);
+}else{
+    if(oauth){
+        if(!isPermiss()){
+            localStorage.removeItem("oauth");
+            alert("세션이 만료되어 로그아웃 되셧습니다!\n다시 로그인 해주세요!");
+            permiss(permissions);
+        }
+    }else permiss(permissions);
+}
+//=======================================================================================================
+const rawauth = document.location.href.replace("#", "?");
+window.channel = getParams("channel",rawauth);
+
+console.log(window.channel);
+
+if(!window.channel){ 
+    document.body.innerHTML = '<input id=user-input type="text" value="" onkeypress="if(event.keyCode!=13)return;setChannel()" placeholder="채널의 id를 입력해 주세요!"><button onclick="setChannel()">선택</button>';
+    function setChannel(){
+        var channel = document.getElementById("user-input").value;
+        if (/[a-zA-Z0-9_]/.test(channel) && channel.length > 2 )
+            location.href = location.origin + location.pathname + "?channel=" + channel; // 채널명으로 변경
+        else alert("똑바로 입력해 주세요!")
+    }
+}else{//=======================================================================================================
+// 봇 명령어/처리
+window.bot = {
+    "chatClient" : null,
+    "command": {
+        "명령어" : function(cc,params){
+            cc.onSend("/me [" + Object.keys(window.bot.command).filter(word => true).join(",") + "]");
+        },"팔로우":function(cc,params){
+            var user = JSON.parse(getApi("kraken/users/" + params["user-id"] + "/follows/channels/"+window.chatClientE.broadcaster["_id"]))// 사용자 정보
+            if (user.hasOwnProperty("error")){// 팔로우 하지 않음
+                cc.onSend(params["display-name"] + "님은 아직 팔로우 하지 않았습니다!");
+            }else{
+                var day = (new Date() - new Date(user["created_at"])) / 86400000;
+                cc.onSend(params["display-name"] + "님은 팔로우 한지 " + parseInt(day) + "일째");
+            }
+        }
+    },"console_index":1,"console":function(log,color){
+        if(!color)color="#000"
+        var console = document.getElementById("console").C("tr");
+        console.C("td").html(this["console_index"]++).style.color=color;
+        console.C("td").html(new Date().format("mm:ss")).style.color=color;
+        console.C("td").html(log).style.color=color;
+        scrollDiv(document.getElementById("console_scroll"));
+    }
+}
+
+if (!/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length < 2 ){
+    alert("채널명이 올바르지 않습니다");
+    location.href = location.origin + location.pathname;
+}
+
+window.chatClientE = new chatClient({"channel":window.channel,"password":oauth});
+window.chatClientE.open();
+window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
+window.chatClientE.onCommand =function(message,parsed){
+    console.log(message)
+};
+window.chatClientE.onJoin = function(message){
+    window.bot.console(message+" 님이 입장하였습니다");
+    var consoles = document.getElementById("user").C("tr"),cc = this;
+    consoles.data("user",message)
+    consoles.C("td").html(message);
+    consoles.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>벤</span>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
+    consoles.C("td").C("a").data("timeout","10").addClass("tip").html('10<span>10초 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+    consoles.C("td").C("a").data("timeout","1m").addClass("tip").html('1m<span>1분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+    consoles.C("td").C("a").data("timeout","10m").addClass("tip").html('10m<span>10분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+    consoles.C("td").C("a").data("timeout","1h").addClass("tip").html('1h<span>1시간 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+};
+window.chatClientE.onSys=function onSys(message){
+    try{
+        if(message.indexOf("NOTICE")!=-1)window.bot.console(message.split(":")[2],"red");
+        // if(message.indexOf("HOSTTARGET")!=-1)
+    }catch (e) {window.bot.console(e);}
+};
+window.chatClientE.onConsole=function(message){
+    // console.log(message); // 처리 콘솔용
+    window.bot.console(message);
+};
+
+window.chatClientE.broadcaster = JSON.parse(getApi("kraken/users?login=" + window.channel)).users[0]; // 스트리머 정보 https://dev.twitch.tv/docs/v5/reference/channels#get-channel-by-id
+
+window.onload = function() {
+    var chat = document.getElementById("chat_ui");
+    chat.src="https://www.twitch.tv/embed/"+window.channel+"/chat?parent="+location.hostname;
+
+    list_commands();// 리스트 초기화
+}
+
+function list_commands(){
+    var list = document.getElementById("command").html("");
+    for (var i in window.bot.command){
+        var cmm = window.bot.command[i],tr = list.C("tr");
+        tr.C("td").html(i);
+        tr.C("td").html(typeof cmm === "string" ? cmm : "function");
+        tr.C("td").html('<input type="checkbox" class="checkbox" checked>');
+    }
+}
+
+function scrollDiv(target){
+    target.scrollTop = target.scrollHeight;
+}
+
+function getApi(url,isOauth){ //  OAuth
+    var xmlhttp = new XMLHttpRequest(),channel="";
+    xmlhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200)channel=this.responseText};
+    xmlhttp.open("GET","https://api.twitch.tv/" + url,false);
+    xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
+    xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
+    if(isOauth)xmlhttp.setRequestHeader("Authorization", isOauth + " " + oauth);
+    xmlhttp.send();
+    return channel;
+}
+}
+//tuesucmd / 봇
+/// scp index.html pi@10.42.0.167:/var/www/html/
+/// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
+    </script>
+    <div class="block">
+        <iframe id=chat_ui frameborder="0" scrolling="no" height="600" width="400"></iframe>
+    </div>
+    <div id=console_scroll class="scroll block" style="width: 600px !important;background: #afeae8;">
+        <table id=console>
+        </table>
+    </div>
+    <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;">
+        <h2>채팅 명령<input type="checkbox" class="checkbox" checked></h2>
+        <div class="scroll " style="height:calc( 100% - 35px );"><table id=command>
+            <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
+            <tr><td>팔로우</td><td>팔로우경과일을 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
+        </table></div>
+    </div>
+    <div id=user_scroll class="scroll block" style="background: #74c0ff;height: 300px !important;">
+        <table id=user></table>
+    </div>
+    <div id=badlangs_scroll class="block" style="background: #03A9F4;height: 300px !important;">
+        <div class="scroll " style="height:calc( 100% - 35px );"><table id=badlangs>
+        </table></div>
+        <input type="text"><button>추가</button><!-- 금지어 추가 명령 -->
+    </div>
+    <div class="block" style="background: #03A9F4;height: 300px !important;">
+        <h2>뷰봇/기능</h2>
+        <button>뷰봇탐지</button>
+        <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br>
+        <!-- 서버DB를 통하여 뷰봇탐지 -->
+        <button>채팅탐지</button>
+        <br>채팅 기록을 불러와 필터링 합니다...<br>
+        <!-- 채팅 기록을 통하여 유저 탐지 -->
+    </div>
 </body>
 </html>
