@@ -54,7 +54,7 @@ if(!getParam("channel")){
 }else{//=======================================================================================================
 
 window.channel = getParam("channel");
-if (/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length > 2 ){
+if (!/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length < 2 ){
     alert("채널명이 올바르지 않습니다");
     location.href = location.origin + location.pathname;
 }
@@ -84,14 +84,14 @@ const bot = {
 }
 
 function getApi(url,isOauth){ //  OAuth
-	var xmlhttp = new XMLHttpRequest(),channel="";
-	xmlhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200)channel=this.responseText};
-	xmlhttp.open("GET","https://id.twitch.tv/oauth2/" + url,false);
+    var xmlhttp = new XMLHttpRequest(),channel="";
+    xmlhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200)channel=this.responseText};
+    xmlhttp.open("GET","https://id.twitch.tv/oauth2/" + url,false);
     xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
     xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
     if(isOauth)xmlhttp.setRequestHeader("Authorization", isOauth + " " + oauth);
-	xmlhttp.send();
-	return channel;
+    xmlhttp.send();
+    return channel;
 }
 }
     </script>
