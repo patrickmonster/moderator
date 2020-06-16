@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>Leaderboards</title>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
+        <script src="https://patrickmonster.github.io/irc_chat_client/chat.js"></script>
+    <script>
+function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
+function make_qury(option,out){out =[];for(var i in option)out.push(i + "=" + option[i]);return "?"+out.join("&")}
+function getParam(sname) {
+    var params = location.search.substr(location.search.indexOf("?") + 1);
+    var sval = "";
+    params = params.split("&");
+    for (var i = 0; i < params.length; i++) {
+        temp = params[i].split("=");
+        if ([temp[0]] == sname) { sval = temp[1]; }
+    }
+    return sval;
+}
+
+//인증키
+window.oauth_client_id = "g1rhyzp1s7y2d755xqjn1otspdgvc3";
+//리다이렉션 url
+window.oauth_redirect_uri = "https://patrickmonster.github.io/tgd/";
+
+const oauth = localStorage.getItem("oauth");
+// const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
+const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
+if (document.location.hash.indexOf("access_token")!=-1){
+	permiss();
+}else{
+	if(oauth){
+		if(!isPermiss()){
+			localStorage.removeItem("oauth");
+            alert("세션이 만료되어 로그아웃 되셧습니다!\n다시 로그인 해주세요!");
+            permiss();
+		}
+	}else permiss();
+}
+//=======================================================================================================
+
+if(!getParam("channel")){ 
+    document.write('<input id=user-input type="text" value="" onkeypress="if(event.keyCode!=13)return;setChannel()" placeholder="채널의 id를 입력해 주세요!"><button onclick="setChannel()">선택</button>');
+    function setChannel(){
+        var channel = document.getElementById("user-input").value;
+        if (/[a-zA-Z0-9_]/.test(channel) && channel.length > 2 )
+            location.href = location.origin + location.pathname + "?channel=" + channel; // 채널명으로 변경
+        else alert("똑바로 입력해 주세요!")
+    }
+}else{//=======================================================================================================
+
+window.channel = getParam("channel");
+if (/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length > 2 ){
+    alert("채널명이 올바르지 않습니다");
+    location.href = location.origin + location.pathname;
+}
+
+window.onload = function() {
+    window.chatClientE = new chatClient({"channel":getParam("channel"),"password":oauth});
+    window.chatClientE.open();
+    window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
+    window.chatClientE.onCommand =function(message,parsed){
+        console.log(message)
+    };
+    window.chatClientE.onConsole=function(message){
+        console.log(message); // 처리 콘솔용
+    };
+}
+
+const bot = {
+    chatClient : null,
+    command: {
+        "명령어" : function(){
+            
+        },"팔로우":function(){
+            // https://api.twitch.tv/kraken/users/44322889/follows/channels/129454141
+            
+        }
+    }
+}
+
+function getChannel(user){
+	var xmlhttp = new XMLHttpRequest(),channel="";
+	xmlhttp.onreadystatechange=function(){if(this.readyState==4&&this.status==200)channel=this.responseText};
+	xmlhttp.open("GET","https://id.twitch.tv/oauth2/" + ,false);
+	xmlhttp.setRequestHeader('Client-ID','OAuth '+oauth);
+	xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
+	xmlhttp.send();
+	return channel;
+}
+}
+    </script>
+	<style>
+*{
+	margin: 0px;
+	background-color:transparent;
+}
+body{
+	width:100%;/*1920px;*/
+	height:100%;/*1080px;*/
+  overflow:hidden;
+	text-align:center;
+}
+img{
+	width: 4vh;
+	height: 4vh;
+}
+#flake{
+	overflow:hidden;
+}
+@keyframes heartbeat {
+    0% { transform: scale(0); }
+    70% { transform: scale(1); }
+    100% { transform: scale(0); }
+}
+@keyframes opacity_obj {
+    0% {opacity:0}
+    70% {opacity:1}
+    100% {opacity:0}
+}
+	</style>
+</head>
+<body>
+    <div id="main_ui">
+        <!-- 매인  UI -->
+    </div>
+
+</body>
+</html>
