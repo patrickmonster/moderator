@@ -47,9 +47,11 @@ table#console{
 table#console>tr>td{
     padding-left: 10px;
 }
-
+#console > tr > td:nth-child(1){
+    width: 10px;
+}
 #console > tr > td:nth-child(2){
-    width: 90px;
+    width: 40px;
 }
 .scroll{
     width: 100%;
@@ -63,6 +65,12 @@ table#console>tr>td{
     margin: 5px 5px 0 0;
     border-radius: 30px;
     float: left;
+}
+.alr {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 250px;
 }
 
 /* 유저 리스트 */
@@ -89,6 +97,13 @@ table#console>tr>td{
     cursor: pointer;
 }
 
+#chat > tr > td:nth-child(1){
+    width: 40px;
+}
+
+#chat > tr> td:nth-child(3){
+    text-align: left;
+}
 .bottom {
     height: 300px;
 }
@@ -204,14 +219,15 @@ function getParams(name, address = window.location.href) {
 //인증키
 window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
-window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
-// window.oauth_redirect_uri = "http://10.42.0.167/";
+// window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
+window.oauth_redirect_uri = "http://10.42.0.167/";
 
 const oauth = localStorage.getItem("oauth");
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
+//"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
 if (document.location.hash.indexOf("access_token")!=-1){
     permiss(permissions);
 }else{
@@ -241,19 +257,31 @@ if(!window.channel){
 // 봇 명령어/처리
 window.bot = {
     "chatClient" : null,
-    "command": {
-        "명령어" : function(cc,params){
-            cc.onSend("/me [" + Object.keys(window.bot.command).filter(word => true).join(",") + "]");
-        },"팔로우":function(cc,params){
-            var user = JSON.parse(getApi("kraken/users/" + params["user-id"] + "/follows/channels/"+window.chatClientE.broadcaster["_id"]))// 사용자 정보
-            if (user.hasOwnProperty("error")){// 팔로우 하지 않음
-                cc.onSend(params["display-name"] + "님은 아직 팔로우 하지 않았습니다!");
-            }else{
-                var day = (new Date() - new Date(user["created_at"])) / 86400000;
-                cc.onSend(params["display-name"] + "님은 팔로우 한지 " + parseInt(day) + "일째");
-            }
-        }
-    },"console_index":1,"console":function(log,color){
+    "command": { // 명령 처리 함수
+        "!명령어" : function(cc,params){
+            cc.onSend("/me [" + Object.keys(window.bot.commands).filter(word => true).join(",") + "]");
+        },"!팔로우":function(cc,params){
+            console.log(params)
+            try{
+                var user = JSON.parse(getApi("kraken/users/" + params["user-id"] + "/follows/channels/"+window.chatClientE.broadcaster["_id"]))// 사용자 정보
+                if (user.hasOwnProperty("error")){// 팔로우 하지 않음
+                    cc.onSend(params["display-name"] + "님은 아직 팔로우 하지 않았습니다!");
+                }else{
+                    var day = (new Date() - new Date(user["created_at"])) / 86400000;
+                    cc.onSend(params["display-name"] + "님은 팔로우 한지 " + parseInt(day) + "일째");
+                }
+            }catch (e) {cc.onSend(params["display-name"] + "님은 아직 팔로우 하지 않았습니다!");}
+        },
+    },"commands":{},"addCommand":function(com,msg){
+        window.bot.commands[com] = msg;
+        window.bot.console("명령이 추가됨 :" + com);
+        list_commands("command");// 리스트 초기화
+    },"badlangs":[],"addBadlangs":function(com){
+        window.bot.badlangs.push(com)
+        window.bot.console("금지어 추가됨 :" + com);
+        list_commands("badlangs");// 리스트 초기화
+    },
+    "console_index":1,"console":function(log,color){
         if(!color)color="#000"
         var console = document.getElementById("console").C("tr");
         console.C("td").html(this["console_index"]++).style.color=color;
@@ -268,16 +296,57 @@ if (!/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length < 2 ){
     location.href = location.origin + location.pathname;
 }
 
-window.chatClientE = new chatClient({"channel":window.channel,"password":oauth});
+//"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
+var chat_user = JSON.parse(getChannel(oauth));
+if (chat_user.hasOwnProperty("error")){
+    localStorage.removeItem("oauth");
+    localStorage.removeItem("state");
+    localStorage.removeItem("last_url");
+    // 데이터 제거
+    alert("토큰 에러입니다 재 발급을 권장합니다!");
+    location.reload();
+}
+
+console.log(chat_user);
+window.chatClientC = new chatClient({"channel":"tuesucmd","username":chat_user.login,"password":oauth});
+window.chatClientC.open();
+window.chatClientC.onSys = _ =>{;};
+window.chatClientC.onChating = function(parsed){
+    if(/(moderator|broadcaster)/i.test(parsed["badges"])){
+        window.bot.console(parsed.message,"blue");
+        return;
+    }
+    var tr = document.getElementById("chat").C("tr");
+    tr.C("td").html(new Date().format("mm:ss"));
+    tr.C("td").html(parsed["display-name"]);
+    tr.C("td").html(parsed.message.replace(/(<([^>]+)>)/ig,""));
+    scrollDiv(tr.parentElement);
+};
+window.bot.chatClient = window.chatClientE = new chatClient({"channel":window.channel,"username":chat_user.login,"password":oauth});
 window.chatClientE.open();
-window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
-window.chatClientE.onCommand =function(message,parsed){
-    console.log(message)
+window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
+window.chatClientE.onCommand =function(message,parsed){;};// 관리자 명령
+window.chatClientE.onChating = function(parsed){
+    for (var i of window.bot.badlangs){
+        if(parsed.message.indexOf(i) != -1){
+            window.bot.console("금지어 사용["+i+"]: " + parsed["display-name"]);
+            this.onMessageDelete(parsed.id);
+            retrun;
+        }
+    }
+    var com = parsed.message.split(" ");
+    if(window.bot.command.hasOwnProperty(com[0])){
+        window.bot.command[com[0]](this,parsed)
+    }else if(window.bot.commands.hasOwnProperty(com[0])){
+        for (var c of window.bot.commands[com[0]].split("\n")){
+            this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
+        }
+    }
 };
 window.chatClientE.onJoin = function(message){
     window.bot.console(message+" 님이 입장하였습니다");
     var consoles = document.getElementById("user").C("tr"),cc = this;
-    consoles.data("user",message)
+    consoles.data("user",message);
     consoles.C("td").html(message);
     consoles.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>벤</span>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
     consoles.C("td").C("a").data("timeout","10").addClass("tip").html('10<span>10초 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
@@ -288,30 +357,59 @@ window.chatClientE.onJoin = function(message){
 window.chatClientE.onSys=function onSys(message){
     try{
         if(message.indexOf("NOTICE")!=-1)window.bot.console(message.split(":")[2],"red");
+        if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{} style='cursor:pointer'>호스팅 해제</span>");
         // if(message.indexOf("HOSTTARGET")!=-1)
     }catch (e) {window.bot.console(e);}
 };
 window.chatClientE.onConsole=function(message){
-    // console.log(message); // 처리 콘솔용
     window.bot.console(message);
 };
+
+window.chatClientE.onMessageDelete=function(msg_id){
+    this.onSend("/delete "+ msg_id);
+    window.bot.console("매세지가 삭제됨:" + msg_id);
+}
 
 window.chatClientE.broadcaster = JSON.parse(getApi("kraken/users?login=" + window.channel)).users[0]; // 스트리머 정보 https://dev.twitch.tv/docs/v5/reference/channels#get-channel-by-id
 
 window.onload = function() {
     var chat = document.getElementById("chat_ui");
     chat.src="https://www.twitch.tv/embed/"+window.channel+"/chat?parent="+location.hostname;
+    window.chatClientC.onChating({"display-name":"채팅방에","message":"접속됨!"});
 
-    list_commands();// 리스트 초기화
+    list_commands("command");// 리스트 초기화
 }
 
-function list_commands(){
-    var list = document.getElementById("command").html("");
-    for (var i in window.bot.command){
-        var cmm = window.bot.command[i],tr = list.C("tr");
+function list_commands(target){
+    var list = document.getElementById(target).html("");
+    for (var i in window.bot.commands){
+        var cmm = window.bot.commands[i],tr = list.C("tr");
+        tr.data(target,i).onclick=function(){
+            var index = this.data(target);
+            if(target=="command"){
+                document.getElementById("comm_c").value = index;
+                document.getElementById("comm_s").value = window.bot.commands[index];
+            }
+        };
         tr.C("td").html(i);
-        tr.C("td").html(typeof cmm === "string" ? cmm : "function");
-        tr.C("td").html('<input type="checkbox" class="checkbox" checked>');
+        tr.C("td").html(cmm);
+        // tr.C("td").html('<input type="checkbox" class="checkbox" checked>');
+        tr.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>제거</span>').onclick=function(e){
+            e.preventDefault();
+            var index = this.parentElement.parentElement.data(target);
+            if(target=="command"){
+                delete window.bot.commands[index];
+                window.bot.console("명령이 제거됨 :" + index);
+                document.getElementById("comm_c").value = "";
+                document.getElementById("comm_s").value = "";
+            }else if(target=="badlangs"){
+                delete window.bot.badlangs[index];
+                window.bot.console("금지어 제거됨 :" + index);
+                list_commands("badlangs");// 리스트 초기화
+            }
+            list_commands(target);
+        }
+
     }
 }
 
@@ -342,21 +440,24 @@ function getApi(url,isOauth){ //  OAuth
         </table>
     </div>
     <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;">
-        <h2>채팅 명령<input type="checkbox" class="checkbox" checked></h2>
-        <div class="scroll " style="height:calc( 100% - 35px );"><table id=command>
+        <h2>채팅 명령<input type="checkbox" class="checkbox" checked>인식명령:<input id="comm_call" type="text" value="!" placeholder="인식명령" style="width: 2%;background: #fff;border: 0px;border-bottom: 1px solid;"></h2>
+        <div class="scroll " style="height:calc( 100% - 70px );"><table id=command>
             <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
             <tr><td>팔로우</td><td>팔로우경과일을 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
         </table></div>
+        <input type="text" id=comm_c onkeypress="if(event.keyCode!=13 || this.value=='')return;document.getElementById('comm_s').focus()" placeholder="명령어" style="width: 10%;background: #fff;border: 0px;border-bottom: 1px solid;">
+        <input type="text" id="comm_s" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addCommand(document.getElementById('comm_c').value,this.value);document.getElementById('comm_c').value='';this.value='';" placeholder="설명" class="largeinput">
     </div>
-    <div id=user_scroll class="scroll block" style="background: #74c0ff;height: 300px !important;">
+    <div id=user_scroll class="scroll block" style="background: #74c0ff;height: 300px;">
         <table id=user></table>
     </div>
-    <div id=badlangs_scroll class="block" style="background: #03A9F4;height: 300px !important;">
-        <div class="scroll " style="height:calc( 100% - 35px );"><table id=badlangs>
+    <div id=badlangs_scroll class="block" style="background: #03A9F4;height: 300px;">
+        <div class="scroll " style="height:calc( 100% - 10% );"><table id=badlangs>
         </table></div>
-        <input type="text"><button>추가</button><!-- 금지어 추가 명령 -->
+        <input type="text" class="largeinput" placeholder="금지어(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addBadlangs(this.value);this.value='';">
+        <!-- <button>추가</button> -->
     </div>
-    <div class="block" style="background: #03A9F4;height: 300px !important;">
+    <div class="block" style="background: #03A9F4;height: 300px;">
         <h2>뷰봇/기능</h2>
         <button>뷰봇탐지</button>
         <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br>
@@ -365,5 +466,36 @@ function getApi(url,isOauth){ //  OAuth
         <br>채팅 기록을 불러와 필터링 합니다...<br>
         <!-- 채팅 기록을 통하여 유저 탐지 -->
     </div>
+    <div class="block alr" style="background: #949494;height: 275px;border-radius: 30px 30px 0 0;">
+        <div class="scroll" style="height: 250px;">
+            <table id=chat></table>
+        </div>
+        <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
+        <!-- <button type="submit" id="right-search-btn">채팅</button> -->
+    </div>
+    <style>
+
+input.largeinput{
+    width: calc(100% - 20%);
+    background: #fff;
+    border: 0px;
+    border-bottom: 1px solid;
+}
+/*
+header #right-search-form>input[type='text']{
+  box-shadow: none;
+  background: none;
+}
+
+header #right-search-form:hover > input[type='text']{
+  box-shadow: 0 0 4px 2px #8181ff;
+}
+header #right-search-form:hover>#right-search-btn>i{
+  box-shadow: none;
+  background: #cbc1fa;
+  color: #fff;
+}
+*/
+    </style>
 </body>
 </html>
