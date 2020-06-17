@@ -228,7 +228,7 @@ window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
 const oauth = localStorage.getItem("oauth");
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
-const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
+const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
 //"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
 
@@ -402,7 +402,7 @@ function list_commands(target){
                 document.getElementById("comm_s").value = window.bot.commands[index];
             }
         };
-				if(target == "badlangs")
+				if(target != "badlangs")
         	tr.C("td").html(i);
         tr.C("td").html(l[i]);
         // tr.C("td").html('<input type="checkbox" class="checkbox" checked>');
@@ -454,7 +454,7 @@ function getApi(url,isOauth){ //  OAuth
         </table>
     </div>
     <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;">
-        <h2>채팅 명령<input type="checkbox" class="checkbox" checked></h2>
+        <h2>채팅 명령<input type="checkbox" id="is_commands" class="checkbox" checked></h2>
         <div class="scroll " style="height:calc( 100% - 70px );"><table id=command>
             <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
             <tr><td>팔로우</td><td>팔로우경과일을 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
