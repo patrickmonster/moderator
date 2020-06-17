@@ -283,10 +283,12 @@ window.bot = {
     },"commands":{},"addCommand":function(com,msg){
         window.bot.commands[com] = msg;
         window.bot.console("명령이 추가됨 :" + com);
+				localStorage.setItem("command",JSON.stringify(window.bot.commands));
         list_commands("command");// 리스트 초기화
     },"badlangs":[],"addBadlangs":function(com){
         window.bot.badlangs.push(com)
         window.bot.console("금지어 추가됨 :" + com);
+				localStorage.setItem("badlangs",JSON.stringify(window.bot.badlangs));
         list_commands("badlangs");// 리스트 초기화
     },
     "console_index":1,"console":function(log,color){
@@ -388,6 +390,9 @@ window.onload = function() {
     chat.src="https://www.twitch.tv/embed/"+window.channel+"/chat?parent="+location.hostname;
     window.chatClientC.onChating({"display-name":"채팅방에","message":"접속됨!"});
 
+		window.bot.commands = JSON.parse(localStorage.getItem("command") || "{}");
+		window.bot.badlangs = JSON.parse(localStorage.getItem("badlangs") || "[]");
+
     list_commands("command");// 리스트 초기화
 }
 
@@ -430,11 +435,13 @@ function list_commands(target){
                 window.bot.console("명령이 제거됨 :" + index);
                 document.getElementById("comm_c").value = "";
                 document.getElementById("comm_s").value = "";
+								localStorage.setItem("command",JSON.stringify(window.bot.commands));
             }else if(target=="badlangs"){
 						    var data = window.bot.badlangs[index]
                 delete window.bot.badlangs[index];
 								window.bot.badlangs.length--;
 						    window.bot.console("금지어 제거됨 :" + data);
+								localStorage.setItem("badlangs",JSON.stringify(window.bot.badlangs));
                 list_commands("badlangs");// 리스트 초기화
             }
             list_commands(target);
