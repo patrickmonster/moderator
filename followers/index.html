@@ -50,9 +50,7 @@ img{
 	</script>
 </head>
 <body>
-    <!-- <script src="https://patrickmonster.github.io/irc_chat_client/chat.js"></script> -->
     <script src="../js/chat.js"></script>
-		<script src="../js/calendar-heatmap.js"></script>
 		<link rel="stylesheet" type="text/css" href="../css/calendar-heatmap.css">
     <script>
 Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return this.getAttribute("data-"+a[0]);else this.setAttribute("data-"+a[0],a[1]);return this;};
@@ -84,6 +82,8 @@ Date.prototype.format = function(f) {
         }
     });
 };
+
+window.ver = "1.0.0";
 
 function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
 function make_qury(option,out){out =[];for(var i in option)out.push(i + "=" + option[i]);return "?"+out.join("&")}
@@ -209,8 +209,8 @@ function list_followers(l,target_id){
 			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
 			//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
 			var table = this.parentNode.parentNode;
-			twtichApi("kraken/users/" + table.data("id") + "/blocks/" + window.broadcaster["_id"],"PUT",function(a,b,c){
-				twtichApi("kraken/users/" + table.data("id") + "/blocks/" + window.broadcaster["_id"],"DELETE",function(a,b,c){
+			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
+				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"DELETE",function(a,b,c){
 					console.log("제거완료");
 
 
@@ -218,8 +218,9 @@ function list_followers(l,target_id){
 			});
 		};
 		tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
+			var table = this.parentNode.parentNode;
 			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
-			twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/blocks/" + window.broadcaster["_id"],"PUT",function(a,b,c){
+			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
 				console.log("제거완료");
 			});
 		};;
