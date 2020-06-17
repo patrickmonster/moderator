@@ -144,7 +144,7 @@ window.onload = function() {
 	load_list(window.broadcaster["_id"]);
 }
 
-window.users = []
+window.users = [];
 
 function load_list(target,cursor){
 	var url = "kraken/channels/" + target + "/follows?limit=100";
@@ -165,7 +165,6 @@ function load_list(target,cursor){
 function list_filter(l){
 	if (document.getElementById("day_start").value == "" || document.getElementById("day_end").value == "" ||
 		document.getElementById("time_start").value == "" || document.getElementById("time_end").value == "")return l;
-
 	var s_d = new Date(document.getElementById("day_start").value +" " + document.getElementById("time_start").value);
 	var e_d = new Date(document.getElementById("day_end").value +" " + document.getElementById("time_end").value);
 	if(s_d > e_d){
@@ -195,13 +194,13 @@ function list_followers(l,target_id){
 		ele.data("created_at",i.created_at);//구독일
 		ele.data("created_user_at",i.user.created_at);//아이디 생성일
 		ele.data("id",i.user["_id"]);
-		td.styles("cursor","pointer").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)}
+		td.styles("cursor","pointer");
 		td.setAttribute("rowspan","3");
-		td.C("img").src = i.user.logo;//프로필
+		td.C("img").data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
 		if(i.user.display_name == i.user.name)
-				tr.C("td").html(i.user.display_name).addClass("over_word");//이름
+				tr.C("td").html(i.user.display_name).addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		else
-				tr.C("td").html(i.user.display_name + "("+i.user.name+")").addClass("over_word");//이름
+				tr.C("td").html(i.user.display_name + "("+i.user.name+")").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		tr = ele.C("tr")
 		tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 		tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
