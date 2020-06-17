@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>Leaderboards</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
+    <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+		<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
+	<style>
+*{
+	margin: 0px;
+	background-color:transparent;
+}
+img{
+	width: 6vh;
+	height: 6vh;
+	border-radius: 30px;
+}
+
+#user_list>table{
+	width: 200px;
+	height: 120px;
+}
+
+.user_item{
+	position: relative;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	min-width: 0;
+	float: left;
+	word-wrap: break-word;
+	background-color: #fff;
+	background-clip: border-box;
+	border: 1px solid rgba(0,0,0,.125);
+	border-radius: .25rem;
+}
+.user_item>div{
+	width: 240px;
+}
+
+.over_word{
+	word-break:break-all;
+}
+	</style>
+	<script type="text/javascript">
+
+	</script>
+</head>
+<body>
+    <!-- <script src="https://patrickmonster.github.io/irc_chat_client/chat.js"></script> -->
+    <script src="../js/chat.js"></script>
+		<script src="../js/calendar-heatmap.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/calendar-heatmap.css">
+    <script>
+Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return this.getAttribute("data-"+a[0]);else this.setAttribute("data-"+a[0],a[1]);return this;};
+window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
+Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+Element.prototype.styles=function(e,f){this.style[e]=f;return this};
+Element.prototype.addClass=function(className){this.classList.add(className);return this};
+Element.prototype.html=function(str){this.innerHTML = str;return this};
+String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
+String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
+Number.prototype.zf = function (len) { return this.toString().zf(len); };
+Date.prototype.format = function(f) {
+    if (!this.valueOf()) return " ";
+    var weekName = ["일", "월", "화", "수", "목", "금", "토"];
+    var d = this;
+    return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
+        switch ($1) {
+            case "yyyy": return d.getFullYear();
+            case "yy": return (d.getFullYear() % 1000).zf(2);
+            case "MM": return (d.getMonth() + 1).zf(2);
+            case "dd": return d.getDate().zf(2);
+            case "E": return weekName[d.getDay()];
+            case "HH": return d.getHours().zf(2);
+            case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2);
+            case "mm": return d.getMinutes().zf(2);
+            case "ss": return d.getSeconds().zf(2);
+            case "a/p": return d.getHours() < 12 ? "오전" : "오후";
+            default: return $1;
+        }
+    });
+};
+
+function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
+function make_qury(option,out){out =[];for(var i in option)out.push(i + "=" + option[i]);return "?"+out.join("&")}
+function getParams(name, address = window.location.href) {
+    let url;
+    let results = "";
+    url = new URL(address);
+    if (typeof url.searchParams === 'undefined') {
+        results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(address);
+        if (results == null) {
+            return null;
+        } else {
+            return decodeURI(results[1]) || 0;
+        }
+    } else {
+        return url.searchParams.get(name);
+    }
+}
+
+//인증키
+window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
+//리다이렉션 url
+window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
+//window.oauth_redirect_uri = "http://10.42.0.167/";
+
+const oauth = localStorage.getItem("oauth");
+const rawauth = document.location.href.replace("#", "?");
+window.channel = getParams("channel",rawauth) || "neocats_";
+// const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
+const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
+//"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
+
+//=======================================================================================================
+
+if(oauth){
+    if(!isPermiss()){
+        localStorage.removeItem("oauth");
+        alert("세션이 만료되어 로그아웃 되셧습니다!\n다시 로그인 해주세요!");
+        permiss(permissions);
+    }
+}else permiss(permissions);
+
+//=======================================================================================================
+window.broadcaster = JSON.parse(getApi("kraken/users?login=" + window.channel,false)).users[0];
+// window.stream = JSON.parse(getApi("kraken/channels/" + window.broadcaster["_id"],false));
+// 스트리머 정보 https://dev.twitch.tv/docs/v5/reference/channels#get-channel-by-id
+
+window.onload = function() {
+	document.getElementById("loading_channel").html(window.channel);
+	// document.getElementById("loading").html("0/" + window.stream["followers"]);
+  // var l = JSON.parse(getApi("kraken/channels/" + window.broadcaster["_id"] + "/follows?limit=100"));
+
+  // console.log(l);
+	console.log(window.broadcaster);
+	console.log(window.stream);// followers
+	load_list(window.broadcaster["_id"]);
+}
+
+window.users = []
+
+function load_list(target,cursor){
+	var url = "kraken/channels/" + target + "/follows?limit=100";
+	if (cursor)url+="&cursor="+cursor;
+	else document.getElementById("user_list").html("");
+	getApi(url,function(data){
+		data = JSON.parse(data);
+		window.users = window.users.concat(data["follows"]);
+		document.getElementById("loading").html(window.users.length +"/" + data["_total"]);
+		if(data["_cursor"])
+			load_list(target,data["_cursor"]);
+		else{
+			list_followers(window.users,"user_list");
+		}
+	});
+}
+
+function list_filter(l){
+	if (document.getElementById("day_start").value == "" || document.getElementById("day_end").value == "" ||
+		document.getElementById("time_start").value == "" || document.getElementById("time_end").value == "")return l;
+
+	var s_d = new Date(document.getElementById("day_start").value +" " + document.getElementById("time_start").value);
+	var e_d = new Date(document.getElementById("day_end").value +" " + document.getElementById("time_end").value);
+	if(s_d > e_d){
+		var tmp = s_d;
+		s_d = e_d;
+		e_d = tmp;
+	}
+	console.log(s_d, e_d);
+	return l.filter(function(item){
+		var day = new Date(item.created_at);
+		return s_d < day && day < e_d;
+	});
+}
+
+//언팔
+// DELETE https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
+//차단
+//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
+
+function list_followers(l,target_id){
+  var target = document.getElementById(target_id);
+	target.html("");
+  l.forEach(i => {
+		var ele = target.C("table").addClass("user_item");
+		var tr = ele.C("tr");
+		var td = tr.C("td")
+		ele.data("created_at",i.created_at);//구독일
+		ele.data("created_user_at",i.user.created_at);//아이디 생성일
+		ele.data("id",i.user["_id"]);
+		td.styles("cursor","pointer").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)}
+		td.setAttribute("rowspan","3");
+		td.C("img").src = i.user.logo;//프로필
+		if(i.user.display_name == i.user.name)
+				tr.C("td").html(i.user.display_name).addClass("over_word");//이름
+		else
+				tr.C("td").html(i.user.display_name + "("+i.user.name+")").addClass("over_word");//이름
+		tr = ele.C("tr")
+		tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
+		tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
+			//https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
+			//DELETE https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
+			//PUT   https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
+			twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
+		};
+		tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer");
+		tr = ele.C("tr")
+		tr.C("td").html("followd :"+new Date(i.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
+		tr.C("td").html('<a title="Start At"><i class="fas fa-long-arrow-alt-right"></i></a>').styles("cursor","pointer").onclick=function(){
+			var day = this.parentNode.parentNode.data("created_at");
+			document.getElementById("day_start").value = new Date(day).format("yyyy-MM-dd");
+			document.getElementById("time_start").value = new Date(day).format("HH:mm");
+		};
+		tr.C("td").html('<a title="End At"><i class="fas fa-long-arrow-alt-right fa-rotate-180"></i></a>').styles("cursor","pointer").onclick=function(){
+			var day = this.parentNode.parentNode.data("created_at");
+			document.getElementById("day_end").value = new Date(day).format("yyyy-MM-dd");
+			document.getElementById("time_end").value = new Date(day).format("HH:mm");
+		};
+  });
+}
+function getApi(url,func,isOauth){ //  OAuth
+    var xmlhttp = new XMLHttpRequest(),channel="";
+    xmlhttp.onreadystatechange=function(){
+			if(this.readyState==4&&this.status==200){
+				if(typeof func == "function")
+					func(this.responseText) // onreadystatechange
+				else channel=this.responseText;
+			}
+		};
+    xmlhttp.open("GET","https://api.twitch.tv/" + url,func!=false);
+    xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
+    xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
+    if(isOauth)xmlhttp.setRequestHeader("Authorization", isOauth + " " + oauth);
+    xmlhttp.send();
+		return channel;
+}
+
+function twtichApi(url,type,func){ //  PUT/ DELETE
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange=function(){console.log(this.readyState,this.status,this.responseText);func(this.readyState,this.status,this.responseText)};
+    xmlhttp.open(type,"https://api.twitch.tv/" + url,func!=false);
+    xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
+    xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
+    xmlhttp.setRequestHeader("Authorization", "OAuth " + oauth);
+    xmlhttp.send();
+}
+//tuesucmd / 봇
+/// scp index.html pi@10.42.0.167:/var/www/html/
+/// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
+    </script>
+		<div class="" style="text-align:center;">
+			channel:<span id="loading_channel">None</span>load :<span id="loading">0/0</span>&nbsp;&nbsp;
+			필터:<input type="date" id="day_start" name="trip-start"><input id="time_start" type="time">
+			~<input type="date" id="day_end" name="trip-start"><input id="time_end" type="time">
+			<button type="button" name="button" onclick="list_followers(list_filter(window.users),'user_list');">적용</button>
+			<button type="button" name="button" onclick="list_followers(window.users,'user_list');">초기화</button>
+		</div>
+		<div id="chart_list">
+
+		</div>
+    <div class="block">
+      <div id="user_list">
+      </div>
+    </div>
+</body>
+</html>
