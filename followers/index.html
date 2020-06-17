@@ -202,7 +202,7 @@ function list_followers(l,target_id){
 		if(i.user.display_name == i.user.name)
 				tr.C("td").html(i.user.display_name).styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		else
-				tr.C("td").html(i.user.display_name + "("+i.user.name+")").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
+				tr.C("td").html(i.user.display_name + "("+i.user.name+")").styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		tr = ele.C("tr")
 		tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 		tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
