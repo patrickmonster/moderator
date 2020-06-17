@@ -349,11 +349,13 @@ window.chatClientE.onChating = function(parsed){
     var com = parsed.message.split(" "),l=Object.keys(window.bot.commands);
     if(window.bot.command.hasOwnProperty(com[0])){
         window.bot.command[com[0]](this,parsed)
-    }else if(l.indexOf(com[0])!= -1){
-        for (var c of window.bot.commands[com[0]].split("\n")){
-            this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
-        }
     }
+		for(var i of l){
+			if(com[0].indexOf(l)== -1)return;
+			for (var c of window.bot.commands[com[0]].split("\n")){
+					this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
+			}
+		}
 };
 window.chatClientE.onJoin = function(message){
     window.bot.console(message+" 님이 입장하였습니다");
