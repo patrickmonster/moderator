@@ -59,6 +59,7 @@ Element.prototype.createElement=Element.prototype.C=function(ele){var ele=docume
 Element.prototype.styles=function(e,f){this.style[e]=f;return this};
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
 Element.prototype.html=function(str){this.innerHTML = str;return this};
+Element.prototype.A=function(a,b){this[a]=b;return this};
 String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
 String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
 Number.prototype.zf = function (len) { return this.toString().zf(len); };
@@ -114,7 +115,8 @@ const rawauth = document.location.href.replace("#", "?");
 window.channel = getParams("channel",rawauth) || "neocats_";
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
-const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit","user_blocks_read","user_blocks_edit"];
+const base_img = "https://static-cdn.jtvnw.net/user-default-pictures-uv/de130ab0-def7-11e9-b668-784f43822e80-profile_image-70x70.png";
+const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단
 //"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
 
@@ -195,10 +197,10 @@ function list_followers(l,target_id){
 		ele.data("created_user_at",i.user.created_at);//아이디 생성일
 		ele.data("id",i.user["_id"]);
 		td.styles("cursor","pointer");
-		td.setAttribute("rowspan","3");
-		td.C("img").data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
+		td.setAttribute("rowspan","3");//
+		td.C("img").A("src",base_img).data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
 		if(i.user.display_name == i.user.name)
-				tr.C("td").html(i.user.display_name).addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
+				tr.C("td").html(i.user.display_name).styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		else
 				tr.C("td").html(i.user.display_name + "("+i.user.name+")").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		tr = ele.C("tr")
