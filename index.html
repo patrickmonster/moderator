@@ -343,7 +343,7 @@ window.chatClientE.onChating = function(parsed){
         if(parsed.message.indexOf(i) != -1){
             window.bot.console("금지어 사용["+i+"]: " + parsed["display-name"]);
             this.onMessageDelete(parsed.id);
-            retrun;
+            return;
         }
     }
 		if(!document.getElementById("is_commands").checked)return;
