@@ -334,7 +334,9 @@ window.bot.chatClient = window.chatClientE = new chatClient({"channel":window.ch
 window.chatClientE.open();
 window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
 window.chatClientE.onCommand =function(message,parsed){;};// 관리자 명령
+window.chatClientE.chats = []
 window.chatClientE.onChating = function(parsed){
+		window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
     for (var i of window.bot.badlangs){
         if(parsed.message.indexOf(i) != -1){
             window.bot.console("금지어 사용["+i+"]: " + parsed["display-name"]);
@@ -342,6 +344,7 @@ window.chatClientE.onChating = function(parsed){
             retrun;
         }
     }
+		if(!document.getElementById("is_commands").checked)return;
     var com = parsed.message.split(" ");
     if(window.bot.command.hasOwnProperty(com[0])){
         window.bot.command[com[0]](this,parsed)
@@ -365,8 +368,8 @@ window.chatClientE.onJoin = function(message){
 window.chatClientE.onSys=function onSys(message){
     try{
         if(message.indexOf("NOTICE")!=-1)window.bot.console(message.split(":")[2],"red");
-        if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{} style='cursor:pointer'>호스팅 해제</span>");
-        // if(message.indexOf("HOSTTARGET")!=-1)
+        else if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{} style='cursor:pointer'>호스팅 해제</span>");
+				else if(message.indexOf("CLEARCHAT")!=-1)window.bot.console("채팅이 모두 제거되었습니다!","red");
     }catch (e) {window.bot.console(e);}
 };
 window.chatClientE.onConsole=function(message){
@@ -388,11 +391,20 @@ window.onload = function() {
     list_commands("command");// 리스트 초기화
 }
 
+function viewbot(keyword){
+		//window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
+		window.chatClientE.chats.filter((item)=>{
+				return item[2].indexOf(keyword) != -1;
+		}).forEach((item, i) => {
+				window.chatClientE.onSend("/ban " + item[0]);
+				window.bot.console("viewbot:" + item[0] + "|"+item[1]);
+		});
+}
+
 function list_commands(target){
     var list = document.getElementById(target).html(""),l;
 		if (target == "command")l = window.bot.commands;
 		else if(target == "badlangs")l = window.bot.badlangs;
-
     for (var i in l){
         var tr = list.C("tr");
         tr.data(target,i).onclick=function(){
@@ -473,12 +485,12 @@ function getApi(url,isOauth){ //  OAuth
     </div>
     <div class="block" style="background: #03A9F4;height: 300px;">
         <h2>뷰봇/기능</h2>
-        <button>뷰봇탐지</button>
-        <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br>
+        <!-- <button>뷰봇탐지</button>
+        <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br> -->
         <!-- 서버DB를 통하여 뷰봇탐지 -->
-        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 5)return;console.log(c,c.length)">채팅탐지</button>
+        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 5){alert('5자이상 입력해 주세요!');return;}viewbot(c);">채팅탐지</button>
         <br>채팅 기록을 불러와 필터링 합니다...<br>
-				<button>팔로우 필터</button>
+				<button onclick="window.open('https://patrickmonster.github.io/moderator/followers/?channel='+window.channel)">팔로우 필터</button>
         <br>팔로우 일시를 기준으로 필터링 합니다.<br>
         <!-- 채팅 기록을 통하여 유저 탐지 -->
     </div>
