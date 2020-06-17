@@ -3,7 +3,6 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Leaderboards</title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
     <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
 		<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
 	<style>
@@ -347,10 +346,10 @@ window.chatClientE.onChating = function(parsed){
         }
     }
 		if(!document.getElementById("is_commands").checked)return;
-    var com = parsed.message.split(" ");
+    var com = parsed.message.split(" "),l=Object.keys(window.bot.commands);
     if(window.bot.command.hasOwnProperty(com[0])){
         window.bot.command[com[0]](this,parsed)
-    }else if(window.bot.commands.hasOwnProperty(com[0])){
+    }else if(l.indexOf(com[0])!= -1){
         for (var c of window.bot.commands[com[0]].split("\n")){
             this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
         }
@@ -559,5 +558,14 @@ input.largeinput{
     border-bottom: 1px solid;
 }
     </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-158025067-4');
+</script>
+
 </body>
 </html>
