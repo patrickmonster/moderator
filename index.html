@@ -403,7 +403,7 @@ function viewbot(keyword){
 		window.bans = window.bans || [];
 		window.chatClientE.chats.filter((item)=>{
 				return item[2].indexOf(keyword) != -1;
-		}).filter((item)=>{console.log(item[1]);
+		}).filter((item)=>{
 			if(window.bans.indexOf(item[1]) != -1)
 				return false;
 			window.bans.push(item[1]);
@@ -411,7 +411,7 @@ function viewbot(keyword){
 		}).forEach((item, i) => {
 				window.chatClientE.onSend("/ban " + item[0]);
 				window.bot.console("viewbot:" + item[0] + "|"+item[1]);
-				lst = i;
+				lst = i + 1;
 		});
 		window.chatClientE.onSend("/me " + lst + "명 처리하였습니다 - " + window.oauth_redirect_uri);
 		window.bot.console("viewbot:" + lst + "명 처리함");
