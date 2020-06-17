@@ -114,8 +114,8 @@ const rawauth = document.location.href.replace("#", "?");
 window.channel = getParams("channel",rawauth) || "neocats_";
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
-const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
-// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업
+const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit","user_blocks_read","user_blocks_edit"];
+// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단
 //"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
 
 //=======================================================================================================
@@ -206,11 +206,20 @@ function list_followers(l,target_id){
 		tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 		tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
 			//https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
-			//DELETE https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
-			//PUT   https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
-			twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
+			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
+			//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
+			twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/blocks/" + window.broadcaster["_id"],"PUT",function(a,b,c){
+				twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/blocks/" + window.broadcaster["_id"],"DELETE",function(a,b,c){
+					console.log("제거완료");
+				});
+			});
 		};
-		tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer");
+		tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
+			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
+			twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/blocks/" + window.broadcaster["_id"],"PUT",function(a,b,c){
+				console.log("제거완료");
+			});
+		};;
 		tr = ele.C("tr")
 		tr.C("td").html("followd :"+new Date(i.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 		tr.C("td").html('<a title="Start At"><i class="fas fa-long-arrow-alt-right"></i></a>').styles("cursor","pointer").onclick=function(){
@@ -225,6 +234,7 @@ function list_followers(l,target_id){
 		};
   });
 }
+
 function getApi(url,func,isOauth){ //  OAuth
     var xmlhttp = new XMLHttpRequest(),channel="";
     xmlhttp.onreadystatechange=function(){
@@ -245,7 +255,7 @@ function getApi(url,func,isOauth){ //  OAuth
 function twtichApi(url,type,func){ //  PUT/ DELETE
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange=function(){console.log(this.readyState,this.status,this.responseText);func(this.readyState,this.status,this.responseText)};
-    xmlhttp.open(type,"https://api.twitch.tv/" + url,func!=false);
+    xmlhttp.open(type,"https://api.twitch.tv/" + url);
     xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
     xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
     xmlhttp.setRequestHeader("Authorization", "OAuth " + oauth);
