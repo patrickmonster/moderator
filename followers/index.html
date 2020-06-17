@@ -210,10 +210,10 @@ function list_followers(l,target_id){
 			//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
 			var table = this.parentNode.parentNode;
 			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
+				if(c == "")return;
 				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"DELETE",function(a,b,c){
-					console.log("제거완료");
-
-
+					if(c == "")return;
+					table.remove();
 				});
 			});
 		};
@@ -221,7 +221,8 @@ function list_followers(l,target_id){
 			var table = this.parentNode.parentNode;
 			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
 			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
-				console.log("제거완료");
+				if(c == "")return;
+				table.remove();
 			});
 		};;
 		tr = ele.C("tr")
@@ -258,7 +259,7 @@ function getApi(url,func,isOauth){ //  OAuth
 
 function twtichApi(url,type,func){ //  PUT/ DELETE
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange=function(){console.log(this.readyState,this.status,this.responseText);func(this.readyState,this.status,this.responseText)};
+    xmlhttp.onreadystatechange=function(){if(this.status==200)func(this.readyState,this.readyState,this.responseText)};
     xmlhttp.open(type,"https://api.twitch.tv/" + url);
     xmlhttp.setRequestHeader('Client-ID',window.oauth_client_id);
     xmlhttp.setRequestHeader('Accept','application/vnd.twitchtv.v5+json');
