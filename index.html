@@ -5,7 +5,6 @@
     <title>Leaderboards</title>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
     <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
-    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> -->
 		<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
 	<style>
 *{
@@ -393,7 +392,8 @@ window.onload = function() {
 		window.bot.commands = JSON.parse(localStorage.getItem("command") || "{}");
 		window.bot.badlangs = JSON.parse(localStorage.getItem("badlangs") || "[]");
 
-    list_commands("command");// 리스트 초기화
+		list_commands("badlangs");
+    list_commands("command");
 }
 
 function viewbot(keyword){
