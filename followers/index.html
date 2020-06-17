@@ -23,6 +23,43 @@ img{
 	height: 120px;
 }
 
+/* ========================================================================= */
+.filebox label {
+  display: inline-block;
+  padding: .5em .75em;
+  color: #fff;
+  font-size: inherit;
+  line-height: normal;
+  vertical-align: middle;
+  background-color: #5cb85c;
+  cursor: pointer;
+  border: 1px solid #4cae4c;
+  border-radius: .25em;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+
+.filebox label:hover {
+  background-color: #6ed36e;
+}
+
+.filebox label:active {
+  background-color: #367c36;
+}
+
+.filebox input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+/* ========================================================================= */
+
+
 .user_item{
 	position: relative;
 	display: -ms-flexbox;
@@ -51,7 +88,6 @@ img{
 </head>
 <body>
     <script src="../js/chat.js"></script>
-		<link rel="stylesheet" type="text/css" href="../css/calendar-heatmap.css">
     <script>
 Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return this.getAttribute("data-"+a[0]);else this.setAttribute("data-"+a[0],a[1]);return this;};
 window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
@@ -112,10 +148,10 @@ window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
 
 const oauth = localStorage.getItem("oauth");
 const rawauth = document.location.href.replace("#", "?");
-window.channel = getParams("channel",rawauth) || "neocats_";
+window.channel = getParams("channel",rawauth);
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
-const base_img = "https://static-cdn.jtvnw.net/user-default-pictures-uv/de130ab0-def7-11e9-b668-784f43822e80-profile_image-70x70.png";
+const base_img = "http://placehold.it/58x58";
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단
 //"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
@@ -134,6 +170,16 @@ if(oauth){
 window.broadcaster = JSON.parse(getApi("kraken/users?login=" + window.channel,false)).users[0];
 // window.stream = JSON.parse(getApi("kraken/channels/" + window.broadcaster["_id"],false));
 // 스트리머 정보 https://dev.twitch.tv/docs/v5/reference/channels#get-channel-by-id
+window.user = JSON.parse(getChannel(oauth));
+
+
+if(!window.channel){
+	location.href = window.oauth_redirect_uri;
+}
+
+window.isbroadcast = false;
+if(window.broadcaster["_id"] == window.user["user_id"])
+	window.isbroadcast = true;
 
 window.onload = function() {
 	document.getElementById("loading_channel").html(window.channel);
@@ -142,7 +188,6 @@ window.onload = function() {
 
   // console.log(l);
 	console.log(window.broadcaster);
-	console.log(window.stream);// followers
 	load_list(window.broadcaster["_id"]);
 }
 
@@ -164,11 +209,27 @@ function load_list(target,cursor){
 	});
 }
 
+function reset(){
+	document.getElementById("day_start").value ="";
+	document.getElementById("day_end").value ="";
+	document.getElementById("time_start").value ="";
+	document.getElementById("time_end").value ="";
+	list_followers(window.users,'user_list');
+}
+
+function out_file(l){
+	var out =[];
+	l.forEach((item, i) => {
+		out.push(item.created_at + "\t" + item.user["_id"] + "\t" + item.user.name + "\t" + item.user["display_name"]);
+	});
+	return out;
+}
+
 function list_filter(l){
-	if (document.getElementById("day_start").value == "" || document.getElementById("day_end").value == "" ||
-		document.getElementById("time_start").value == "" || document.getElementById("time_end").value == "")return l;
-	var s_d = new Date(document.getElementById("day_start").value +" " + document.getElementById("time_start").value);
-	var e_d = new Date(document.getElementById("day_end").value +" " + document.getElementById("time_end").value);
+	if (document.getElementById("day_start").value == "" && document.getElementById("day_end").value == "" &&
+		document.getElementById("time_start").value == "" && document.getElementById("time_end").value == "")return l;
+	var s_d = new Date((document.getElementById("day_start").value == ""? new Date("1999-01-01").format("yyyy-MM-dd"):document.getElementById("day_start").value) +" " + (document.getElementById("time_start").value == ""? new Date("1999-01-01 00:00").format("HH:mm"):document.getElementById("time_start").value));
+	var e_d = new Date((document.getElementById("day_end").value == ""? new Date().format("yyyy-MM-dd") :document.getElementById("day_end").value ) +" " + (document.getElementById("time_end").value == ""? new Date().format("HH:mm"):document.getElementById("time_end").value));
 	if(s_d > e_d){
 		var tmp = s_d;
 		s_d = e_d;
@@ -177,7 +238,7 @@ function list_filter(l){
 	console.log(s_d, e_d);
 	return l.filter(function(item){
 		var day = new Date(item.created_at);
-		return s_d <= day && day <= e_d;
+		return (s_d <= day && day <= e_d);
 	});
 }
 
@@ -198,34 +259,32 @@ function list_followers(l,target_id){
 		ele.data("id",i.user["_id"]);
 		td.styles("cursor","pointer");
 		td.setAttribute("rowspan","3");//
-		td.C("img").A("src",base_img).data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
+		td.C("img").styles("width","58px").styles("height","58px").A("src","").data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
 		if(i.user.display_name == i.user.name)
 				tr.C("td").html(i.user.display_name).styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		else
 				tr.C("td").html(i.user.display_name + "("+i.user.name+")").styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		tr = ele.C("tr")
 		tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
-		tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
-			//https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
-			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
-			//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
-			var table = this.parentNode.parentNode;
-			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
-				if(c == "")return;
-				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"DELETE",function(a,b,c){
+		if(window.isbroadcast)
+			tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
+				var table = this.parentNode.parentNode;
+				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
+					if(c == "")return;
+					twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"DELETE",function(a,b,c){
+						if(c == "")return;
+						table.remove();
+					});
+				});
+			};
+		if(window.isbroadcast)
+			tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
+				var table = this.parentNode.parentNode;
+				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
 					if(c == "")return;
 					table.remove();
 				});
-			});
-		};
-		tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
-			var table = this.parentNode.parentNode;
-			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
-			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
-				if(c == "")return;
-				table.remove();
-			});
-		};;
+			};;
 		tr = ele.C("tr")
 		tr.C("td").html("followd :"+new Date(i.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 		tr.C("td").html('<a title="Start At"><i class="fas fa-long-arrow-alt-right"></i></a>').styles("cursor","pointer").onclick=function(){
@@ -302,11 +361,20 @@ function isIE() {
 /// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
     </script>
 		<div class="" style="text-align:center;">
+			<div class="">
+				<h1 style="color:red">경고!</h1>이 채널은 사용자의 팔로우 리스트를 관리합니다.!<br> 스트리머 본인의 팔로우 리스트를 수정 하실때에는 주의하여 주시기 바랍니다!
+				<h4>팔로우가 해재되었을 경우, 복구가 불가능합니다!</h4>
+			</div>
 			channel:<span id="loading_channel">None</span>load :<span id="loading">0/0</span>&nbsp;&nbsp;
 			필터:<input type="date" id="day_start" name="trip-start"><input id="time_start" type="time">
 			~<input type="date" id="day_end" name="trip-start"><input id="time_end" type="time">
 			<button type="button" name="button" onclick="list_followers(list_filter(window.users),'user_list');">적용</button>
-			<button type="button" name="button" onclick="list_followers(window.users,'user_list');">초기화</button>
+			<button type="button" name="button" onclick="reset()">초기화</button>
+			<button type="button" name="button" onclick="save('userlist.txt', out_file(list_filter(window.users)).join('\r\n') )">유저목록 다운로드</button>
+			<!-- <div class="filebox">
+			  <label for="ex_file">업로드</label>
+			  <input type="file" id="ex_file">
+			</div> -->
 		</div>
 		<div id="chart_list">
 
