@@ -225,7 +225,7 @@ window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
 //window.oauth_redirect_uri = "http://10.42.0.167/";
 
-const oauth = localStorage.getItem("oauth") || "dfae66bk3zyj5t83d1ff5fppzdtglm";
+const oauth = localStorage.getItem("oauth");
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_follows_edit"];
@@ -233,17 +233,17 @@ const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","w
 //"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
 
 //=======================================================================================================
-// if (document.location.hash.indexOf("access_token")!=-1){
-//     permiss(permissions);
-// }else{
-//     if(oauth){
-//         if(!isPermiss()){
-//             localStorage.removeItem("oauth");
-//             alert("세션이 만료되어 로그아웃 되셧습니다!\n다시 로그인 해주세요!");
-//             permiss(permissions);
-//         }
-//     }else permiss(permissions);
-// }
+if (document.location.hash.indexOf("access_token")!=-1){
+    permiss(permissions);
+}else{
+    if(oauth){
+        if(!isPermiss()){
+            localStorage.removeItem("oauth");
+            alert("세션이 만료되어 로그아웃 되셧습니다!\n다시 로그인 해주세요!");
+            permiss(permissions);
+        }
+    }else permiss(permissions);
+}
 //=======================================================================================================
 const rawauth = document.location.href.replace("#", "?");
 window.channel = getParams("channel",rawauth);
