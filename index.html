@@ -402,7 +402,7 @@ function viewbot(keyword){
 		var lst = 0;
 		window.bans = window.bans || [];
 		window.chatClientE.chats.filter((item)=>{
-				return item[2].indexOf("멍충아") != -1;
+				return item[2].indexOf(keyword) != -1;
 		}).filter((item)=>{console.log(item[1]);
 			if(window.bans.indexOf(item[1]) != -1)
 				return false;
@@ -506,7 +506,7 @@ function getApi(url,isOauth){ //  OAuth
         <!-- <button>뷰봇탐지</button>
         <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br> -->
         <!-- 서버DB를 통하여 뷰봇탐지 -->
-        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 5){alert('5자이상 입력해 주세요!');return;}viewbot(c);">채팅탐지</button>
+        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}viewbot(c);">채팅탐지</button>
         <br>채팅 기록을 불러와 필터링 합니다...<h1>경고</h1>
 				<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span><br>
 				<button onclick="window.open('https://patrickmonster.github.io/moderator/followers/?channel='+window.channel)">팔로우 필터</button>
