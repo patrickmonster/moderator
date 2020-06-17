@@ -285,6 +285,7 @@ window.bot = {
 				localStorage.setItem("command",JSON.stringify(window.bot.commands));
         list_commands("command");// 리스트 초기화
     },"badlangs":[],"addBadlangs":function(com){
+				if(window.bot.badlangs.indexOf(com)!= -1)return;
         window.bot.badlangs.push(com)
         window.bot.console("금지어 추가됨 :" + com);
 				localStorage.setItem("badlangs",JSON.stringify(window.bot.badlangs));
