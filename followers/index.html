@@ -176,7 +176,7 @@ function list_filter(l){
 	console.log(s_d, e_d);
 	return l.filter(function(item){
 		var day = new Date(item.created_at);
-		return s_d < day && day < e_d;
+		return s_d <= day && day <= e_d;
 	});
 }
 
