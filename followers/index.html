@@ -208,9 +208,11 @@ function list_followers(l,target_id){
 			//https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
 			// twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/follows/channels/" + window.broadcaster["_id"],"DELETE",function(a,b,c){;});
 			//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
-			twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/blocks/" + window.broadcaster["_id"],"PUT",function(a,b,c){
-				twtichApi("kraken/users/" + this.parentNode.parentNode.data("id") + "/blocks/" + window.broadcaster["_id"],"DELETE",function(a,b,c){
+			var table = this.parentNode.parentNode;
+			twtichApi("kraken/users/" + table.data("id") + "/blocks/" + window.broadcaster["_id"],"PUT",function(a,b,c){
+				twtichApi("kraken/users/" + table.data("id") + "/blocks/" + window.broadcaster["_id"],"DELETE",function(a,b,c){
 					console.log("제거완료");
+
 				});
 			});
 		};
@@ -261,6 +263,36 @@ function twtichApi(url,type,func){ //  PUT/ DELETE
     xmlhttp.setRequestHeader("Authorization", "OAuth " + oauth);
     xmlhttp.send();
 }
+
+function saveToFile_Chrome(fileName, content) {
+    var blob = new Blob([content], { type: 'text/plain' });
+    objURL = window.URL.createObjectURL(blob);
+    if (window.__Xr_objURL_forCreatingFile__) {
+        window.URL.revokeObjectURL(window.__Xr_objURL_forCreatingFile__);
+    }
+    window.__Xr_objURL_forCreatingFile__ = objURL;
+    var a = document.createElement('a');
+    a.download = fileName;
+    a.href = objURL;
+    a.click();
+}
+
+function saveToFile_IE(fileName, content) {
+    var blob = new Blob([content], { type: "text/plain", endings: "native" });
+    window.navigator.msSaveBlob(blob, fileName);
+    //window.navigator.msSaveOrOpenBlob(blob, fileName);
+}
+
+function save(fileName, content){
+	if(isIE())saveToFile_IE(fileName, content);
+	else saveToFile_Chrome(fileName, content);
+}
+
+function isIE() {
+    return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
+        navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
+}
+
 //tuesucmd / 봇
 /// scp index.html pi@10.42.0.167:/var/www/html/
 /// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
