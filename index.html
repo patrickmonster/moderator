@@ -504,8 +504,7 @@ function getApi(url,isOauth){ //  OAuth
 				<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span><br>
 				<button onclick="window.open('https://patrickmonster.github.io/moderator/followers/?channel='+window.channel)">팔로우 필터</button>
         <br>팔로우 일시를 기준으로 필터링 합니다.<br>
-
-        <!-- 채팅 기록을 통하여 유저 탐지 -->
+				<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
     </div>
     <div class="block alr" style="background: #949494;height: 275px;border-radius: 30px 30px 0 0;">
         <div class="scroll" style="height: 250px;">
@@ -522,21 +521,6 @@ input.largeinput{
     border: 0px;
     border-bottom: 1px solid;
 }
-/*
-header #right-search-form>input[type='text']{
-  box-shadow: none;
-  background: none;
-}
-
-header #right-search-form:hover > input[type='text']{
-  box-shadow: 0 0 4px 2px #8181ff;
-}
-header #right-search-form:hover>#right-search-btn>i{
-  box-shadow: none;
-  background: #cbc1fa;
-  color: #fff;
-}
-*/
     </style>
 </body>
 </html>

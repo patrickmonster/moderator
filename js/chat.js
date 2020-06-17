@@ -9,7 +9,6 @@ const escapeRegExp = str=>str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 
 const chatClient = function chatClient(options){
 	var makeRandom=(min,max)=>{return Math.floor(Math.random()*(max-min+1))+min}
-	window.oauth_redirect_uri=this.redirect_uri = "https://patrickmonster.github.io/tgd/twitch/tts.html";
 	if(!options.password){
 		this.password = "SCHMOOPIIE";//익명의 사용자
 		this.username = "justinfan"+makeRandom(1,65535);//참고 https://inspect.cool/2018/08/31/twitch/
