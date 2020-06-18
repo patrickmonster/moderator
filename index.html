@@ -296,7 +296,7 @@ window.bot = {
         c.C("td").html(new Date().format("mm:ss")).style.color=color;
         c.C("td").html(log).style.color=color;
         scrollDiv(document.getElementById("console_scroll"));
-    },"viewbot",function(keyword){//window.bot.viewbot
+    },"viewbot":function(keyword){//window.bot.viewbot
 				var lst = 0;
 				window.bans = window.bans || {};
 				window.chatClientE.chats.filter((item)=>{
