@@ -220,7 +220,7 @@ function reset(){
 function out_file(l){
 	var out =[];
 	l.forEach((item, i) => {
-		out.push(item.created_at + "\t" + item.user["_id"] + "\t" + item.user.name + "\t" + item.user["display_name"]);
+		out.push(item.created_at + "\t" + item.user["_id"] + "\t" + pad(item.user.name,25) + "\t" + item.user["display_name"]);
 	});
 	return out;
 }
@@ -300,6 +300,11 @@ function list_followers(l,target_id){
   });
 }
 
+function pad(n, width){
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+}
+
 function getApi(url,func,isOauth){ //  OAuth
     var xmlhttp = new XMLHttpRequest(),channel="";
     xmlhttp.onreadystatechange=function(){
@@ -350,7 +355,6 @@ function save(fileName, content){
 	if(isIE())saveToFile_IE(fileName, content);
 	else saveToFile_Chrome(fileName, content);
 }
-
 function isIE() {
     return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
         navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
