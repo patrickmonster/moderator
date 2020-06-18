@@ -379,9 +379,9 @@ window.chatClientE.onChating = function(parsed){
 window.chatClientE.onJoin = function(message){
 		if(message==chat_user["login"]){// 본인ㄷㄷㄷㅈ
 			window.bot.console(window.channel +"채널에 접속함");
-			window.chatClientE.onSend("/mods");
 			if(chat_user["login"]==window.channel)
 				window.chatClientE.isModes = true;
+			else window.chatClientE.onSend("/mods");
 			return;
 		}
 		if(!window.chatClientE.isModes)return;
