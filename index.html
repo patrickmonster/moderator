@@ -175,6 +175,7 @@ window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.inn
 Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
 Element.prototype.html=function(str){this.innerHTML = str;return this};
+Element.prototype.A=function(a,b){this[a]=b;return this};
 String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
 String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
 Number.prototype.zf = function (len) { return this.toString().zf(len); };
@@ -377,7 +378,8 @@ window.chatClientE.onChating = function(parsed){
 };
 window.chatClientE.onJoin = function(message){
 		if(message==chat_user["login"]){// 본인ㄷㄷㄷㅈ
-			window.bot.console(window.channel +"에 접속함");
+			window.bot.console(window.channel +"채널에 접속함");
+			window.chatClientE.onSend("/mods");
 			if(chat_user["login"]==window.channel)
 				window.chatClientE.isModes = true;
 			return;
@@ -401,7 +403,13 @@ window.chatClientE.onSys=function onSys(message){
 						window.chatClientE.mods = args[3].substr(1).split(", ");// 매니져 리스트
 						if(window.chatClientE.mods.indexOf(chat_user["login"]) != -1)
 							window.chatClientE.isModes = true;
-						else alert("당신은 이 방의 중재자(매니저)가 아닙니다!");
+						else {
+							alert("당신은 이 방의 중재자(매니저)가 아닙니다!\n일부 기능이 제외됩니다!");
+							document.getElementById("is_commands").A("disabled",true).checked=false;
+							document.getElementById("command_scroll").style.display = "none";
+							document.getElementById("user_scroll").style.display = "none";
+							document.getElementById("badlangs_scroll").style.display = "none";
+						}
 					}
 					window.bot.console(message.split(":")[2],"red");
 				}
