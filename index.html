@@ -289,15 +289,31 @@ window.bot = {
         window.bot.console("금지어 추가됨 :" + com);
 				localStorage.setItem("badlangs",JSON.stringify(window.bot.badlangs));
         list_commands("badlangs");// 리스트 초기화
-    },
-    "console_index":1,"console":function(log,color){
+    },"console_index":1,"console":function(log,color){
         if(!color)color="#000"
-        var console = document.getElementById("console").C("tr");
-        console.C("td").html(this["console_index"]++).style.color=color;
-        console.C("td").html(new Date().format("mm:ss")).style.color=color;
-        console.C("td").html(log).style.color=color;
+        var c = document.getElementById("console").C("tr");
+        c.C("td").html(this["console_index"]++).style.color=color;
+        c.C("td").html(new Date().format("mm:ss")).style.color=color;
+        c.C("td").html(log).style.color=color;
         scrollDiv(document.getElementById("console_scroll"));
-    }
+    },"viewbot",function(keyword){//window.bot.viewbot
+				var lst = 0;
+				window.bans = window.bans || {};
+				window.chatClientE.chats.filter((item)=>{
+						return item[2].indexOf(keyword) != -1;
+				}).filter((item)=>{
+					if(window.bans.hasOwnProperty(item[1]))
+						return false;
+					window.bans[item[1]] = item.join("\t");
+					return true;
+				}).forEach((item, i) => {
+						window.chatClientE.onSend("/ban " + item[0]);
+						window.bot.console("viewbot:" + item[0] + "|"+item[1]);
+						lst = i + 1;
+				});
+				window.chatClientE.onSend("/me " + lst + "명 처리하였습니다 - " + window.oauth_redirect_uri);
+				window.bot.console("viewbot:" + lst + "명 처리함");
+		}
 }
 
 if (!/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length < 2 ){
@@ -336,7 +352,9 @@ window.chatClientE.open();
 window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
 window.chatClientE.onCommand =function(message,parsed){;};// 관리자 명령
 window.chatClientE.chats = []
+window.chatClientE.isModes=false;
 window.chatClientE.onChating = function(parsed){
+		if(!window.chatClientE.isModes)return;
 		window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
     for (var i of window.bot.badlangs){
         if(parsed.message.indexOf(i) != -1){
@@ -358,6 +376,13 @@ window.chatClientE.onChating = function(parsed){
 		}
 };
 window.chatClientE.onJoin = function(message){
+		if(message==chat_user["login"]){// 본인ㄷㄷㄷㅈ
+			window.bot.console(window.channel +"에 접속함");
+			if(chat_user["login"]==window.channel)
+				window.chatClientE.isModes = true;
+			return;
+		}
+		if(!window.chatClientE.isModes)return;
     window.bot.console(message+" 님이 입장하였습니다");
     var consoles = document.getElementById("user").C("tr"),cc = this;
     consoles.data("user",message);
@@ -370,7 +395,16 @@ window.chatClientE.onJoin = function(message){
 };
 window.chatClientE.onSys=function onSys(message){
     try{
-        if(message.indexOf("NOTICE")!=-1)window.bot.console(message.split(":")[2],"red");
+        if(message.indexOf("NOTICE")!=-1){//window.channel
+					var args = message.split(" ");
+					if(args[0].split("=")[1]=="room_mods" && args.length >= 4){//매니져 존재유무
+						window.chatClientE.mods = args[3].substr(1).split(", ");// 매니져 리스트
+						if(window.chatClientE.mods.indexOf(chat_user["login"]) != -1)
+							window.chatClientE.isModes = true;
+						else alert("당신은 이 방의 중재자(매니저)가 아닙니다!");
+					}
+					window.bot.console(message.split(":")[2],"red");
+				}
         else if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{} style='cursor:pointer'>호스팅 해제</span>");
 				else if(message.indexOf("CLEARCHAT")!=-1)window.bot.console("채팅이 모두 제거되었습니다!","red");
     }catch (e) {window.bot.console(e);}
@@ -398,26 +432,6 @@ window.onload = function() {
     list_commands("command");
 }
 
-function viewbot(keyword){
-		//window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
-		var lst = 0;
-		window.bans = window.bans || {};
-		window.chatClientE.chats.filter((item)=>{
-				return item[2].indexOf(keyword) != -1;
-		}).filter((item)=>{
-			if(window.bans.hasOwnProperty(item[1]))
-				return false;
-			window.bans[item[1]] = item.join("\t");
-			return true;
-		}).forEach((item, i) => {
-				window.chatClientE.onSend("/ban " + item[0]);
-				window.bot.console("viewbot:" + item[0] + "|"+item[1]);
-				lst = i + 1;
-		});
-		window.chatClientE.onSend("/me " + lst + "명 처리하였습니다 - " + window.oauth_redirect_uri);
-		window.bot.console("viewbot:" + lst + "명 처리함");
-}
-
 function list_commands(target){
     var list = document.getElementById(target).html(""),l;
 		if (target == "command")l = window.bot.commands;
@@ -434,7 +448,6 @@ function list_commands(target){
 				if(target != "badlangs")
         	tr.C("td").html(i);
         tr.C("td").html(l[i]);
-        // tr.C("td").html('<input type="checkbox" class="checkbox" checked>');
         tr.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>제거</span>').onclick=function(e){
             e.preventDefault();
             var index = this.parentElement.parentElement.data(target);
@@ -472,6 +485,7 @@ function getApi(url,isOauth){ //  OAuth
     xmlhttp.send();
     return channel;
 }
+
 function saveToFile_Chrome(fileName, content) {
     var blob = new Blob([content], { type: 'text/plain' });
     objURL = window.URL.createObjectURL(blob);
@@ -536,7 +550,7 @@ function isIE() {
         <!-- <button>뷰봇탐지</button>
         <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br> -->
         <!-- 서버DB를 통하여 뷰봇탐지 -->
-        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}viewbot(c);">채팅탐지</button>
+        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
 				<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
         <br>채팅 기록을 불러와 필터링 합니다...<h1>경고</h1>
 				<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span><br>
