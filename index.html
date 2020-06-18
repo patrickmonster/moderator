@@ -398,9 +398,9 @@ window.chatClientE.onJoin = function(message){
 window.chatClientE.onSys=function onSys(message){
     try{
         if(message.indexOf("NOTICE")!=-1){//window.channel
-					var args = message.split(" ");
-					if(args[0].split("=")[1]=="room_mods" && args.length >= 4){//매니져 존재유무
-						console.log(message);
+					var args = message.split(":");
+					console.log(args);
+					if(args[0].split("=")[1]=="room_mods " && args.length >= 4){//매니져 존재유무
 						window.chatClientE.mods = args[3].substr(1).split(", ");// 매니져 리스트
 						console.log(window.chatClientE.mods);
 						if(window.chatClientE.mods.indexOf(chat_user["login"]) != -1)
