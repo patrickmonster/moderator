@@ -444,6 +444,13 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 							document.getElementById("badlangs_scroll").style.display = "none";
 						}
 						return;
+					}else if(args[0].split("=")[1]=="no_mods "){
+						alert("이 방은 중재자(매니저)가 없습니다!");
+						document.getElementById("is_commands").A("disabled",true).checked=false;
+						document.getElementById("command_scroll").style.display = "none";
+						document.getElementById("user_scroll").style.display = "none";
+						document.getElementById("badlangs_scroll").style.display = "none";
+						return;
 					}
 					window.bot.console(message.split(":").slice(2).join(":"),"red");
 				}
