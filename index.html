@@ -493,10 +493,10 @@ function list_commands(target){
 		else l = window.bot[target];
     for (var i in l){
         var tr = list.C("tr");
-        tr.data(target,i)
+        tr.data(target,i);
 				if(target == "command")
         	tr.C("td").html(i);
-        tr.C("td").html(l[i]).onclick=function(){
+        tr.C("td").styles("cursor","pointer").html(l[i]).onclick=function(){
             var index = this.data(target);
             if(target=="command")window.bot.addCommand(index,window.bot.commands[index]);
 						else if(target=="msg")window.chatClientE.onSend(l[i]);
