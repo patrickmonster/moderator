@@ -10,6 +10,7 @@ document.cookie = "crossCookie=bar; SameSite=None; Secure";
 		</script>
     <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
 		<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
+		<script src= "https://player.twitch.tv/js/embed/v1.js"></script>
 	<style>
 *{
 	margin: 0px;
@@ -486,6 +487,16 @@ window.onload = function() {
 
 		list_commands("badlangs");
     list_commands("command");
+		//플레이어
+		var options = {
+		  width: 854,
+		  height: 480,
+		  channel: window.channel,
+		  parent: [location.hostname]
+		};
+		window.chatClientE.player= new Twitch.Player("player_ui", options);
+		window.chatClientE.player.setVolume(0.5);
+		document.getElementById("channel_title").innerHTML=window.channel;
 		console.log(window.version);
 }
 
@@ -574,6 +585,11 @@ function isIE() {
 /// scp index.html pi@10.42.0.167:/var/www/html/
 /// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
     </script>
+		<div class="block" style="width: 854px !important;height: 540px !important;position:relative;transition: 1s;background:#0086ff7a">
+			<h2>채널 <span id="channel_title"></span>에 접속!</h2>
+			<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?document.getElementById('player_ui').styles('opacity','1').styles('display','block').parentNode.styles('height','540px').styles('width','854px')&&window.chatClientE.player.play():document.getElementById('player_ui').styles('opacity','0').styles('display','none').parentNode.styles('height','32px').styles('width','400px');window.chatClientE.player.pause()" checked>
+			<div id="player_ui" style="transition:0.5s"></div>
+		</div>
     <div class="block">
         <iframe id=chat_ui frameborder="0" scrolling="no" height="600" width="400"></iframe>
     </div>
@@ -584,7 +600,7 @@ function isIE() {
 				</div>
     </div>
     <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;position:relative;transition: 1s;">
-        <h2>채팅 명령<input type="checkbox" id="is_commands" title="확장/축소" class="checkbox" checked><button onclick="window.bot.addCommand();">추가</button></h2>
+        <h2>채팅 명령<input type="checkbox" id="is_commands" class="checkbox" checked><button onclick="window.bot.addCommand();">추가</button></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
         <div class="scroll " style="height:calc( 100% - 35px );"><table id=command>
             <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
@@ -595,14 +611,14 @@ function isIE() {
     </div>
     <div class="block" style="background: #8cff55;height: 300px;position:relative;transition: 1s;">
 				<h2>채팅유저</h2>
-				<input type="checkbox" class="up_down" checked title="확장/축소" style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
 				<div class="scroll" id=user_scroll style="height:calc( 100% - 35px );">
 					<table id=user></table>
 				</div>
     </div>
     <div id=badlangs_scroll class="block" style="background: #f7ff00;height: 300px;position:relative;transition: 1s;">
 				<h2>금지어<button onclick="window.bot.addBadlangs();">추가</button></h2>
-				<input type="checkbox" class="up_down" checked title="확장/축소" style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
         <div class="scroll " style="height:calc( 100% - 35px );"><table id=badlangs></table></div>
     </div>
     <div class="block" style="background:#ff4343;height: 300px;color:#fff;">
@@ -618,7 +634,7 @@ function isIE() {
 				</div>
     </div>
     <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
-				<h2>오픈채팅</button><input type="checkbox" title="확장/축소" id="is_chat" class="checkbox" onclick="if(this.checked){this.parentNode.parentNode.styles('height','275px')}else{this.parentNode.parentNode.styles('height','55px')}"></h2>
+				<h2>오픈채팅</button><input type="checkbox" id="is_chat" class="checkbox" onclick="if(this.checked){this.parentNode.parentNode.styles('height','275px')}else{this.parentNode.parentNode.styles('height','55px')}"></h2>
         <div class="scroll" style="height:calc( 250px - 35px );">
             <table id=chat></table>
         </div>
@@ -653,13 +669,12 @@ a{
 }
     </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<script type="text/javascript">
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
 
-  gtag('config', 'UA-158025067-4');
+gtag('config', 'UA-158025067-4');
 </script>
-
 </body>
 </html>
