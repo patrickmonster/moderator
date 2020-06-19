@@ -462,9 +462,11 @@ window.onload = function() {
 
 		window.bot.commands = JSON.parse(localStorage.getItem("command") || "{}");
 		window.bot.badlangs = JSON.parse(localStorage.getItem("badlangs") || "[]");
+		window.bot.msg = JSON.parse(localStorage.getItem("msg") || "[]");
 
 		list_commands("badlangs");
     list_commands("command");
+		list_commands("msg");
 		//플레이어
 		var options = {
 		  width: 854,
@@ -481,7 +483,7 @@ window.onload = function() {
 function list_commands(target){
     var list = document.getElementById(target).html(""),l;
 		if (target == "command")l = window.bot.commands;
-		else if(target == "badlangs")l = window.bot.badlangs;
+		else l = window.bot[target];
     for (var i in l){
         var tr = list.C("tr");
         tr.data(target,i)
