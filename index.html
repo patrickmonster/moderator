@@ -384,6 +384,8 @@ window.chatClientE.chats = []
 window.chatClientE.isModes= localStorage.getItem("debug") || false;
 window.chatClientE.onChating = function(parsed){
 		if(!window.chatClientE.isModes)return;
+		if(window.chatClientE.users.indexOf(message)==-1)
+			window.chatClientE.users.push(parsed["display-id"]);
 		window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
     for (var i of window.bot.badlangs){
         if(parsed.message.indexOf(i) != -1){
@@ -459,7 +461,7 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
         else if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{}' style='cursor:pointer'>호스팅 해제</span>");
 				else if(message.indexOf("CLEARCHAT")!=-1){
 					//@ban-duration=<ban-duration> :tmi.twitch.tv CLEARCHAT #<channel> :<user>
-					if(message.indexOf("room-id")!= -1)
+					if(message.indexOf("room-id")!= -1 && message.indexOf("ban-duration") == -1)
 						window.bot.console("채팅이 모두 제거되었습니다!","red");
 					else {
 						var args = message.split(":");
