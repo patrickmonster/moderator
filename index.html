@@ -623,7 +623,7 @@ function isIE() {
     </div>
     <div class="block" style="background:#ff4343;height: 300px;color:#fff;">
         <h2>뷰봇/기능</h2>
-				<div class="scroll">
+				<div class="scroll" style="height:calc( 100% - 35px );">
 	        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
 					<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
 	        <br>채팅 기록을 불러와 벤합니다...
