@@ -492,7 +492,7 @@ function list_commands(target){
 		if (target == "command")l = window.bot.commands;
 		else l = window.bot[target];
     for (var i in l){
-				if(l[i]==null)return;
+				if(l[i]==null)continue;
         var tr = list.C("tr");
         tr.data(target,i);
 				if(target == "command")
