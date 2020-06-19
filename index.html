@@ -510,8 +510,7 @@ function list_commands(target){
 								localStorage.setItem("command",JSON.stringify(window.bot.commands));
             }else if(target=="badlangs" || target == "msg"){
 						    var data = window.bot[target][index];
-                delete window.bot[target][index];
-								// window.bot[target].length--;
+								window.bot[target] = window.bot.splice(index, 1);
 						    window.bot.console((target=="badlangs"?"금지어":"예약어")+ "제거됨 :" + data);
 								localStorage.setItem(target,JSON.stringify(window.bot[target]));
             }
