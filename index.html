@@ -381,7 +381,7 @@ window.chatClientE.open();
 window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
 window.chatClientE.onCommand =function(message,parsed){;};// 관리자 명령
 window.chatClientE.chats = []
-window.chatClientE.isModes=false;
+window.chatClientE.isModes= localStorage.getItem("debug") || false;
 window.chatClientE.onChating = function(parsed){
 		if(!window.chatClientE.isModes)return;
 		window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
