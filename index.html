@@ -278,16 +278,17 @@ window.bot = {
         scrollDiv(document.getElementById("console_scroll"));
     },"viewbot":function(keyword){//window.bot.viewbot
 				var lst = 0;
+				//window.chatClientE.chats.push([parsed["tmi-sent-ts"],parsed["user-id"],parsed["display-id"],parsed.message]);
 				window.chatClientE.chats.filter((item)=>{
-						return item[2].indexOf(keyword) != -1;
+						return item[3].indexOf(keyword) != -1;
 				}).filter((item)=>{
 					if(window.bans.hasOwnProperty(item[1]))
 						return false;
 					window.bans[item[1]] = item.join("\t");
 					return true;
 				}).forEach((item, i) => {
-						window.chatClientE.onSend("/ban " + item[0]);
-						window.bot.console("viewbot:" + item[0] + "|"+item[1]);
+						window.chatClientE.onSend("/ban " + item[2]);
+						window.bot.console("viewbot:" + item[2] + "|"+item[1]);
 						lst = i + 1;
 				});
 				window.chatClientE.onSend("/me " + lst + "명 처리하였습니다 - " + window.oauth_redirect_uri);
