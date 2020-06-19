@@ -477,21 +477,19 @@ function list_commands(target){
 		else if(target == "badlangs")l = window.bot.badlangs;
     for (var i in l){
         var tr = list.C("tr");
-        tr.data(target,i).onclick=function(){
+        tr.data(target,i)
+				if(target != "badlangs")
+        	tr.C("td").html(i);
+        tr.C("td").html(l[i]).onclick=function(){
             var index = this.data(target);
             if(target=="command")window.bot.addCommand(index,window.bot.commands[index]);
         };
-				if(target != "badlangs")
-        	tr.C("td").html(i);
-        tr.C("td").html(l[i]);
         tr.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>제거</span>').onclick=function(e){
             e.preventDefault();
             var index = this.parentElement.parentElement.data(target);
             if(target=="command"){
                 delete window.bot.commands[index];
                 window.bot.console("명령이 제거됨 :" + index);
-                document.getElementById("comm_c").value = "";
-                document.getElementById("comm_s").value = "";
 								localStorage.setItem("command",JSON.stringify(window.bot.commands));
             }else if(target=="badlangs"){
 						    var data = window.bot.badlangs[index]
