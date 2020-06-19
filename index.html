@@ -3,6 +3,11 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>Leaderboards</title>
+		<script type="text/javascript"
+document.cookie = "safeCookie1=foo; SameSite=Lax"
+document.cookie = "safeCookie2=foo"
+document.cookie = "crossCookie=bar; SameSite=None; Secure";
+		</script>
     <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
 		<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
 	<style>
@@ -121,7 +126,6 @@ table#console>tr>td{
 .checkbox:checked{
     background-color: #3498db;
 }
-
 .checkbox::before{
     content: "";
     position: inherit;
@@ -133,9 +137,25 @@ table#console>tr>td{
     margin: 4px 0 0 4px;
     display: block;
 }
-
 .checkbox:checked::before{
     margin-left: 23px;
+}
+/* ============================================================================= */
+.up_down{
+    top: 20px;
+    right: 20px;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    outline: none;
+    background: url('./img/down.png') left/20px no-repeat;
+    transition:1s;
+}
+
+.up_down:checked{
+  transform: rotate(180deg);
 }
 /* ============================================================================= */
 a.tip {
@@ -173,6 +193,7 @@ a.tip:hover span {
 Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return this.getAttribute("data-"+a[0]);else this.setAttribute("data-"+a[0],a[1]);return this;};
 window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
 Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+Element.prototype.styles=function(e,f){this.style[e]=f;return this};
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
 Element.prototype.html=function(str){this.innerHTML = str;return this};
 Element.prototype.A=function(a,b){this[a]=b;return this};
@@ -222,8 +243,7 @@ function getParams(name, address = window.location.href) {
 window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
 window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
-//window.oauth_redirect_uri = "http://10.42.0.167/";
-
+window.version = "Version.1.0.5";
 const oauth = localStorage.getItem("oauth");
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 
@@ -244,6 +264,7 @@ const rawauth = document.location.href.replace("#", "?");
 window.channel = getParams("channel",rawauth);
 
 console.log(window.channel);
+document.cookie="safeCookie"
 
 if(!window.channel){
     window.onload = function() {
@@ -276,15 +297,25 @@ window.bot = {
                 }
             }catch (e) {cc.onSend(params["display-name"] + "님은 아직 팔로우 하지 않았습니다!");}
         },
-    },"commands":{},"addCommand":function(com,msg){
-        window.bot.commands[com] = msg;
-        window.bot.console("명령이 추가됨 :" + com);
+    },"commands":{},"addCommand":function(c,v){
+				if(!c){
+					c = prompt('명령을 입력해 주세요','');
+					if(!c||c.length <=0){return;}
+				}
+				var v = prompt( '출력을 입력해 주세요!',v?v:"");
+				if(!v||v.length <= 0){alert("명령을 입력해 주세요");return;}
+				window.bot.commands[c] = v;
+        window.bot.console("명령이 추가됨 :" + c);
 				localStorage.setItem("command",JSON.stringify(window.bot.commands));
         list_commands("command");// 리스트 초기화
-    },"badlangs":[],"addBadlangs":function(com){
-				if(window.bot.badlangs.indexOf(com)!= -1)return;
-        window.bot.badlangs.push(com)
-        window.bot.console("금지어 추가됨 :" + com);
+    },"badlangs":[],"addBadlangs":function(c){
+				if(!c){
+					c = prompt('금지어를 입력해 주세요!','');
+					if(!c||c.length <=0){return;}
+				}
+				if(window.bot.badlangs.indexOf(c)!= -1)return;
+        window.bot.badlangs.push(c)
+        window.bot.console("금지어 추가됨 :" + c);
 				localStorage.setItem("badlangs",JSON.stringify(window.bot.badlangs));
         list_commands("badlangs");// 리스트 초기화
     },"console_index":1,"console":function(log,color){
@@ -319,8 +350,6 @@ if (!/[a-zA-Z0-9_]/.test(window.channel) && window.channel.length < 2 ){
     alert("채널명이 올바르지 않습니다");
     location.href = location.origin + location.pathname;
 }
-
-//"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
 var chat_user = JSON.parse(getChannel(oauth));
 if (chat_user.hasOwnProperty("error")){
     localStorage.removeItem("oauth");
@@ -348,11 +377,7 @@ window.chatClientC.onChating = function(parsed){
 };
 window.bot.chatClient = window.chatClientE = new chatClient({"channel":window.channel,"username":chat_user.login,"password":oauth});
 window.chatClientE.open();
-window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){
-	var v = this;
-	v.onCommand("연결재요청!");
-	setTimeout(function(){v.open()},1000);
-};
+window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
 window.chatClientE.onCommand =function(message,parsed){;};// 관리자 명령
 window.chatClientE.chats = []
 window.chatClientE.isModes=false;
@@ -385,14 +410,13 @@ window.chatClientE.onChating = function(parsed){
 window.chatClientE.onJoin = function(message){
 		if(message==chat_user["login"]){// 본인ㄷㄷㄷㅈ
 			window.bot.console(window.channel +"채널에 접속함");
-			window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+window.channel+"가 채널에 입장하였습니다.</a>");
 			if(chat_user["login"]==window.channel)
 				window.chatClientE.isModes = true;
 			else window.chatClientE.onSend("/mods");
 			return;
 		}
 		if(!window.chatClientE.isModes)return;
-    window.bot.console(message+" 님이 입장하였습니다");
+		window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+message+"가 채널에 입장하였습니다.</a>");
     var consoles = document.getElementById("user").C("tr"),cc = this;
     consoles.data("user",message);
     consoles.C("td").html(message);
@@ -439,7 +463,6 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 					}
 				}
 				else if(message.indexOf("CLEARMSG")!=-1)window.bot.console("메세지 삭제:"+this.parsedMessage(message)["message"],"red");
-				//CLEARMSG
     }catch (e) {window.bot.console(e);}
 };
 window.chatClientE.onConsole=function(message){
@@ -448,10 +471,10 @@ window.chatClientE.onConsole=function(message){
 
 window.chatClientE.onMessageDelete=function(msg_id){
     this.onSend("/delete "+ msg_id);
-    // window.bot.console("매세지가 삭제됨:" + msg_id);
 }
 
-window.chatClientE.broadcaster = JSON.parse(getApi("kraken/users?login=" + window.channel)).users[0]; // 스트리머 정보 https://dev.twitch.tv/docs/v5/reference/channels#get-channel-by-id
+window.chatClientE.broadcaster = JSON.parse(getApi("kraken/users?login=" + window.channel)).users[0];
+// 스트리머 정보 https://dev.twitch.tv/docs/v5/reference/channels#get-channel-by-id
 
 window.onload = function() {
     var chat = document.getElementById("chat_ui");
@@ -463,6 +486,7 @@ window.onload = function() {
 
 		list_commands("badlangs");
     list_commands("command");
+		console.log(window.version);
 }
 
 function list_commands(target){
@@ -473,10 +497,7 @@ function list_commands(target){
         var tr = list.C("tr");
         tr.data(target,i).onclick=function(){
             var index = this.data(target);
-            if(target=="command"){
-                document.getElementById("comm_c").value = index;
-                document.getElementById("comm_s").value = window.bot.commands[index];
-            }
+            if(target=="command")window.bot.addCommand(index,window.bot.commands[index]);
         };
 				if(target != "badlangs")
         	tr.C("td").html(i);
@@ -556,45 +577,49 @@ function isIE() {
     <div class="block">
         <iframe id=chat_ui frameborder="0" scrolling="no" height="600" width="400"></iframe>
     </div>
-    <div id=console_scroll class="scroll block" style="width: 600px !important;background: #afeae8;">
-        <table id=console>
-        </table>
+    <div class="block" style="width: 600px !important;background: #afeae8;">
+
+				<div id=console_scroll class="scroll" style="width: 100%;background: #afeae8;">
+	        <table id=console></table>
+				</div>
     </div>
-    <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;">
-        <h2>채팅 명령<input type="checkbox" id="is_commands" class="checkbox" checked>
-				<button onclick="">추가</button>
-				</h2>
-        <div class="scroll " style="height:calc( 100% - 70px );"><table id=command>
+    <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;position:relative;transition: 1s;">
+        <h2>채팅 명령<input type="checkbox" id="is_commands" class="checkbox" checked><button onclick="window.bot.addCommand();">추가</button></h2>
+				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+        <div class="scroll " style="height:calc( 100% - 35px );"><table id=command>
             <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
             <tr><td>팔로우</td><td>팔로우경과일을 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
         </table></div>
-        <input type="text" id=comm_c onkeypress="if(event.keyCode!=13 || this.value=='')return;document.getElementById('comm_s').focus()" placeholder="명령어" style="width: 10%;background: #fff;border: 0px;border-bottom: 1px solid;">
-        <input type="text" id="comm_s" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addCommand(document.getElementById('comm_c').value,this.value);document.getElementById('comm_c').value='';this.value='';" placeholder="설명" class="largeinput">
+        <!-- <input type="text" id=comm_c onkeypress="if(event.keyCode!=13 || this.value=='')return;document.getElementById('comm_s').focus()" placeholder="명령어" style="width: 10%;background: #fff;border: 0px;border-bottom: 1px solid;">
+        <input type="text" id="comm_s" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addCommand(document.getElementById('comm_c').value,this.value);document.getElementById('comm_c').value='';this.value='';" placeholder="설명" class="largeinput"> -->
     </div>
-    <div id=user_scroll class="scroll block" style="background: #74c0ff;height: 300px;">
-        <table id=user></table>
+    <div class="block" style="background: #8cff55;height: 300px;position:relative;transition: 1s;">
+				<h2>채팅유저</h2>
+				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+				<div class="scroll" id=user_scroll style="height:calc( 100% - 35px );">
+					<table id=user></table>
+				</div>
     </div>
-    <div id=badlangs_scroll class="block" style="background: #03A9F4;height: 300px;">
-        <div class="scroll " style="height:calc( 100% - 10% );"><table id=badlangs>
-        </table></div>
-        <input type="text" class="largeinput" placeholder="금지어(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addBadlangs(this.value);this.value='';">
-        <!-- <button>추가</button> -->
+    <div id=badlangs_scroll class="block" style="background: #f7ff00;height: 300px;position:relative;transition: 1s;">
+				<h2>금지어<button onclick="window.bot.addBadlangs();">추가</button></h2>
+				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+        <div class="scroll " style="height:calc( 100% - 35px );"><table id=badlangs></table></div>
     </div>
-    <div class="block" style="background:#ff4343;height: 300px;color:#fff">
+    <div class="block" style="background:#ff4343;height: 300px;color:#fff;">
         <h2>뷰봇/기능</h2>
-        <!-- <button>뷰봇탐지</button>
-        <br>서버 DB를 불러와 필터링 합니다... 장시간 걸릴수 있습니다.<br> -->
-        <!-- 서버DB를 통하여 뷰봇탐지 -->
-        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
-				<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
-        <br>채팅 기록을 불러와 벤합니다...
-				<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span><br>
-				<button onclick="window.open('https://patrickmonster.github.io/moderator/followers/?channel='+window.channel)">팔로우 필터</button>
-        <br>팔로우 일시를 기준으로 필터링 합니다.<br>
-				<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
+				<div class="scroll">
+	        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
+					<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
+	        <br>채팅 기록을 불러와 벤합니다...
+					<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span><br>
+					<button onclick="window.open('https://patrickmonster.github.io/moderator/followers/?channel='+window.channel)">팔로우 필터</button>
+	        <br>팔로우 일시를 기준으로 필터링 합니다.<br>
+					<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
+				</div>
     </div>
-    <div class="block alr" style="background: #949494;height: 275px;border-radius: 30px 30px 0 0;">
-        <div class="scroll" style="height: 250px;">
+    <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
+				<h2>오픈채팅</button><input type="checkbox" id="is_chat" class="checkbox" onclick="if(this.checked){this.parentNode.parentNode.styles('height','275px')}else{this.parentNode.parentNode.styles('height','55px')}"></h2>
+        <div class="scroll" style="height:calc( 250px - 35px );">
             <table id=chat></table>
         </div>
         <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
@@ -622,6 +647,9 @@ button:hover{
 }
 a{
 	cursor: pointer;
+}
+#console_scroll a{
+	color:blue;
 }
     </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>

@@ -151,11 +151,7 @@ const rawauth = document.location.href.replace("#", "?");
 window.channel = getParams("channel",rawauth);
 // const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_read","user_blocks_edit"];
 // 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단목록/수정
-const base_img = "http://placehold.it/58x58";
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
-// 메세지전송/읽기/채널상태변경/귓말전송/읽기/중재작업/차단
-//"{"client_id":"***","login":"neocats_","scopes":["channel:moderate","channel_editor","chat:edit","chat:read","whispers:edit","whispers:read"],"user_id":"129955642","expires_in":5250057}
-
 //=======================================================================================================
 
 if(oauth){
