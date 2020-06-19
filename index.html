@@ -385,7 +385,7 @@ window.chatClientE.isModes= localStorage.getItem("debug") || false;
 window.chatClientE.onChating = function(parsed){
 		if(!window.chatClientE.isModes)return;
 		if(window.chatClientE.users.indexOf(message)==-1)
-			window.chatClientE.users.push(parsed["display-id"]);
+			window.chatClientE.onJoin(parsed["display-id"]);
 		window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
     for (var i of window.bot.badlangs){
         if(parsed.message.indexOf(i) != -1){
