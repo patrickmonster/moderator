@@ -408,6 +408,7 @@ window.chatClientE.onChating = function(parsed){
 			}
 		}
 };
+window.chatClientE.users = [];
 window.chatClientE.onJoin = function(message){
 		if(message==chat_user["login"]){// 본인ㄷㄷㄷㅈ
 			window.bot.console(window.channel +"채널에 접속함");
@@ -416,9 +417,10 @@ window.chatClientE.onJoin = function(message){
 			else if(!localStorage.getItem("debug")) window.chatClientE.onSend("/mods");
 			return;
 		}
-		if(!window.chatClientE.isModes)return;
+		if(!window.chatClientE.isModes||window.chatClientE.users.indexOf(message)!=-1)return;
 		window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+message+"가 채널에 입장하였습니다.</a>");
-    var consoles = document.getElementById("user").C("tr"),cc = this;
+		window.chatClientE.users.push(message);//사용자 리스트
+		var consoles = document.getElementById("user").C("tr"),cc = this;
     consoles.data("user",message);
     consoles.C("td").html(message);
     consoles.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>벤</span>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
@@ -631,7 +633,7 @@ function isIE() {
     <div class="block" style="background:#ff4343;height: 300px;color:#fff;">
         <h2>뷰봇/기능</h2>
 				<div class="scroll" style="height:calc( 100% - 35px );">
-	        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(5자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
+	        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(3자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
 					<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
 	        <br>채팅 기록을 불러와 벤합니다...
 					<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span><br>
