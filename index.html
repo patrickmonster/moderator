@@ -369,7 +369,7 @@ window.chatClientE.onChating = function(parsed){
 window.chatClientE.users = [];
 window.chatClientE.isJoinMsg=false;
 window.chatClientE.onJoin = function(message){
-		if(message==chat_user["login"]&& window.chatClientE.isJoinMsg){// 본인ㄷㄷㄷㅈ
+		if(message==chat_user["login"]&& !window.chatClientE.isJoinMsg){// 본인ㄷㄷㄷㅈ
 			window.bot.console(window.channel +"채널에 접속함");
 			if(chat_user["login"]==window.channel)
 				window.chatClientE.isModes = true;
