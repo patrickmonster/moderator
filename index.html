@@ -360,7 +360,7 @@ window.chatClientE.onChating = function(parsed){
         window.bot.command[com[0]](this,parsed)
     }
 		for(var i of l){
-			if(com[0].indexOf(l)== -1)return;
+			if(com[0].indexOf(l)== -1)continue;
 			for (var c of window.bot.commands[com[0]].split("\n")){
 					this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
 			}
