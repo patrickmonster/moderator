@@ -63,6 +63,7 @@ chatClient.prototype.parseMessage = function(rawMessage) {
 		else parsedMessage["message"] = rawMessage
 	}else if (rawMessage.indexOf("PING") != -1){
 		parsedMessage['PING'] = rawMessage.substring(rawMessage.indexOf(":")+1);
+		this.webSocket.send("PONG");
 		setTimeout(function(t){t.webSocket.send("PING")},60*1000,this);
 	}else {
 		for (var i = 0; i < data.length; i++){
@@ -100,8 +101,7 @@ chatClient.prototype.onMessage = function onMessage(message){
 				case "CLEARCHAT"://ban-duration
 					this.onDelChating(parsed);//
 					break;
-				case "USERSTATE":
-				break;
+				case "USERSTATE":break;
 				case "USERNOTICE":break;
 				case "PRIVMSG":
 					if (parsed["@ban-duration"])return;
