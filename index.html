@@ -413,7 +413,7 @@ window.chatClientE.onJoin = function(message){
 			window.bot.console(window.channel +"채널에 접속함");
 			if(chat_user["login"]==window.channel)
 				window.chatClientE.isModes = true;
-			else window.chatClientE.onSend("/mods");
+			else if(!localStorage.getItem("debug")) window.chatClientE.onSend("/mods");
 			return;
 		}
 		if(!window.chatClientE.isModes)return;
