@@ -434,7 +434,7 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 						}
 					}
 				}
-				else if(message.indexOf("CLEARMSG")!=-1)window.bot.console("메세지 삭제:"+this.parsedMessage(message)["message"],"red");
+				else if(message.indexOf("CLEARMSG")!=-1)window.bot.console("메세지 삭제:"+window.chatClientE.parsedMessage(message)["message"],"red");
     }catch (e) {window.bot.console(e);}
 };
 window.chatClientE.onConsole=function(message){
