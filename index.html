@@ -328,6 +328,10 @@ console.log(chat_user);
 window.chatClientC = new chatClient({"channel":"tuesucmd","username":chat_user.login,"password":oauth});
 window.chatClientC.open();
 window.chatClientC.onSys = _ =>{;};
+window.chatClientC.webSocket.onclose =function(){
+	window.chatClientC.onCommand("연결재요청!");
+	setTimeout(function(){window.chatClientC.open()},1000)
+};
 window.chatClientC.onChating = function(parsed){
     if(/(moderator|broadcaster)/i.test(parsed["badges"])){
         window.bot.console(parsed.message,"blue");
@@ -341,7 +345,10 @@ window.chatClientC.onChating = function(parsed){
 };
 window.bot.chatClient = window.chatClientE = new chatClient({"channel":window.channel,"username":chat_user.login,"password":oauth});
 window.chatClientE.open();
-window.chatClientC.webSocket.onclose = window.chatClientE.webSocket.onclose =function(){window.chatClient.onCommand("연결재요청!");setTimeout(function(){window.chatClientE.open()},1000)};
+window.chatClientE.webSocket.onclose =function(){
+	window.chatClientE.onCommand("연결재요청!");
+	setTimeout(function(){window.chatClientE.open()},1000)
+};
 window.chatClientE.onCommand =function(message,parsed){;};// 관리자 명령
 window.chatClientE.chats = []
 window.chatClientE.isModes= localStorage.getItem("debug") || false;
@@ -367,8 +374,8 @@ window.chatClientE.onChating = function(parsed){
         window.bot.command[com[0]](this,parsed)
     }
 		for(var i of l){
-			if(com[0].indexOf(l)== -1)continue;
-			for (var c of window.bot.commands[com[0]].split("\n")){
+			if(com[0].indexOf(i)== -1)continue;
+			for (var c of window.bot.commands[i].split("\n")){
 					this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
 			}
 		}
