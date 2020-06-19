@@ -503,7 +503,7 @@ function list_commands(target){
 								localStorage.setItem("command",JSON.stringify(window.bot.commands));
             }else if(target=="badlangs" || target == "msg"){
 						    var data = window.bot[target][index];
-                delete window.bot.[target][index];
+                delete window.bot[target][index];
 								window.bot[target].length--;
 						    window.bot.console((target=="badlangs"?"금지어":"예약어")+ "제거됨 :" + data);
 								localStorage.setItem(target,JSON.stringify(window.bot[target]));
@@ -557,7 +557,6 @@ function isIE() {
     return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
         navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
 }
-
 }
 //tuesucmd / 봇
 /// scp index.html pi@10.42.0.167:/var/www/html/
@@ -594,14 +593,14 @@ function isIE() {
 					<table id=user></table>
 				</div>
     </div>
-    <div class="block" style="width: 600px !important;background: #afeae8;">
+    <div class="block" style="width: 300px !important;height: 300px;background: #afeae8;">
 				<h2>예약명령<button onclick="window.bot.addMsg();">추가</button></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-				<div id=console_scroll class="scroll" style="width: 100%;background: #afeae8;">
+				<div id=console_scroll class="scroll" style="height:calc( 100% - 35px );background: #afeae8;">
 	        <table id=msgs></table>
 				</div>
     </div>
-    <div id=badlangs_scroll class="block" style="background: #f7ff00;height: 300px;position:relative;transition: 1s;">
+    <div id=badlangs_scroll class="block" style="background: #f7ff00;height: 300px;width: 300px;position:relative;transition: 1s;">
 				<h2>금지어<button onclick="window.bot.addBadlangs();">추가</button></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
         <div class="scroll " style="height:calc( 100% - 35px );"><table id=badlangs></table></div>
