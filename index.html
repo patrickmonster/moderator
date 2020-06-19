@@ -194,7 +194,7 @@ a.tip:hover span {
 window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
 window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
-window.version = "Version.1.0.6";
+window.version = "Version.1.1.0";
 const oauth = localStorage.getItem("oauth");
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 
@@ -497,7 +497,7 @@ function list_commands(target){
 				if(target == "command")
         	tr.C("td").html(i);
         tr.C("td").styles("cursor","pointer").html(l[i]).onclick=function(){
-            if(target=="command")window.bot.addCommand(this.innerHTML,window.bot.commands[this.innerHTML]);
+            if(target=="command")window.bot.addCommand(this.parentNode.data("command"),this.innerHTML);
 						else if(target=="msg")window.chatClientE.onSend(this.innerHTML);
         };
         tr.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>제거</span>').onclick=function(e){
