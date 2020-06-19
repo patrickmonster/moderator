@@ -384,7 +384,7 @@ window.chatClientE.chats = []
 window.chatClientE.isModes= localStorage.getItem("debug") || false;
 window.chatClientE.onChating = function(parsed){
 		if(!window.chatClientE.isModes)return;
-		if(window.chatClientE.users.indexOf(message)==-1)
+		if(window.chatClientE.users.indexOf(parsed["display-id"])==-1)
 			window.chatClientE.onJoin(parsed["display-id"]);
 		window.chatClientE.chats.push([parsed["user-id"],parsed["display-id"],parsed.message]);
     for (var i of window.bot.badlangs){
@@ -419,7 +419,7 @@ window.chatClientE.onJoin = function(message){
 			else if(!localStorage.getItem("debug")) window.chatClientE.onSend("/mods");
 			return;
 		}
-		if(!window.chatClientE.isModes||window.chatClientE.users.indexOf(message)!=-1)return;
+		if(!window.chatClientE.isModes||window.chatClientE.users.indexOf(message)!=-1|| !document.getElementById("is_join").checked)return;
 		window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+message+"가 채널에 입장하였습니다.</a>");
 		window.chatClientE.users.push(message);//사용자 리스트
 		var consoles = document.getElementById("user").C("tr"),cc = this;
@@ -471,7 +471,7 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 							window.bot.console("<a title='unban' onclick='window.chatClientE.onSend(\"\/unban "+args[2]+"\");this.onclick=_=>{}'>ban :"+args[2]+"</a>","red");
 						}else{//사용자 벤
 							args[0] = args[0].split(";")[0];
-							window.bot.console("<a title='unban' onclick='window.chatClientE.onSend(\"\/untimeout "+args[2]+"\");this.onclick=_=>{}'>timeout :"+args[0].split("=")[1]+" for "+args[2] + "</a>","red");
+							window.bot.console("<a title='untimeout' onclick='window.chatClientE.onSend(\"\/untimeout "+args[2]+"\");this.onclick=_=>{}'>timeout :"+args[0].split("=")[1]+" for "+args[2] + "</a>","red");
 						}
 					}
 				}
@@ -612,7 +612,7 @@ function isIE() {
 				</div>
     </div>
     <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;position:relative;transition: 1s;">
-        <h2>채팅 명령<input type="checkbox" id="is_commands" class="checkbox" checked><button onclick="window.bot.addCommand();">추가</button></h2>
+        <h2>채팅 명령<input type="checkbox" title="자동응답 on/off" id="is_commands" class="checkbox" checked><button onclick="window.bot.addCommand();">추가</button></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
         <div class="scroll " style="height:calc( 100% - 35px );"><table id=command>
             <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
@@ -622,7 +622,7 @@ function isIE() {
         <input type="text" id="comm_s" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addCommand(document.getElementById('comm_c').value,this.value);document.getElementById('comm_c').value='';this.value='';" placeholder="설명" class="largeinput"> -->
     </div>
     <div class="block" style="background: #8cff55;height: 300px;position:relative;transition: 1s;">
-				<h2>채팅유저</h2>
+				<h2>채팅유저<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
 				<div class="scroll" id=user_scroll style="height:calc( 100% - 35px );">
 					<table id=user></table>
