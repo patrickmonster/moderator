@@ -375,7 +375,7 @@ window.chatClientE.onChating = function(parsed){
     }
 		for(var i of l){
 			if(com[0].indexOf(i)== -1)continue;
-			for (var c of window.bot.commands[i].split("\n")){
+			for (var c of window.bot.commands[i].split("\\n")){
 					this.onSend(c.replace("{user}",parsed["display-id"]).replace("{id}",parsed["user-id"]).replace("{name}",parsed["display-name"]).replace("{channel}",window.chatClientE.broadcaster["display_name"]));
 			}
 		}
