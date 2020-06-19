@@ -300,6 +300,15 @@ window.bot = {
 			var winD = win.document;
 			window.user=user_id;
 			win.chats=window.chatClientE.chats.filter(item=>item[2]==user_id);
+		},"msg":[],"addMsg":function(){//예약명령 window.bot.msg
+				if(!c){
+					c = prompt('예약어를 입력해 주세요!','');
+					if(!c||c.length <=0){return;}
+				}
+				if(window.bot.msg.indexOf(c)!= -1)return;
+        window.bot.msg.push(c);
+				localStorage.setItem("msg",JSON.stringify(window.bot.msg));
+        list_commands("msg");// 리스트 초기화
 		}
 }
 
@@ -478,11 +487,12 @@ function list_commands(target){
     for (var i in l){
         var tr = list.C("tr");
         tr.data(target,i)
-				if(target != "badlangs")
+				if(target == "command")
         	tr.C("td").html(i);
         tr.C("td").html(l[i]).onclick=function(){
             var index = this.data(target);
             if(target=="command")window.bot.addCommand(index,window.bot.commands[index]);
+						else if(target=="msg")window.chatClientE.onSend(l[i]);
         };
         tr.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>제거</span>').onclick=function(e){
             e.preventDefault();
@@ -491,13 +501,12 @@ function list_commands(target){
                 delete window.bot.commands[index];
                 window.bot.console("명령이 제거됨 :" + index);
 								localStorage.setItem("command",JSON.stringify(window.bot.commands));
-            }else if(target=="badlangs"){
-						    var data = window.bot.badlangs[index]
-                delete window.bot.badlangs[index];
-								window.bot.badlangs.length--;
-						    window.bot.console("금지어 제거됨 :" + data);
-								localStorage.setItem("badlangs",JSON.stringify(window.bot.badlangs));
-                list_commands("badlangs");// 리스트 초기화
+            }else if(target=="badlangs" || target == "msg"){
+						    var data = window.bot[target][index];
+                delete window.bot.[target][index];
+								window.bot[target].length--;
+						    window.bot.console((target=="badlangs"?"금지어":"예약어")+ "제거됨 :" + data);
+								localStorage.setItem(target,JSON.stringify(window.bot[target]));
             }
             list_commands(target);
         }
@@ -583,6 +592,13 @@ function isIE() {
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
 				<div class="scroll" id=user_scroll style="height:calc( 100% - 35px );">
 					<table id=user></table>
+				</div>
+    </div>
+    <div class="block" style="width: 600px !important;background: #afeae8;">
+				<h2>예약명령<button onclick="window.bot.addMsg();">추가</button></h2>
+				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+				<div id=console_scroll class="scroll" style="width: 100%;background: #afeae8;">
+	        <table id=msgs></table>
 				</div>
     </div>
     <div id=badlangs_scroll class="block" style="background: #f7ff00;height: 300px;position:relative;transition: 1s;">
