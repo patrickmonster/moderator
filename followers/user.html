@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <script src="../js/main.js"></script>
+  <script type="text/javascript">
+function saveToFile_Chrome(fileName, content) {
+    var blob = new Blob([content], { type: 'text/plain' });
+    objURL = window.URL.createObjectURL(blob);
+    if (window.__Xr_objURL_forCreatingFile__) {
+        window.URL.revokeObjectURL(window.__Xr_objURL_forCreatingFile__);
+    }
+    window.__Xr_objURL_forCreatingFile__ = objURL;
+    var a = document.createElement('a');
+    a.download = fileName;
+    a.href = objURL;
+    a.click();
+}
+
+function saveToFile_IE(fileName, content) {
+    var blob = new Blob([content], { type: "text/plain", endings: "native" });
+    window.navigator.msSaveBlob(blob, fileName);
+    //window.navigator.msSaveOrOpenBlob(blob, fileName);
+}
+
+function save(fileName, content){
+	if(isIE())saveToFile_IE(fileName, content);
+	else saveToFile_Chrome(fileName, content);
+}
+
+function isIE() {
+    return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
+        navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
+}
+window.onload = function() {
+  document.head.C("title").html("채팅기록 :" + window.user);
+  var table = document.body.C("table"),tr=table.C("tr");
+  for(var i of ["시간","아이디","아이디[영문]","채팅"])
+    tr.C("td").html(i);
+  window.chats.forEach((item, i) => {
+    var tr = table.C("tr");
+    for(var i of item)tr.C("td").html(i);
+  });
+}
+function getChat(){
+  var o = [];
+  for(var i of window.chats)
+    o.push(i.join("\t"));
+  return o;
+}
+</script>
+<style media="screen">
+body>table>tr>td:nth-child(3){
+  width: 100px;
+}
+</style>
+</head>
+<body>
+  <button type="button" name="button" onclick="save(window.user+'.txt',getChat().join('\n'))">기록다운로드</button>
+</body>
+</html>
