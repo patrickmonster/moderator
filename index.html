@@ -194,7 +194,7 @@ a.tip:hover span {
 window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
 window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
-window.version = "Version.1.1.5";
+window.version = "Version.1.1.0";
 const oauth = localStorage.getItem("oauth");
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 
@@ -510,7 +510,8 @@ function list_commands(target){
 								localStorage.setItem("command",JSON.stringify(window.bot.commands));
             }else if(target=="badlangs" || target == "msg"){
 						    var data = window.bot[target][index];
-								window.bot[target] = window.bot[target].slice(index, 1);
+                delete window.bot[target][index];
+								// window.bot[target].length--;
 						    window.bot.console((target=="badlangs"?"금지어":"예약어")+ "제거됨 :" + data);
 								localStorage.setItem(target,JSON.stringify(window.bot[target]));
             }
