@@ -470,6 +470,7 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 						if(args[0]==""){
 							window.bot.console("<a title='unban' onclick='window.chatClientE.onSend(\"\/unban "+args[2]+"\");this.onclick=_=>{}'>ban :"+args[2]+"</a>","red");
 						}else{//사용자 벤
+							args[0] = args[0].split(";")[0];
 							window.bot.console("<a title='unban' onclick='window.chatClientE.onSend(\"\/untimeout "+args[2]+"\");this.onclick=_=>{}'>timeout :"+args[0].split("=")[1]+" for "+args[2] + "</a>","red");
 						}
 					}
