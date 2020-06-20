@@ -395,15 +395,12 @@ window.chatClientE.onJoin = function(message){
 		if(!window.chatClientE.isModes||window.chatClientE.users.indexOf(message)!=-1|| !document.getElementById("is_join").checked)return;
 		window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+message+"가 채널에 입장하였습니다.</a>");
 		window.chatClientE.users.push(message);//사용자 리스트
+		window.chatClientE.users.sort();
 		document.getElementById("chat_length").html(window.chatClientE.users.length+"");
-		var consoles = document.getElementById("user").C("tr"),cc = this;
-    consoles.data("user",message);
-    consoles.C("td").html(message).A("title","채팅기록 보기").styles("cursor","pointer").onclick = _ => {window.bot.usermsg(message)};
-    consoles.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>벤</span>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
-    consoles.C("td").C("a").data("timeout","10").addClass("tip").html('10<span>10초 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
-    consoles.C("td").C("a").data("timeout","1m").addClass("tip").html('1m<span>1분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
-    consoles.C("td").C("a").data("timeout","10m").addClass("tip").html('10m<span>10분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
-    consoles.C("td").C("a").data("timeout","1h").addClass("tip").html('1h<span>1시간 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+		var v = document.getElementById("user-input-filter").value;
+		if (v){
+			list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v)!=-1 ));
+		}else list_user(window.chatClientE.users);
 };
 window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits/10000
     try{
@@ -486,6 +483,20 @@ window.onload = function() {
 		window.chatClientE.player.setVolume(0.5);
 		document.getElementById("channel_title").innerHTML=window.channel;
 		console.log(window.version);
+}
+
+function list_user(l){
+	var target = document.getElementById("user").html("");
+	l.forEach((message, i) => {
+			var consoles = target.C("tr"),cc = window.chatClientE;
+			consoles.data("user",message);
+			consoles.C("td").html(message).A("title","채팅기록 보기").styles("cursor","pointer").onclick = _ => {window.bot.usermsg(message)};
+			consoles.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>벤</span>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
+			consoles.C("td").C("a").data("timeout","10").addClass("tip").html('10<span>10초 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+			consoles.C("td").C("a").data("timeout","1m").addClass("tip").html('1m<span>1분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+			consoles.C("td").C("a").data("timeout","10m").addClass("tip").html('10m<span>10분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+			consoles.C("td").C("a").data("timeout","1h").addClass("tip").html('1h<span>1시간 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+	});
 }
 
 function list_commands(target){
@@ -598,7 +609,8 @@ function isIE() {
     <div class="block" style="background: #8cff55;height: 300px;position:relative;transition: 1s;">
 				<h2>채팅유저 :<span id="chat_length" title="현재까지 방문집계">0</span>명<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-				<div class="scroll" id=user_scroll style="height:calc( 100% - 35px );">
+				<input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v)));" style="border: 0;width: 100%;padding: 0;color: #fff;background: #00000040;">
+				<div class="scroll" id=user_scroll style="height:calc( 100% - 55px );">
 					<table id=user></table>
 				</div>
     </div>
@@ -653,6 +665,15 @@ button{
 button:hover{
 	color:white;
 	background-color: skyblue;
+}
+div.scroll::-webkit-scrollbar-thumb {
+    /* width: 3px; */
+    background: #333;
+    border-radius: 500px;
+}
+div.scroll::-webkit-scrollbar {
+    width: 3px;
+    /* background: #ffffff36; */
 }
 a{
 	cursor: pointer;
