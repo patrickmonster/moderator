@@ -63,7 +63,6 @@ chatClient.prototype.parseMessage = function(rawMessage) {
 		else parsedMessage["message"] = rawMessage
 	}else if (rawMessage.indexOf("PING") != -1){
 		parsedMessage['PING'] = rawMessage.substring(rawMessage.indexOf(":")+1);
-		this.webSocket.send("PONG");
 		setTimeout(function(t){t.webSocket.send("PING")},60*1000,this);
 	}else {
 		for (var i = 0; i < data.length; i++){
@@ -90,7 +89,7 @@ chatClient.prototype.onMessage = function onMessage(message){
 		// this.onSys(message.data);
 		var messages = message.data.replace("\r","").split("\n");
 		for(var msg of messages){
-			this.onSys(msg);
+			if(this.onSys(msg))continue;//이미 처리햇으면
 			var parsed = this.parseMessage(msg);
 			if(parsed !== null){
 				switch(parsed.command){
@@ -101,7 +100,8 @@ chatClient.prototype.onMessage = function onMessage(message){
 				case "CLEARCHAT"://ban-duration
 					this.onDelChating(parsed);//
 					break;
-				case "USERSTATE":break;
+				case "USERSTATE":
+				break;
 				case "USERNOTICE":break;
 				case "PRIVMSG":
 					if (parsed["@ban-duration"])return;

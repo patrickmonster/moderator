@@ -3,6 +3,7 @@ window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.inn
 Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
 Element.prototype.styles=function(e,f){this.style[e]=f;return this};
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
+Element.prototype.delClass=function(className){this.classList.remove(className);return this};
 Element.prototype.html=function(str){this.innerHTML = str;return this};
 Element.prototype.A=function(a,b){this[a]=b;return this};
 String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };

@@ -2,13 +2,12 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Leaderboards</title>
 		<script type="text/javascript">
 document.cookie = "safeCookie1=foo; SameSite=Lax";document.cookie = "safeCookie2=foo";document.cookie = "crossCookie=bar; SameSite=None; Secure";
 		</script>
     <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
-		<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
-		<script src= "https://player.twitch.tv/js/embed/v1.js"></script>
 	<style>
 *{
 	margin: 0px;
@@ -24,163 +23,8 @@ img{
 	width: 4vh;
 	height: 4vh;
 }
-#flake{
-	overflow:hidden;
-}
-@keyframes heartbeat {
-    0% { transform: scale(0); }
-    70% { transform: scale(1); }
-    100% { transform: scale(0); }
-}
-@keyframes opacity_obj {
-    0% {opacity:0}
-    70% {opacity:1}
-    100% {opacity:0}
-}
-/* =========================================================================== */
-table#console{
-    margin: 5px;
-    padding: 0px;
-    width: calc( 100% - 10px );
-    text-align: left;
-    background-color: cyan;
-}
-table#console>tr>td{
-    padding-left: 10px;
-}
-#console > tr > td:nth-child(1){
-    width: 10px;
-}
-#console > tr > td:nth-child(2){
-    width: 40px;
-}
-.scroll{
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-.block{
-    width: 400px;
-    height: 605px;
-    margin: 5px 5px 0 0;
-    border-radius: 13px;
-    float: left;
-}
-.alr {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    width: 250px;
-}
-
-/* 유저 리스트 */
-#user.table{
-    width: 100%;
-}
-#user.table>tr>td>a{
-    float: right;
-    cursor: pointer;
-}
-#user.table>tr>td{
-    float: right;
-    width: 30px;
-}
-#command > tr > td:nth-child(2),
-#user > tr > td:nth-child(1){
-    text-align: left;
-    width: 100%;
-}
-#command > tr > td:nth-child(2){
-    width: 75%;
-}
-#user > tr > td:nth-child(n+2) {
-    cursor: pointer;
-}
-
-#chat > tr > td:nth-child(1){
-    width: 40px;
-}
-
-#chat > tr> td:nth-child(3){
-    text-align: left;
-}
-.bottom {
-    height: 300px;
-}
-/* ============================================================================= */
-
-.checkbox{
-    top: 40px;
-    right: 20px;
-    -webkit-appearance: none;
-    width: 40px;
-    height: 20px;
-    background-color: #ccc;
-    border-radius: 20px;
-    cursor: pointer;
-    outline: none;
-}
-
-.checkbox:checked{
-    background-color: #3498db;
-}
-.checkbox::before{
-    content: "";
-    position: inherit;
-    width: 12px;
-    height: 12px;
-    background-color: #fff;
-    border-radius: 20px;
-    transition: .3s linear;
-    margin: 4px 0 0 4px;
-    display: block;
-}
-.checkbox:checked::before{
-    margin-left: 23px;
-}
-/* ============================================================================= */
-.up_down{
-    top: 20px;
-    right: 20px;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    outline: none;
-    background: url('./img/down.png') left/20px no-repeat;
-    transition:1s;
-}
-
-.up_down:checked{
-  transform: rotate(180deg);
-}
-/* ============================================================================= */
-a.tip {
-    border-bottom: 1px dashed;
-    text-decoration: none
-}
-a.tip:hover {
-    position: relative
-}
-a.tip span {
-    display: none
-}
-a.tip:hover span {
-    border: #c0c0c0 1px dotted;
-    padding: 5px;
-    display: block;
-    z-index: 100;
-    background: url(../images/status-info.png) #f0f0f0 no-repeat 100% 5%;
-    left: -100px;
-    margin: 10px;
-    width: 105px;
-    position: absolute;
-    top: 15px;
-    text-align: inherit;
-}
 	</style>
+	<link rel="stylesheet" href="css/main.css">
 	<script type="text/javascript">
 
 	</script>
@@ -194,7 +38,7 @@ a.tip:hover span {
 window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
 window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
-window.version = "Version.1.1.0";
+window.version = "Version.2.0.0";
 const oauth = localStorage.getItem("oauth");
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 
@@ -272,7 +116,7 @@ window.bot = {
     },"console_index":1,"console":function(log,color){
         if(!color)color="#000"
         var c = document.getElementById("console").C("tr");
-        c.C("td").html(this["console_index"]++).style.color=color;
+        // c.C("td").html(this["console_index"]++).style.color=color;
         c.C("td").html(new Date().format("mm:ss")).style.color=color;
         c.C("td").html(log).style.color=color;
         scrollDiv(document.getElementById("console_scroll"));
@@ -298,8 +142,7 @@ window.bot = {
 		},"usermsg":function(user_id){//window.bot.usermsg
 			//Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
 			var win = window.open("followers/user.html", '_blank', "width=700, height=500, status=0, location=0,left=500, top=10");
-			var winD = win.document;
-			window.user=user_id;
+			win.user=user_id;
 			win.chats=window.chatClientE.chats.filter(item=>item[2]==user_id);
 		},"msg":[],"addMsg":function(c){//예약명령 window.bot.msg
 				var c = prompt('예약어를 입력해 주세요!','');
@@ -324,7 +167,7 @@ if (chat_user.hasOwnProperty("error")){
     alert("토큰 에러입니다 재 발급을 권장합니다!");
     location.reload();
 }
-
+//@badge-info=subscriber/2;badges=vip/1,subscriber/0,sub-gifter/5;color=#6EEBCE;display-name=RealAmanda;emotes=;flags=;id=a4b53296-3e4b-4107-930a-b462d2b03b28;login=realamanda;mod=0;msg-id=rewardgift;msg-param-domain=pride_megacommerce_2020;msg-param-selected-count=5;msg-param-total-reward-count=5;msg-param-trigger-amount=1;msg-param-trigger-type=SUBGIFT;room-id=106013742;subscriber=1;system-msg=RealAmanda's\sGift\sshared\srewards\sto\s5\sothers\sin\sChat!;tmi-sent-ts=1592754713483;user-id=70498026;user-type= :tmi.twitch.tv USERNOTICE #pestily
 console.log(chat_user);
 window.chatClientC = new chatClient({"channel":"tuesucmd","username":chat_user.login,"password":oauth});
 window.chatClientC.open();
@@ -366,7 +209,7 @@ window.chatClientE.onChating = function(parsed){
         }
     }
 		if(/^(((http(s?))\:\/\/)?)([0-9a-zA-Z\-]+\.)+[a-zA-Z]{2,6}(\:[0-9]+)?(\/\S*)?$/.test(parsed.message)){
-			window.bot.console("<a title='제거' onclick='window.chatClientE.onMessageDelete(\""+parsed.id+"\")'>링크사용:"+parsed.message+"</a>");
+			window.bot.console("<a title='제거' onclick='window.chatClientE.onMessageDelete(\""+parsed.id+"\")'>링크사용: "+parsed.message+"</a>");
 			return;
 		}
 		if(!document.getElementById("is_commands").checked)return;
@@ -383,6 +226,7 @@ window.chatClientE.onChating = function(parsed){
 };
 window.chatClientE.users = [];
 window.chatClientE.isJoinMsg=false;
+window.chatClientE.onEmotes = function(parsed,count){;};
 window.chatClientE.onJoin = function(message){
 		if(message==chat_user["login"]&& !window.chatClientE.isJoinMsg){// 본인ㄷㄷㄷㅈ
 			window.bot.console(window.channel +"채널에 접속함");
@@ -393,20 +237,38 @@ window.chatClientE.onJoin = function(message){
 			return;
 		}
 		if(!window.chatClientE.isModes||window.chatClientE.users.indexOf(message)!=-1|| !document.getElementById("is_join").checked)return;
-		window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+message+"가 채널에 입장하였습니다.</a>");
+		// window.bot.console("<a title='채널에 전송' onclick='window.chatClientE.onSend(this.innerHTML);this.onclick=_=>{}' style='cursor:pointer'>"+message+"가 채널에 입장하였습니다.</a>");
 		window.chatClientE.users.push(message);//사용자 리스트
 		window.chatClientE.users.sort();
-		document.getElementById("chat_length").html(window.chatClientE.users.length+"");
+		if(!document.getElementById("chat_length").html(window.chatClientE.users.length+"").parentNode.parentNode.querySelector(".up_down").checked)return;
 		var v = document.getElementById("user-input-filter").value;
 		if (v){
 			list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v)!=-1 ));
 		}else list_user(window.chatClientE.users);
 };
+//@badge-info=subscriber/2;badges=vip/1,subscriber/0,sub-gifter/5;color=#6EEBCE;display-name=RealAmanda;emotes=;flags=;id=a4b53296-3e4b-4107-930a-b462d2b03b28;login=realamanda;mod=0;msg-id=rewardgift;msg-param-domain=pride_megacommerce_2020;msg-param-selected-count=5;msg-param-total-reward-count=5;msg-param-trigger-amount=1;msg-param-trigger-type=SUBGIFT;room-id=106013742;subscriber=1;system-msg=RealAmanda's\sGift\sshared\srewards\sto\s5\sothers\sin\sChat!;tmi-sent-ts=1592754713483;user-id=70498026;user-type= :tmi.twitch.tv USERNOTICE #pestily
+//msg-id=rewardgift;msg-param-domain=pride_megacommerce_2020;msg-param-selected-count=3;msg-param-total-reward-count=3;msg-param-trigger-amount=300;msg-param-trigger-type=CHEER;room-id=106013742;subscriber=0;system-msg=tylerwillmott's\sCheer\sshared\srewards\sto\s3\sothers\sin\sChat!;tmi-sent-ts=1592756042490;user-id=119316552;user-type= :tmi.twitch.tv USERNOTICE #pestily
 window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits/10000
     try{
-        if(message.indexOf("NOTICE")!=-1){//window.channel
-					var args = message.split(":");
-					console.log(args);
+			var args = message.split(":");
+			if(message.indexOf("USERNOTICE")!=-1){
+				//msg-id=rewardgift;msg-param-domain=pride_megacommerce_2020;msg-param-selected-count=3;msg-param-total-reward-count=3;msg-param-trigger-amount=300;msg-param-trigger-type=CHEER;room-id=106013742;subscriber=1;system-msg=KilobyteKeith's\sCheer\sshared\srewards\sto\s3\sothers\sin\sChat!;tmi-sent-ts=1592755526807;user-id=219155801;user-type= :tmi.twitch.tv USERNOTICE #pestily
+				var data = window.chatClientE.parseMessage(message);
+				if(args[0].indexOf("msg-param-sub-plan")!= -1){
+					//정기구독 정보
+					if(["anonsubgift","subgift","resub"].indexOf(data["msg-id"])){//익명/선물/구독
+						var tears = {"Prime":"트위치 프라임","1000":"1티어","2000":"2티어","3000":"3티어"};
+						var tear = tears[data["msg-param-sub-plan"]];
+						if(data["msg_id"]=="subgift")
+							window.bot.console(data["display-name"]+"님이 "+data["msg-param-recipient-display-name"]+"님께 "+tear+"구독을 선물하셧습니다!("+data["msg-param-months"]+"개월동안)");
+						else if(data["msg_id"]=="resub")
+							window.bot.console(data["display-name"]+"님이 "+tear+"로 구독중!("+data["msg-param-cumulative-months"]+"개월동안)");
+						else if(data["msg_id"]=="anonsubgift")
+							window.bot.console("익명의 사용자가 "+data["msg-param-recipient-display-name"]+"에게 "+tear+"구독을 선물하셧습니다!("+data["msg-param-months"]+"개월동안)");
+					}
+				}
+				return true;
+			}else if(message.indexOf("NOTICE")!=-1){//window.channel
 					if(args[0].split("=")[1]=="room_mods " && args.length >= 4){//매니져 존재유무
 						window.chatClientE.mods = args[3].substr(1).split(", ");// 매니져 리스트
 						if(window.chatClientE.mods.indexOf(chat_user["login"]) != -1)
@@ -418,21 +280,22 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 							document.getElementById("user_scroll").style.display = "none";
 							document.getElementById("badlangs_scroll").style.display = "none";
 						}
-						return;
+						return true;
 					}else if(args[0].split("=")[1]=="no_mods "){
 						alert("이 방은 중재자(매니저)가 없습니다!");
 						document.getElementById("is_commands").A("disabled",true).checked=false;
 						document.getElementById("command_scroll").style.display = "none";
 						document.getElementById("user_scroll").style.display = "none";
 						document.getElementById("badlangs_scroll").style.display = "none";
-						return;
+						return true;
 					}
 					window.bot.console(message.split(":").slice(2).join(":"),"red");
-				}
-        else if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{}' style='cursor:pointer'>호스팅 해제</span>");
-				else if(message.indexOf("CLEARCHAT")!=-1){
+			}
+      else if(message.indexOf("HOSTTARGET")!=-1)window.bot.console("<span onclick='window.chatClientE.onSend(\"\/unhost\");this.onclick=_=>{}' style='cursor:pointer'>호스팅 해제</span>");
+			else if(message.indexOf("CLEARCHAT")!=-1){
 					//@ban-duration=<ban-duration> :tmi.twitch.tv CLEARCHAT #<channel> :<user>
-					if(message.indexOf("room-id")!= -1 && message.indexOf("ban-duration") == -1)
+					//@room-id=138117244;target-user-id=531008736;tmi-sent-ts=1592752543086 :tmi.twitch.tv CLEARCHAT #nubulswamp :jifnurvs
+					if(message.indexOf("room-id")!= -1 && message.indexOf("ban-duration") == -1 && message.indexOf("target-user-id") == -1)
 						window.bot.console("채팅이 모두 제거되었습니다!","red");
 					else {
 						var args = message.split(":");
@@ -445,8 +308,8 @@ window.chatClientE.onSys=function onSys(message){//moderator/1,subscriber/6,bits
 							window.bot.console("<a title='untimeout' onclick='window.chatClientE.onSend(\"\/untimeout "+args[2]+"\");this.onclick=_=>{}'>Timeout :"+args[0].split("=")[1]+" for "+args[2] + "</a>","red");
 						}
 					}
-				}
-				else if(message.indexOf("CLEARMSG")!=-1)window.bot.console("메세지 삭제:"+window.chatClientE.parseMessage(message)["message"],"red");
+			}
+			else if(message.indexOf("CLEARMSG")!=-1)window.bot.console("메세지 삭제:"+window.chatClientE.parseMessage(message)["message"],"red");
     }catch (e) {window.bot.console(e);}
 };
 window.chatClientE.onConsole=function(message){
@@ -472,15 +335,8 @@ window.onload = function() {
 		list_commands("badlangs");
     list_commands("command");
 		list_commands("msg");
-		//플레이어
-		var options = {
-		  width: 854,
-		  height: 480,
-		  channel: window.channel,
-		  parent: [location.hostname]
-		};
-		window.chatClientE.player= new Twitch.Player("player_ui", options);
-		window.chatClientE.player.setVolume(0.5);
+		document.getElementById("video-ui").src="https://player.twitch.tv/?channel="+window.channel+"&parent=" + location.hostname;
+		//https://player.twitch.tv/?collection=abcDeF1ghIJ2kL&parent=streamernews.example.com
 		document.getElementById("channel_title").innerHTML=window.channel;
 		console.log(window.version);
 }
@@ -491,11 +347,10 @@ function list_user(l){
 			var consoles = target.C("tr"),cc = window.chatClientE;
 			consoles.data("user",message);
 			consoles.C("td").html(message).A("title","채팅기록 보기").styles("cursor","pointer").onclick = _ => {window.bot.usermsg(message)};
-			consoles.C("td").C("a").addClass("tip").html('<i class="fa fa-ban"></i><span>벤</span>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
-			consoles.C("td").C("a").data("timeout","10").addClass("tip").html('10<span>10초 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
-			consoles.C("td").C("a").data("timeout","1m").addClass("tip").html('1m<span>1분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
-			consoles.C("td").C("a").data("timeout","10m").addClass("tip").html('10m<span>10분 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
-			consoles.C("td").C("a").data("timeout","1h").addClass("tip").html('1h<span>1시간 타임아웃</span>').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)}
+			consoles.C("td").C("a").addClass("tip").A("title","벤").html('<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ban" class="svg-inline--fa fa-ban fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"></path></svg>').onclick = _ => {this.onSend("/ban " + message);window.bot.console("ban:" + message)};
+			consoles.C("td").C("a").A("title","10초 타임아웃").data("timeout","10").html('10').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)};
+			consoles.C("td").C("a").A("title","1분 타임아웃").data("timeout","1m").html('1m').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)};
+			consoles.C("td").C("a").A("title","10분 타임아웃").data("timeout","10m").html('10m').onclick=function(){cc.onSend(["/timeout",message,this.data("timeout")].join(" "));window.bot.console("timeout[" + this.data("timeout") + "]:" +message)};
 	});
 }
 
@@ -577,56 +432,77 @@ function isIE() {
     return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
         navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
 }
+function removeAllClass(name){
+	document.querySelectorAll("."+name).forEach(i => {
+		i.delClass(name);
+	});
+}
+
 }
 //tuesucmd / 봇
 /// scp index.html pi@10.42.0.167:/var/www/html/
 /// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
     </script>
-		<div class="block" style="width: 854px !important;height: 540px !important;position:relative;transition: 1s;background:#0086ff7a">
+		<div class="block twitch-stream">
 			<h2>채널 <span id="channel_title"></span>에 접속!</h2>
 			<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?document.getElementById('player_ui').styles('opacity','1').styles('display','block').parentNode.styles('height','540px').styles('width','854px')&&window.chatClientE.player.play():document.getElementById('player_ui').styles('opacity','0').styles('display','none').parentNode.styles('height','32px').styles('width','400px');window.chatClientE.player.pause()" checked>
-			<div id="player_ui" style="transition:0.5s"></div>
+			<iframe id="video-ui" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>
 		</div>
-    <div class="block">
-        <iframe id=chat_ui frameborder="0" scrolling="no" height="600" width="400"></iframe>
+    <div class="block twitch-chat">
+        <iframe id=chat_ui frameborder="0" scrolling="no" height="100%" width="100%"></iframe>
     </div>
-    <div class="block" style="width: 600px !important;background: #afeae8;">
-
-				<div id=console_scroll class="scroll" style="width: 100%;background: #afeae8;">
+    <div class="block console_ui">
+				<div id=console_scroll class="scroll" style="width: 100%;height: 100%;background: #afeae8;">
 	        <table id=console></table>
+					<div class="back_space" onclick="removeAllClass('over_view')"></div>
 				</div>
     </div>
-    <div id=command_scroll class="block" style="background: #03A9F4;height: 300px !important;position:relative;transition: 1s;">
-        <h2>채팅 명령<input type="checkbox" title="자동응답 on/off" id="is_commands" class="checkbox"><button onclick="window.bot.addCommand();">추가</button></h2>
+    <div id=command_scroll class="block console_menu">
+        <h2>채팅 명령<input type="checkbox" title="자동응답 on/off" id="is_commands" class="checkbox">
+				<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
+					<button onclick="window.bot.addCommand();">추가</button>
+				</h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-        <div class="scroll " style="height:calc( 100% - 35px );"><table id=command>
-            <tr><td>명령어</td><td>명령어 리스트를 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
-            <tr><td>팔로우</td><td>팔로우경과일을 출력합니다</td><td><input type="checkbox" class="checkbox" checked></td><td></td></tr>
-        </table></div>
-        <!-- <input type="text" id=comm_c onkeypress="if(event.keyCode!=13 || this.value=='')return;document.getElementById('comm_s').focus()" placeholder="명령어" style="width: 10%;background: #fff;border: 0px;border-bottom: 1px solid;">
-        <input type="text" id="comm_s" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.bot.addCommand(document.getElementById('comm_c').value,this.value);document.getElementById('comm_c').value='';this.value='';" placeholder="설명" class="largeinput"> -->
+        <div class="scroll ">
+					<table id=command></table>
+					<div class="back_space" onclick="removeAllClass('over_view')"></div>
+				</div>
     </div>
-    <div class="block" style="background: #8cff55;height: 300px;position:relative;transition: 1s;">
-				<h2>채팅유저 :<span id="chat_length" title="현재까지 방문집계">0</span>명<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked></h2>
-				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-				<input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v)));" style="border: 0;width: 100%;padding: 0;color: #fff;background: #00000040;">
-				<div class="scroll" id=user_scroll style="height:calc( 100% - 55px );">
+    <div class="block console_menu">
+				<h2>유저목록 :
+					<span id="chat_length" title="현재까지 방문집계">0</span>명<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked>
+					<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view');list_user(window.chatClientE.users);document.getElementById('user-input-filter').value=''">리스트</button>
+				</h2>
+				<input type="checkbox" class="up_down" onclick="var v = document.getElementById('user-input-filter');this.checked?this.parentNode.styles('height','300px')&&list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v))):this.parentNode.styles('height','35px');">
+				<div class="scroll" id=user_scroll>
+					<input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(v!=''?window.chatClientE.users.filter((a,b)=>a.indexOf(v)!=-1):window.chatClientE.users);">
 					<table id=user></table>
+					<div class="back_space" onclick="removeAllClass('over_view')"></div>
 				</div>
     </div>
-    <div class="block" style="width: 300px !important;height: 300px;background: #afeae8;position:relative;transition: 1s;">
-				<h2>예약명령<button onclick="window.bot.addMsg();">추가</button></h2>
-				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-				<div id=console_scroll class="scroll" style="height:calc( 100% - 35px );background: #afeae8;">
+    <div class="block console_menu">
+				<h2>예약명령
+					<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
+					<button onclick="window.bot.addMsg();">추가</button>
+				</h2>
+				<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
+				<div id=console_scroll class="scroll">
 	        <table id=msg></table>
+					<div class="back_space" onclick="removeAllClass('over_view')"></div>
 				</div>
     </div>
-    <div id=badlangs_scroll class="block" style="background: #f7ff00;height: 300px;width: 300px;position:relative;transition: 1s;">
-				<h2>금지어<button onclick="window.bot.addBadlangs();">추가</button></h2>
-				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-        <div class="scroll " style="height:calc( 100% - 35px );"><table id=badlangs></table></div>
+    <div id=badlangs_scroll class="block console_menu">
+				<h2>금지어
+					<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
+					<button onclick="window.bot.addBadlangs();">추가</button>
+				</h2>
+				<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px')" checked>
+        <div class="scroll " style="height:calc( 100% - 35px );">
+					<table id=badlangs></table>
+					<div class="back_space" onclick="removeAllClass('over_view')"></div>
+				</div>
     </div>
-    <div class="block" style="background:#ff4343;height: 300px;color:#fff;">
+    <div class="block console_option">
         <h2>뷰봇/기능</h2>
 				<div class="scroll" style="height:calc( 100% - 35px );">
 	        <button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(3자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
@@ -646,42 +522,6 @@ function isIE() {
         <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
         <!-- <button type="submit" id="right-search-btn">채팅</button> -->
     </div>
-    <style>
-
-input.largeinput{
-    width: calc(100% - 20%);
-    background: #fff;
-    border: 0px;
-    border-bottom: 1px solid;
-}
-button{
-	border: 1px solid skyblue;
-	background-color: rgba(0,0,0,0);
-	color: skyblue;
-	padding: 5px;
-	border-radius: 5px;
-	cursor:pointer;
-}
-button:hover{
-	color:white;
-	background-color: skyblue;
-}
-div.scroll::-webkit-scrollbar-thumb {
-    /* width: 3px; */
-    background: #333;
-    border-radius: 500px;
-}
-div.scroll::-webkit-scrollbar {
-    width: 3px;
-    /* background: #ffffff36; */
-}
-a{
-	cursor: pointer;
-}
-#console_scroll a{
-	color:blue;
-}
-    </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
 <script type="text/javascript">
 window.dataLayer = window.dataLayer || [];
