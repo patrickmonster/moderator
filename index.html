@@ -609,7 +609,7 @@ function isIE() {
     <div class="block" style="background: #8cff55;height: 300px;position:relative;transition: 1s;">
 				<h2>채팅유저 :<span id="chat_length" title="현재까지 방문집계">0</span>명<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked></h2>
 				<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
-				<input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v)));" style="border: 0;width: 100%;padding: 0;color: #fff;background: #00000040;">
+				<input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v)!=-1));" style="border: 0;width: 100%;padding: 0;color: #fff;background: #00000040;">
 				<div class="scroll" id=user_scroll style="height:calc( 100% - 55px );">
 					<table id=user></table>
 				</div>
