@@ -143,6 +143,7 @@ window.bot = {
 			//Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
 			var win = window.open("followers/user.html", '_blank', "width=700, height=500, status=0, location=0,left=500, top=10");
 			win.user=user_id;
+			win.channel = window.channel;
 			win.chats=window.chatClientE.chats.filter(item=>item[2]==user_id);
 		},"msg":[],"addMsg":function(c){//예약명령 window.bot.msg
 				var c = prompt('예약어를 입력해 주세요!','');
@@ -437,7 +438,6 @@ function removeAllClass(name){
 		i.delClass(name);
 	});
 }
-
 }
 //tuesucmd / 봇
 /// scp index.html pi@10.42.0.167:/var/www/html/
