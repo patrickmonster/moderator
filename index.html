@@ -38,7 +38,7 @@ img{
 window.oauth_client_id = "vsezqqctfb0h10jfw1wiybvhfju1af";
 //리다이렉션 url
 window.oauth_redirect_uri = "https://patrickmonster.github.io/moderator/";
-window.version = "Version.2.0.0";
+window.version = "Version.1.1.0";
 const oauth = localStorage.getItem("oauth");
 const permissions = ["chat:edit","chat:read","channel_editor","whispers:edit","whispers:read","channel:moderate","user_blocks_edit"];
 
@@ -141,9 +141,10 @@ window.bot = {
 
 		},"usermsg":function(user_id){//window.bot.usermsg
 			//Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+			window.open("https://www.twitch.tv/popout/"+window.channel+"/viewercard/"+window.user+"?popout=", '_blank', "width=400, height=500, status=0, location=0,left=510, top=20");
 			var win = window.open("followers/user.html", '_blank', "width=700, height=500, status=0, location=0,left=500, top=10");
 			win.user=user_id;
-			win.channel = window.channel;
+			win.user=window.channel;
 			win.chats=window.chatClientE.chats.filter(item=>item[2]==user_id);
 		},"msg":[],"addMsg":function(c){//예약명령 window.bot.msg
 				var c = prompt('예약어를 입력해 주세요!','');
@@ -438,6 +439,7 @@ function removeAllClass(name){
 		i.delClass(name);
 	});
 }
+
 }
 //tuesucmd / 봇
 /// scp index.html pi@10.42.0.167:/var/www/html/
@@ -512,7 +514,6 @@ function removeAllClass(name){
 					<button onclick="window.open('https://patrickmonster.github.io/moderator/followers/?channel='+window.channel)">팔로우 필터</button>
 	        <br>팔로우 일시를 기준으로 필터링 합니다.<br>
 					<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
-					<br>접근시, 에러가 있을 경우, 우측 버튼을 눌러주세요!<button onclick="localStorage.removeItem('oauth');localStorage.removeItem('oauth_date');location.reload()">토큰 초기화</button>
 				</div>
     </div>
     <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
