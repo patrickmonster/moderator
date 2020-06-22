@@ -34,7 +34,7 @@ function isIE() {
 }
 window.onload = function() {
   document.head.C("title").html("채팅기록 :" + window.user);
-	document.getElementById("user-data").src = "https://www.twitch.tv/popout/"+window.channel+"/viewercard/"+window.user+"?popout=false"
+	// document.getElementById("user-data").src = "https://www.twitch.tv/popout/"+window.channel+"/viewercard/"+window.user+"?popout=false"
   var table = document.body.C("table"),tr=table.C("tr");
   for(var i of ["시간","아이디","아이디[영문]","채팅"])
     tr.C("td").html(i);
