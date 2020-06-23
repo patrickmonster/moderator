@@ -20,7 +20,7 @@ img{
 
 #user_list>table{
 	width: 200px;
-	height: 120px;
+	height: 85px;
 }
 
 /* ========================================================================= */
@@ -183,6 +183,8 @@ window.onload = function() {
   // var l = JSON.parse(getApi("kraken/channels/" + window.broadcaster["_id"] + "/follows?limit=100"));
 
   // console.log(l);
+	if(!window.isbroadcast)
+		document.getElementById("user_unfollow").style.display = "none";
 	console.log(window.broadcaster);
 	load_list(window.broadcaster["_id"]);
 }
@@ -216,7 +218,8 @@ function reset(){
 function out_file(l){
 	var out =[];
 	l.forEach((item, i) => {
-		out.push(item.created_at + "\t" + item.user["_id"] + "\t" + pad(item.user.name,25) + "\t" + item.user["display_name"]);
+		// out.push(item.created_at + "\t" + item.user["_id"] + "\t" + pad(item.user.name,25) + "\t" + item.user["display_name"]);
+		out.push(item.created_at + "\t" + item.user["_id"] + "\t" +item.user.name + "\t" + item.user["display_name"]);
 	});
 	return out;
 }
@@ -238,46 +241,60 @@ function list_filter(l){
 	});
 }
 
-//언팔
-// DELETE https://api.twitch.tv/kraken/users/<user ID>/follows/channels/<channel ID>
-//차단
-//PUT https://api.twitch.tv/kraken/users/<source user ID>/blocks/<target user ID>
+function unfollow_user(user,is_ban,f){
+	twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+user,"PUT",function(a,b,c){
+		if(c == "")return;
+		if(!is_ban)
+			twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+user,"DELETE",function(a,b,c){
+				if(c == "")return;
+				if(typeof f == "function")f();
+			});
+		else if(typeof f == "function")f();
+	});
+}
+
+function unfollow_users(l,is_ban){
+	if(confirm('사용자'+l.length+'명이 언팔로우 됩니다!\n진행하시겠습니까?')==true)
+		l.forEach((item,i)=>{
+			unfollow_user(item.user["_id"],is_ban);//사용자 차단
+			if(l.length-1==i)save((is_ban?"ban":"unfollow")+ 'list.txt', out_file(l).join('\r\n') )
+		});
+}
 
 function list_followers(l,target_id){
   var target = document.getElementById(target_id);
 	target.html("");
   l.forEach(i => {
-		var ele = target.C("table").addClass("user_item");
+		var ele = target.C("table").addClass("user_item").styles("white-space","nowrap");
 		var tr = ele.C("tr");
 		var td = tr.C("td")
 		ele.data("created_at",i.created_at);//구독일
 		ele.data("created_user_at",i.user.created_at);//아이디 생성일
 		ele.data("id",i.user["_id"]);
+		ele.data("name",i.user.name);
 		td.styles("cursor","pointer");
 		td.setAttribute("rowspan","3");//
-		td.C("img").styles("width","58px").styles("height","58px").A("src","").data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
+		// td.C("img").styles("width","58px").styles("height","58px").A("src","").data("src",i.user.logo).onclick = function(){this.src=this.data("src");this.onclick=_=>{};};//저사양
+		td.html('<svg aria-hidden="true" focusable="false" data-prefix="fas" style="height: 20px;width: 20px;" data-icon="user" class="svg-inline--fa fa-user fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg>').onclick=function(){
+			window.open("https://www.twitch.tv/popout/"+window.channel+"/viewercard/"+this.parentNode.parentNode.data("name")+"?popout=", '_blank', "width=400, height=500, status=0, location=0,left=510, top=20");
+		}
 		if(i.user.display_name == i.user.name)
-				tr.C("td").html(i.user.display_name).styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
+				tr.C("td").html(i.user.display_name).styles("text-overflow"+"ellipsis").styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		else
-				tr.C("td").html(i.user.display_name + "("+i.user.name+")").styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
+				tr.C("td").html(i.user.display_name + "("+i.user.name+")").styles("text-overflow"+"ellipsis").styles("cursor","pointer").addClass("over_word").onclick = function(){window.open('https://www.twitch.tv/'+i.user.name)};//이름
 		tr = ele.C("tr")
 		tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 		if(window.isbroadcast)
 			tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
 				var table = this.parentNode.parentNode;
-				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
-					if(c == "")return;
-					twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"DELETE",function(a,b,c){
-						if(c == "")return;
-						table.remove();
-					});
+				unfollow_user(table.data("id"),false,function(){
+					table.remove();
 				});
 			};
 		if(window.isbroadcast)
 			tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
 				var table = this.parentNode.parentNode;
-				twtichApi("kraken/users/" + window.broadcaster["_id"] + "/blocks/"+table.data("id"),"PUT",function(a,b,c){
-					if(c == "")return;
+				unfollow_user(table.data("id"),true,function(){
 					table.remove();
 				});
 			};;
@@ -298,7 +315,7 @@ function list_followers(l,target_id){
 
 function pad(n, width){
   n = n + '';
-  return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+  return n.length >= width ? n : new Array(width - n.length + 1).join(' ') + n;
 }
 
 function getApi(url,func,isOauth){ //  OAuth
@@ -356,6 +373,7 @@ function isIE() {
         navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
 }
 
+
 //tuesucmd / 봇
 /// scp index.html pi@10.42.0.167:/var/www/html/
 /// scp /home/soungjin19/irc_chat_client/chat.js pi@10.42.0.167:/var/www/html/
@@ -364,7 +382,7 @@ function isIE() {
 			<div class="">
 				<h1 style="color:red">경고!</h1>이 채널은 사용자의 팔로우 리스트를 관리합니다.!<br> 스트리머 본인의 팔로우 리스트를 수정 하실때에는 주의하여 주시기 바랍니다!
 				<h4>팔로우가 해재되었을 경우, 복구가 불가능합니다!</h4>
-				이미지는 클릭하면 변경됩니다 - 렉으로 인하여 수정
+				이미지 대신 사용자 채팅 기록을 보입니다.
 			</div>
 			channel:<span id="loading_channel">None</span>load :<span id="loading">0/0</span>&nbsp;&nbsp;
 			필터:<input type="date" id="day_start" name="trip-start"><input id="time_start" type="time">
@@ -372,6 +390,12 @@ function isIE() {
 			<button type="button" name="button" onclick="list_followers(list_filter(window.users),'user_list');">적용</button>
 			<button type="button" name="button" onclick="reset()">초기화</button>
 			<button type="button" name="button" onclick="save('userlist.txt', out_file(list_filter(window.users)).join('\r\n') )">유저목록 다운로드</button>
+			<div id="user_unfollow" class="">
+				<h3>사용자 차단 및 언팔로우</h3>
+				<span id="now_del">0</span>/<span id="end_del">0</span>명 진행중...
+				<button type="button" name="button" onclick="unfollow_users(list_filter(window.users),false)">유저 언 팔로우</button>
+				<button type="button" name="button" onclick="unfollow_users(list_filter(window.users),true)">유저 언 팔로우 및 벤</button>
+			</div>
 			<!-- <div class="filebox">
 			  <label for="ex_file">업로드</label>
 			  <input type="file" id="ex_file">
