@@ -183,11 +183,11 @@ window.chatClientC.onChating = function(parsed){
         window.bot.console(parsed.message,"blue");
         return;
     }
-    var tr = document.getElementById("chat").C("tr");
-    tr.C("td").html(new Date().format("mm:ss"));
-    tr.C("td").html(parsed["display-name"]);
-    tr.C("td").html(parsed.message.replace(/(<([^>]+)>)/ig,""));
-    scrollDiv(tr.parentElement);
+    // var tr = document.getElementById("chat").C("tr");
+    // tr.C("td").html(new Date().format("mm:ss"));
+    // tr.C("td").html(parsed["display-name"]);
+    // tr.C("td").html(parsed.message.replace(/(<([^>]+)>)/ig,""));
+    // scrollDiv(tr.parentElement);
 };
 window.bot.chatClient = window.chatClientE = new chatClient({"channel":window.channel,"username":chat_user.login,"password":oauth});
 window.chatClientE.open();
@@ -516,14 +516,14 @@ function removeAllClass(name){
 					<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
 				</div>
     </div>
-    <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
+    <!-- <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
 				<h2>오픈채팅</button><input type="checkbox" id="is_chat" class="checkbox" onclick="if(this.checked){this.parentNode.parentNode.styles('height','275px')}else{this.parentNode.parentNode.styles('height','55px')}"></h2>
         <div class="scroll" style="height:calc( 250px - 35px );">
             <table id=chat></table>
         </div>
         <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
         <!-- <button type="submit" id="right-search-btn">채팅</button> -->
-    </div>
+    </div> -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
 <script type="text/javascript">
 window.dataLayer = window.dataLayer || [];
