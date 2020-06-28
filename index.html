@@ -63,8 +63,8 @@ document.cookie="safeCookie"
 
 if(!window.channel){
     window.onload = function() {
-		    document.body.innerHTML = '<div id="input_surch"><input id="user-input" type="text" value="" onkeypress="if(event.keyCode!=13)return;setChannel()" placeholder="채널의 id를 입력해 주세요!" focus=""><button onclick="setChannel()"><i class="fas fa-sign-in-alt"></i></button></div>';
-				window.addStyle("#input_surch:hover>button{opacity:1}#input_surch{position: absolute;left: 50%;top: 50%;transform: translate(-50%,-50%);}#user-input{height: 60px;padding: 2px;width: 400px;border-radius: 50%;font-size: 2em;border: 0px;background: #333;color: #fff;border-radius: 30px;padding: 0 60px 0 14px;}button{height: 60px;opacity: 0;font-size: 2em;border: 0;border-radius: 50%;width: 60px;height: 60px;background: #fff;color: #000;padding: 0 10px 0 0;transform: translate(-60px, 0px);padding-left: 14px;transition: .4s;}")
+		    document.body.innerHTML = '<div id="input_surch"><input id="user-input" type="text" value="" onkeypress="if(event.keyCode!=13)return;setChannel()" placeholder="채널의 id를 입력해 주세요!" focus=""><button onclick="setChannel()" style="transform: translate(-60px, 20px);"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-in-alt" class="svg-inline--fa fa-sign-in-alt fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M416 448h-84c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h84c17.7 0 32-14.3 32-32V160c0-17.7-14.3-32-32-32h-84c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h84c53 0 96 43 96 96v192c0 53-43 96-96 96zm-47-201L201 79c-15-15-41-4.5-41 17v96H24c-13.3 0-24 10.7-24 24v96c0 13.3 10.7 24 24 24h136v96c0 21.5 26 32 41 17l168-168c9.3-9.4 9.3-24.6 0-34z"></path></svg></button></div>';
+				window.addStyle("#input_surch:hover>button{opacity:1}#input_surch{position: absolute;left: 50%;top: 50%;transform: translate(-50%,-50%);}#user-input{height: 60px;padding: 2px;width: 400px;border-radius: 50%;font-size: 2em;border: 0px;background: #333;color: #fff;border-radius: 30px;padding: 0 60px 0 14px;}button{height: 60px;opacity: 0;font-size: 2em;border: 0;border-radius: 50%;width: 60px;height: 60px;background: #fff;color: #000;padding: 0 10px 0 0;transform: translate(-60px, 0px);padding-left: 14px;transition: .4s;}");
     }
     function setChannel(){
         var channel = document.getElementById("user-input").value;
@@ -523,7 +523,7 @@ function removeAllClass(name){
         </div>
         <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
         <!-- <button type="submit" id="right-search-btn">채팅</button> -->
-    </div> -->
+    </div>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
 <script type="text/javascript">
 window.dataLayer = window.dataLayer || [];
