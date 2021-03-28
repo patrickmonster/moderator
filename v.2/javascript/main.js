@@ -1,9 +1,8 @@
 'use strict';
 const {channel, token } = window.query;
-
-const channel_data = getApi("oauth2/validate", window.query.token ,"OAuth ", "https://id.twitch.tv/");
-
-console.log("사용자 정보", channel_data);
+const {client_id, login, user_id, expires_in} = getApi("https://id.twitch.tv/oauth2/validate", {
+    "authorization":`OAuth ${token}`
+});
 
 const option = {
     options: {debug: true, messagesLogLevel: "info" },
@@ -12,47 +11,44 @@ const option = {
         secure: true
     },
     identity: {
-        username: 'bot-name',
+        username: login,
         password: `OAuth ${token}`
     },
-    channels: [window.query.channel]
+    // channels: [window.query.channel]
 };
+console.log(option);
 
 
-// const client = new tmi.Client(option);
-// client
-//     .connect()
-//     .catch(console.error);
-// client.on('message', (channel, tags, message, self) => {
-//     if (self) 
-//         return;
-//     if (message.toLowerCase() === '!hello') {
-//         client.say(channel, `@${tags.username}, heya!`);
-//     }
-// });
-
+const client = new tmi.Client(option);
+client.connect().catch(console.error);
+client.on('message', (channel, tags, message, self) => {
+    if (self) return;
+    console.log(message);
+    // if (message.toLowerCase() === '!hello') {
+    //     client.say(channel, `@${tags.username}, heya!`);
+    // }
+});
 
 
 /**
- * api를 통하여 필요 정보를 가지고 옴
+ * 
  * @param {*} url 
- * @param {*} oauth 
- * @param {*} isOauth 
- * @param {*} base_url 
+ * @param {*} header 
  * @returns 
  */
-function getApi(url, oauth, isOauth, base_url = "https://api.twitch.tv/") { //  OAuth
+function getApi(url, header){
     const xmlhttp = new XMLHttpRequest()
-    let channel = "";
+    let data = "";
     xmlhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) 
-            channel = this.responseText
+            data = this.responseText
     };
-    xmlhttp.open("GET", base_url + url, false);
-    xmlhttp.setRequestHeader('Client-ID', window.oauth_client_id);
-    xmlhttp.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
-    if (isOauth) 
-        xmlhttp.setRequestHeader("Authorization", `${isOauth} ${oauth}`);
+    xmlhttp.open("GET", url, false);
+    Object.keys(header).forEach(o=>xmlhttp.setRequestHeader(o, header[o]));
+    // xmlhttp.setRequestHeader('Client-ID', window.clientId);
+    // xmlhttp.setRequestHeader('Accept', 'application/vnd.twitchtv.v5+json');
+    // if (token) 
+    //     xmlhttp.setRequestHeader("Authorization", `OAuth ${oauth}`);
     xmlhttp.send();
-    return channel;
+    return JSON.parse(data);
 }
