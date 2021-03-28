@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <title>트봇 - Leaderboards</title>
+        <script
+            src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js"
+            charset="utf-8"></script>
+        <script src="../javascript/tmi.min.js"></script>
+        <script>
+window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
+Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+
+function getQuery() {
+    const query = document
+        .location
+        .search
+        .substring(1)
+        .split("&");
+    const out = {};
+    query.forEach((o) => {
+        const obj = o.split("=");
+        if (out[obj[0]]) {
+            if (typeof out[obj[0]] === "object" && out[obj[0]].length) {
+                out[obj[0]].push(obj[1]);
+            } else {
+                const tmp = out[obj[0]];
+                out[obj[0]] = [obj[1], tmp];
+            }
+        } else 
+            out[obj[0]] = obj[1];
+        }
+    );
+    return out;
+}
+
+window.query = getQuery();
+        </script>
+    </head>
+    <body>
+        <script>
+if(!window.query.hasOwnProperty("channel") && !window.query.hasOwnProperty("token")){
+    document.body.innerHTML = `
+    <link rel="stylesheet" href="css/index_sub.css">
+    <div id="input_surch">
+        <input
+            id="user-token"
+            type="text"
+            value=""
+            placeholder="토큰"
+            focus="">
+        <br>
+        <a href="http://patrickmonster.site/auth/user?callback=http://patrickmonster.github.io/moderator/v.2">토큰 발급하기</a>
+        <br>
+        <input
+            id="user-channel"
+            type="text"
+            value=""
+            placeholder="채널의 id"
+            focus="">
+        <button>
+            트봇 시작하기
+            <svg
+                aria-hidden="true"
+                style="transform:translate(0px, 4px)"
+                focusable="false"
+                role="img"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512">
+                <path
+                    fill="currentColor"
+                    d="M416 448h-84c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h84c17.7 0 32-14.3 32-32V160c0-17.7-14.3-32-32-32h-84c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h84c53 0 96 43 96 96v192c0 53-43 96-96 96zm-47-201L201 79c-15-15-41-4.5-41 17v96H24c-13.3 0-24 10.7-24 24v96c0 13.3 10.7 24 24 24h136v96c0 21.5 26 32 41 17l168-168c9.3-9.4 9.3-24.6 0-34z"></path>
+            </svg>
+        </button>
+    </div>
+            `;
+    const style = document.createElement("link");
+    style.href = "css/index_sub.css";
+    style.rel="stylesheet"
+    document.head.appendChild(style);
+
+    document.getElementById("user-token").value = window.query.token || "";
+    document.getElementById("user-channel").value = window.query.channel || "";
+    //if(event.keyCode!=13)return;
+
+    function keyEvnet(event){
+        if(event.keyCode!=13)return;
+        page();
+    }
+
+    function page(){
+        const channel = document.getElementById("user-channel").value;
+        const token = document.getElementById("user-token").value;
+        if(!token){
+            alert(`토큰을 지정하지 않았습니다!`);
+            return;
+        }
+        if(!channel){
+            alert(`채널을 지정하지 않았습니다!`);
+            return;
+        }
+        window.location.href = `${window.location.origin}${window.location.pathname}?channel=${channel}&token=${token}`;
+    }
+    document.getElementById("user-channel").onkeypress=keyEvnet;
+    document.getElementsByTagName("button")[0].onclick=page;
+
+}else{
+    const main_js = document.createElement("script");
+    main_js.src="javascript/main.js";
+    document.body.appendChild(main_js);
+}//
+        </script>
+    </body>
+</html>
