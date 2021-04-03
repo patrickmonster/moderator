@@ -27,7 +27,7 @@ if(!channel_data){
 const {id: channel_id } = channel_data[0];
 
 const option = {
-    options: {debug: true, messagesLogLevel: "info" },
+    // options: {debug: true, messagesLogLevel: "info" },
     connection: {
         reconnect: true,
         secure: true
@@ -39,6 +39,12 @@ const option = {
     channels: [window.query.channel /*, "tuesucmd" */]
 };
 console.log(option);
+
+
+window.onConsole = window.onConsole || console.log; // 콘솔세팅
+window.command_tag =  window.command_tag || "!";//명령 기본테그
+window.chat_js = {}; // 명령처리 기본
+
 
 // // 키에 데이터 쓰기
 // localStorage.setItem("key", value)
@@ -69,83 +75,65 @@ function getStorage(key, non=[]){
 }
 
 const chattings = [];// 채팅 로그기록
-const cmd_user = getStorage(`${channel}_${login}_cmd`,{});
-const login_user = getStorage(`${channel}_${login}_login`, {});
-const bad_user = getStorage(`${channel}_${login}_bad`,[]);
+window.chat_js.cmd_user = getStorage(`${channel}_${login}_cmd`,{});
+window.chat_js.message_user = getStorage(`${channel}_${login}_message`, {});
+window.chat_js.bad_user = getStorage(`${channel}_${login}_bad`,[]);
+
+window.chat_js.one_filter_user = [];// 한번 닉네임 필터링 거친사람
 
 const client = new tmi.Client(option);
 client.connect().catch(console.error);
 
 client.on("timeout", (channel, msg, self, time, tags) => {
     if (self) return;
-    // log(channel, msg, time);
-    // live_monit_user_comm
-    //   .create({
-    //     login: channel.substring(1),
-    //     user: msg,
-    //     user_id: tags["target-user-id"],
-    //     time,
-    //     date_comm: new Date(),
-    //   })
-    //   .then(() => {})
-    //   .catch(log);
+    window.onConsole("timeout", msg, time);
 });
 client.on("ban", (channel, msg, self, tags) => {
     if (self) return;
-    // log(channel, msg);
-    // live_monit_user_comm
-    //   .create({
-    //     login: channel.substring(1),
-    //     user: msg,
-    //     user_id: tags["target-user-id"],
-    //     time: -1,
-    //     date_comm: new Date(),
-    //   })
-    //   .then(() => {})
-    //   .catch(log);
+    window.onConsole("ban", msg);
 });
 
 
 // const cmd_user = getStorage(`${channel}_${login}_cmd`,{});//명령어
-// const login_user = getStorage(`${channel}_${login}_login`, {});// 금지어
+// const message_user = getStorage(`${channel}_${login}_message`, {});// 금지어
 // const bad_user = getStorage(`${channel}_${login}_bad`,[]);//금지닉
 
-const one_filter_user = [];
-
-window.command_tag =  window.command_tag || "!";
 client.on('message', (channel, tags, message, self) => {
     if (self) return;
-    console.log(tags, message);
+    // console.log(tags, message);
     const isPermiss = tags.badges ? tags.badges.hasOwnProperty("moderator") || tags.badges.hasOwnProperty("broadcaster") : false;
 
     if(message[0] != window.command_tag){
         if(!isPermiss){
             chattings.push({channel, msgId : tags.id, login: tags.username});
             // 사용자 명령 처리
-            Object.keys(cmd_user).forEach(o=>{
+            Object.keys(window.chat_js.cmd_user).forEach(o=>{
                 if(message.startsWith(o)){
                     o.replace('{id}', tags.username).replace('{name}', tags["display-name"]);
                 }
             });
             // 금지어 처리
-            Object.keys(login_user).forEach(o=>{
+            Object.keys(window.chat_js.message_user).forEach(o=>{
                 if(message.includes(o)){
                     client.say(channel, `/delete ${tags.id}`);
-                    client.say(channel, `/me @${tags.username} -> ${login_user[o]}`);
+                    if (window.chat_js.message_user[o])
+                        client.say(channel, `/me @${tags.username} -> ${window.chat_js.message_user[o]}`);
+                    // window.onConsole("",tags["display-name"],"닉네임 필터링", tags.username);
                 }
             });
             // 이름 필터링
-            if(!one_filter_user.includes(tags.username)){
+            if(!window.chat_js.one_filter_user.includes(tags.username)){
                 bad_user.forEach(o=>{
                     if(tags.username.includes(o)){
-                        client.say(channel, `/ban ${tags.username}`);
+                        client.say(channel, `/ban ${tags.username} 귀하는 스트리머가 설정한 닉네임 필터링에 필터링 되셧습니다.`);
+                        window.onConsole("notice",tags["display-name"],"닉네임 필터링", tags.username);
                     }
                 });
-                one_filter_user.push(tags.username);
+                window.chat_js.one_filter_user.push(tags.username);
             }
         }
     }else{
-        const commands = message.includes(" ") ? message.splite(" ") : [message];
+        const commands = message.includes(" ") ? message.split(" ") : [message];
         commands[0] = commands[0].toLowerCase();
         switch(commands[0]){
             case `${window.command_tag}클리너`:
@@ -174,8 +162,6 @@ client.on('message', (channel, tags, message, self) => {
                     }
                 });
                 break;
-            // case `${window.command_tag}명령어`:
-
             default:// 존재하지 않는 명령어
                 break;
         }// switch

@@ -10,8 +10,19 @@
         <script src="../../tgd/javascript/jwt-decode.js"></script>
         <script src="../javascript/tmi.min.js"></script>
         <script>
-window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
-Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+    
+// window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
+// Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
+function createElement(target,ele){
+    const e = document.createElement(ele);
+    target.appendChild(e);
+    return e;
+}
+function createElementFirst(target,ele){
+    const e = createElement(target, ele);
+    target.insertBefore(e, target.firstElementChild)
+    return e;
+}
 
 function getQuery() {
     const query = document
@@ -46,12 +57,36 @@ window.query = getQuery();
             table{
                 width: 100%;
                 height: 100%;
-                border: 1px solid;
+                /* border: 1px solid; */
             }
             table tr td{
                 width: calc(100% / 6);
-                border: 1px solid;
+                height: calc(100% / 8);
+                /* border: 1px solid; */
+                text-align: center;
                 padding: 0;
+            }
+            table tr td button{
+                float: right;
+            }
+            table tr td > div{
+                height: 90%;
+            }
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            .console_div {
+                width: 100%;
+                height: 100%;
+                overflow: scroll;
+            }
+            .console_div > div{
+                margin: 5px 0;
+            }
+            .console_div > div > a{
+                cursor: pointer;
             }
         </style>
     </head>
@@ -60,16 +95,28 @@ window.query = getQuery();
         <table>
             <tr>
                 <td rowspan="6" colspan="4"><iframe id="video-ui" frameborder="0" scrolling="no" allowfullscreen="true" width="100%" height="100%"></iframe></td>
-                <td rowspan="8"><iframe id=chat_ui frameborder="0" scrolling="no" width="300px" height="100%"></iframe></td>
-                <td rowspan="6">콘솔창</td>
+                <td rowspan="8"><iframe id=chat_ui frameborder="0" scrolling="no" width="350px" height="100%"></iframe></td>
+                <td rowspan="6"><div class="console_div"></div></td>
             </tr>
             <tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>
             <tr>
-                <td rowspan="2">명령어모음</td>
-                <td rowspan="2">금지어</td>
-                <td rowspan="2">금지닉</td>
-                <td rowspan="2">중재리스트</td>
-                <td rowspan="2">기타콘솔</td>
+                <td rowspan="2" colspan="2">명령어
+                    <button id="command_bt">추가</button>
+                    <div id="command_div"></div>
+                </td>
+                <td rowspan="2">금지어
+                    <button id="message_bt">추가</button>
+                    <div id="message_div"></div>
+                </td>
+                <td rowspan="2">팔로우 알림
+                    <div id="follow_div"></div>
+                </td>
+                <!-- <td rowspan="2">중재리스트 - 5분에 한번 갱신
+                    <div id="mod_div"></div>
+                </td> -->
+                <td rowspan="2">매뉴창
+                    <div></div>
+                </td>
             </tr>
             <tr></tr>
         </table>
@@ -129,14 +176,122 @@ if(!window.query.hasOwnProperty("code")){
 
         document.getElementById("chat_ui").src=`https://www.twitch.tv/embed/${channel}/chat?parent=${location.hostname}`;
         document.getElementById("video-ui").src=`https://player.twitch.tv/?channel=${channel}&parent=${location.hostname}`;
-        document.title = `트봇 - [${channel}]모니터링중...`
+        document.title = `트봇 - [${channel}]모니터링중...`;
     }else {
         window.location.href = `${window.location.origin}${window.location.pathname}`;
     }
+
+    const console_div = document.getElementsByClassName("console_div")[0];
+    const command_div = document.getElementsByClassName("command_div")[0];
+    // const command_div = document.getElementsByClassName("")[0];
+
+
+    // const cmd_user = getStorage(`${channel}_${login}_cmd`,{});//명령어
+    // const message_user = getStorage(`${channel}_${login}_message`, {});// 금지어
+    // const bad_user = getStorage(`${channel}_${login}_bad`,[]);//금지닉
+    window.onConsole = function(event, ...args){
+        let ele;
+        switch(event){
+            case "notice":
+                createElementFirst(console_div, "div").innerHTML = `${args.join(" ")}`;
+                break;
+            case "timeout":
+                ele = createElementFirst(console_div, "div");
+                ele.innerHTML = `${getTime()} <a title="타임아웃 취소" onclick="client.say('#${window.query.channel}','/timeout ${args[0]} 0');">${event}:${args[1]}</a><a title="사용자 정보" onclick="userWindow('${args[0]}')">[${args[0]}]</a>`;
+                break;
+            case "ban":
+                ele = createElementFirst(console_div, "div");
+                ele.innerHTML = `${getTime()} <a title="벤 취소" onclick="client.say('#${window.query.channel}','/unblock ${args[0]}');">${event}</a><a title="사용자 정보" onclick="userWindow('${args[0]}')">[${args[0]}]</a>`;
+                break;
+            case "command":
+                ele = createElementFirst(command_div, "div");
+                ele.innerHTML = `
+                    <a title="제거" onclick="delete cmd_user['${args[0]}'];var e = this.parentNode;e.parentNode.removeChild(e)">${event}</a>
+                    <a title="편집" onclick="var v = callInput('${args[1]}');cmd_user['${args[0]}']=v;">${args[1]}</a>
+                `;
+                break;
+            case "nick"://닉네임 필터
+                ele = createElementFirst(command_div, "div");
+                ele.innerHTML = `<a title="제거" onclick="var i = bad_user.indexOf('${args[0]}');bad_user.splice(i,1);var e = this.parentNode;e.parentNode.removeChild(e)">${event}</a>`;
+                break;
+            case "message"://메세지 필터
+                ele = createElementFirst(command_div, "div");
+                ele.innerHTML = `
+                    <a title="제거" onclick="delete message_user['${args[0]}'];var e = this.parentNode;e.parentNode.removeChild(e)">${event}</a>
+                    <a title="편집" onclick="var v = callInput('${args[1]}');message_user['${args[0]}']=v;">${args[1]}</a>
+                `;
+                break;
+        }
+    };
+
+    function onAppendMessage(){
+        switch(this.id){
+            case "command_bt":{
+                const cmd = callInput("","인식할 명령을 입력해 주세요!");
+                if(!cmd){
+                    alert("명령 생성에 실패하였습니다!");
+                    break;
+                }
+                const msg_value_test = callInput("","출력될 명령을 입력해 주세요!\n 인식어 {id},{name}");
+                cmd_user[cmd] = msg_value_test;
+                window.onConsole("command",cmd, msg_value_test);
+                }
+                break;
+            case "message_bt":
+                let msg_value_test = callInput("","출력될 명령을 입력해 주세요!\n 인식어 {id},{name}");
+                if(!msg_value_test || msg_value_test.length <= 3){
+                    alert("금지어는 적어도 3자 이상 입력해 주세요!");
+                    break;
+                }
+                if(message_user.indexOf(msg_value_test)!= -1){
+                    alert("이미 입려된 금지어 입니다!");
+                    break;
+                }
+                message_user.push(msg_value_test);
+                window.onConsole("message",msg_value_test);
+                break;
+        }
+    }
+    document.getElementById("command_bt").onclick = onAppendMessage;
+    document.getElementById("message_bt").onclick = onAppendMessage;
+
+
+
     const chat_js = document.createElement("script");
-    chat_js.src="javascript/chat.js";116
+    chat_js.src="javascript/chat.js";
     document.body.appendChild(chat_js);
-}//
+}
+
+function callInput(c,msg="출력을 입력해 주세요!"){
+    var v = prompt( msg,v?v:"");
+    if(!v||v.length <= 0){alert("입력이 올바르지 않습니다!");return;}
+    return v;
+}
+
+function userWindow(user_id){
+    window.open(`https://www.twitch.tv/popout/${window.query.channel}/viewercard/${user_id}?popout=`, '_blank', "width=400, height=500, status=0, location=0,left=510, top=20");
+}
+
+function getTime(){
+    const t = new Date();
+    return `${[t.getHours(),t.getMinutes()/*,t.getSeconds()*/].join(":")}`
+}
+
+// function getFollow() {
+//   let follows = JSON.parse(
+//     getAPI(
+//         `https://api.twitch.tv/kraken/channels/" + window.user_id + "/follows`
+//     )
+//   )["follows"];
+//   return follows.map((x) => {
+//     return {
+//       user: x.user["_id"],
+//       name: x.user["display_name"],
+//       logo: x.user.logo,
+//     };
+//   });
+// }
+
         </script>
     </body>
 </html>
