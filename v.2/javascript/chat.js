@@ -10,10 +10,11 @@ if(token.length != 30){
     alert("토큰이 잘못됨!");
     window.location.href=`${window.location.origin}${window.location.pathname}?channel=${channel}`;
 }
+// 토큰정보 가져옴
 const {client_id, login, user_id, expires_in} = getApi("https://id.twitch.tv/oauth2/validate", {
     "authorization":`OAuth ${token}`
 });
-
+// 채널 정보 가져옴
 const {data: channel_data} = getApi(`https://api.twitch.tv/helix/users?login=${channel}`,{
     "Client-Id" : client_id,
     "authorization":`Bearer ${token}`
@@ -109,31 +110,39 @@ client.on("ban", (channel, msg, self, tags) => {
 // const login_user = getStorage(`${channel}_${login}_login`, {});// 금지어
 // const bad_user = getStorage(`${channel}_${login}_bad`,[]);//금지닉
 
+const one_filter_user = [];
+
 window.command_tag =  window.command_tag || "!";
 client.on('message', (channel, tags, message, self) => {
     if (self) return;
-    console.log(channel, tags, message, self);
-    const isPermiss = tags.badges.hasOwnProperty("moderator") || tags.badges.hasOwnProperty("broadcaster");
+    console.log(tags, message);
+    const isPermiss = tags.badges ? tags.badges.hasOwnProperty("moderator") || tags.badges.hasOwnProperty("broadcaster") : false;
 
     if(message[0] != window.command_tag){
         if(!isPermiss){
             chattings.push({channel, msgId : tags.id, login: tags.username});
+            // 사용자 명령 처리
             Object.keys(cmd_user).forEach(o=>{
                 if(message.startsWith(o)){
                     o.replace('{id}', tags.username).replace('{name}', tags["display-name"]);
                 }
             });
+            // 금지어 처리
             Object.keys(login_user).forEach(o=>{
                 if(message.includes(o)){
                     client.say(channel, `/delete ${tags.id}`);
                     client.say(channel, `/me @${tags.username} -> ${login_user[o]}`);
                 }
             });
-            bad_user.forEach(o=>{
-                if(tags.username.includes(o)){
-                    client.say(channel, `/ban ${tags.username}`);
-                }
-            });
+            // 이름 필터링
+            if(!one_filter_user.includes(tags.username)){
+                bad_user.forEach(o=>{
+                    if(tags.username.includes(o)){
+                        client.say(channel, `/ban ${tags.username}`);
+                    }
+                });
+                one_filter_user.push(tags.username);
+            }
         }
     }else{
         const commands = message.includes(" ") ? message.splite(" ") : [message];
@@ -141,7 +150,7 @@ client.on('message', (channel, tags, message, self) => {
         switch(commands[0]){
             case `${window.command_tag}클리너`:
                 if(commands.length < 3){
-                    client.say(channel, `/me 잘못된 명령입니다 - ${window.command_tag}클리너 [ban|timeout|delete] [timeout일때 시간] [필터링 단어 및 문장]`);
+                    client.say(channel, `/me 잘못된 명령입니다 - ${window.command_tag}클리너 [ban|timeout|delete] {timeout일때 시간} [필터링 단어 및 문장]`);
                     return;
                 }
                 const point = ["timeout"].includes(commands[1]) ? 3 : 2;
@@ -165,6 +174,8 @@ client.on('message', (channel, tags, message, self) => {
                     }
                 });
                 break;
+            // case `${window.command_tag}명령어`:
+
             default:// 존재하지 않는 명령어
                 break;
         }// switch
@@ -173,7 +184,7 @@ client.on('message', (channel, tags, message, self) => {
 });
 
 /**
- * 해당 옶션에 맞춰 기록을 통하여 필터링함
+ * 해당 옶션에 맞춰 기록을 통하여 채팅 필터링
  * @param {*} channel 
  * @param {*} command 
  * @param {*} words 
@@ -214,6 +225,39 @@ function cleanner(channel, command, words, option){
     // 파일 다운로더
     client.say(channel, `/me ${comm_user.length}명을 ${command}처리하였습니다!`);
 }
+
+/**
+ * 블락된 유저 목록을 불러옴
+ * @param {*} cursor 
+ * @returns [
+ *  {
+      "user_id": "424596340",
+      "user_login": "quotrok",
+      "user_name": "quotrok",
+      "expires_at": "2018-08-07T02:07:55Z",
+    }
+ * ]
+ */
+function getCommandingUsers(cursor) {//channel_id
+    let url = "https://api.twitch.tv/helix/moderation/banned?first=100&";
+    if(cursor){
+        url += `before=${cursor}`
+    }else {
+        url += `broadcaster_id=${channel_id}`;
+    }
+    const data = getApi(url,{
+        "Client-Id" : client_id,
+        "authorization":`Bearer ${token}`
+    });
+    if(!data) return [];
+    const users = JSON.parse(data);
+    if(users.hasOwnProperty("pagination") && users.pagination.hasOwnProperty("cursor")){
+        users.data.push(...getCommandingUsers(users.pagination.cursor));
+    }
+    return users.data;
+}
+
+// 비 API 툴
 //////////////////////////////////////////////////////////////////////////////////
 const UUIDGeneratorBrowser = () =>
   ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -222,6 +266,12 @@ const UUIDGeneratorBrowser = () =>
       (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
     ).toString(16)
   );
+
+/**
+ * 파일 저장 - 텍스트 파일로 로그 저장
+ * @param {*} fileName 
+ * @param {*} content 
+ */
 function saveToFile(fileName, content){
     if(isIE())
         saveToFile_IE(fileName,content);
@@ -249,14 +299,16 @@ function isIE() {
     return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
         navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
 }
+
 /**
- * 
- * @param {*} url 
- * @param {*} header 
+ * API 통신에 필요한 데이터 수신
+ * @param {*} url url
+ * @param {*} header 헤더
+ * @param {function} isSync 비동기 통신 할 때의 처리함수
  * @returns 
  */
-function getApi(url, header){
-    return networkApi("GET", url, header);
+function getApi(url, header, isSync=false){
+    return networkApi("GET", url, header, isSync);
 }
 
 function postApi(url, header, isSync=false){

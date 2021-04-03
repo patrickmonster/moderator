@@ -37,8 +37,42 @@ function getQuery() {
 }
 window.query = getQuery();
         </script>
+        <style>
+            html, body{
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+            table{
+                width: 100%;
+                height: 100%;
+                border: 1px solid;
+            }
+            table tr td{
+                width: calc(100% / 6);
+                border: 1px solid;
+                padding: 0;
+            }
+        </style>
     </head>
     <body>
+        <!-- 6*8 테이블 크기 -->
+        <table>
+            <tr>
+                <td rowspan="6" colspan="4"><iframe id="video-ui" frameborder="0" scrolling="no" allowfullscreen="true" width="100%" height="100%"></iframe></td>
+                <td rowspan="8"><iframe id=chat_ui frameborder="0" scrolling="no" width="300px" height="100%"></iframe></td>
+                <td rowspan="6">콘솔창</td>
+            </tr>
+            <tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>
+            <tr>
+                <td rowspan="2">명령어모음</td>
+                <td rowspan="2">금지어</td>
+                <td rowspan="2">금지닉</td>
+                <td rowspan="2">중재리스트</td>
+                <td rowspan="2">기타콘솔</td>
+            </tr>
+            <tr></tr>
+        </table>
         <script>
 if(!window.query.hasOwnProperty("code")){
     document.body.innerHTML = `
@@ -92,11 +126,15 @@ if(!window.query.hasOwnProperty("code")){
         console.log(channel, token);
         window.query.token = token;
         window.query.channel = channel;
+
+        document.getElementById("chat_ui").src=`https://www.twitch.tv/embed/${channel}/chat?parent=${location.hostname}`;
+        document.getElementById("video-ui").src=`https://player.twitch.tv/?channel=${channel}&parent=${location.hostname}`;
+        document.title = `트봇 - [${channel}]모니터링중...`
     }else {
         window.location.href = `${window.location.origin}${window.location.pathname}`;
     }
     const chat_js = document.createElement("script");
-    chat_js.src="javascript/chat.js";
+    chat_js.src="javascript/chat.js";116
     document.body.appendChild(chat_js);
 }//
         </script>
