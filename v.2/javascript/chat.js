@@ -74,6 +74,20 @@ function getStorage(key, non=[]){
     else return non; 
 }
 
+
+/**
+ * 스토리지 아이템을 불러옴
+ * @param {*} key 
+ * @param {*} non 
+ * @returns 
+ */
+ function setStorage(key, value){
+    if(typeof value != "string")
+        value = JSON.stringify(value);
+    localStorage.setItem(key, value);
+    console.log(key, value);
+}
+
 const chattings = [];// 채팅 로그기록
 window.chat_js.cmd_user = getStorage(`${channel}_${login}_cmd`,{});
 window.chat_js.message_user = getStorage(`${channel}_${login}_message`, {});
@@ -100,18 +114,23 @@ client.on("ban", (channel, msg, self, tags) => {
 
 client.on('message', (channel, tags, message, self) => {
     if (self) return;
-    // console.log(tags, message);
     const isPermiss = tags.badges ? tags.badges.hasOwnProperty("moderator") || tags.badges.hasOwnProperty("broadcaster") : false;
+
+    let isCmd = false;
+
+    console.log(channel,message);
+    Object.keys(window.chat_js.cmd_user).forEach(o=>{
+        console.log(message, o);
+        if(message.startsWith(o)){
+            client.say(channel, window.chat_js.cmd_user[o].replace('{id}', tags.username).replace('{name}', tags["display-name"]));
+            isCmd = true;
+        }
+    });
+    if(isCmd)return;// 채팅 명령 처리시 무시;
 
     if(message[0] != window.command_tag){
         if(!isPermiss){
             chattings.push({channel, msgId : tags.id, login: tags.username});
-            // 사용자 명령 처리
-            Object.keys(window.chat_js.cmd_user).forEach(o=>{
-                if(message.startsWith(o)){
-                    o.replace('{id}', tags.username).replace('{name}', tags["display-name"]);
-                }
-            });
             // 금지어 처리
             Object.keys(window.chat_js.message_user).forEach(o=>{
                 if(message.includes(o)){
@@ -163,6 +182,7 @@ client.on('message', (channel, tags, message, self) => {
                 });
                 break;
             default:// 존재하지 않는 명령어
+            // 사용자 명령 처리
                 break;
         }// switch
     }
