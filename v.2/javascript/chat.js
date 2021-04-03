@@ -123,7 +123,7 @@ client.on('message', (channel, tags, message, self) => {
             });
             // 이름 필터링
             if(!window.chat_js.one_filter_user.includes(tags.username)){
-                bad_user.forEach(o=>{
+                window.chat_js.bad_user.forEach(o=>{
                     if(tags.username.includes(o)){
                         client.say(channel, `/ban ${tags.username} 귀하는 스트리머가 설정한 닉네임 필터링에 필터링 되셧습니다.`);
                         window.onConsole("notice",tags["display-name"],"닉네임 필터링", tags.username);
