@@ -85,13 +85,20 @@ function getStorage(key, non=[]){
     if(typeof value != "string")
         value = JSON.stringify(value);
     localStorage.setItem(key, value);
-    console.log(key, value);
 }
 
 const chattings = [];// 채팅 로그기록
 window.chat_js.cmd_user = getStorage(`${channel}_${login}_cmd`,{});
 window.chat_js.message_user = getStorage(`${channel}_${login}_message`, {});
 window.chat_js.bad_user = getStorage(`${channel}_${login}_bad`,[]);
+
+console.log(window.chat_js.cmd_user);
+Object.keys(window.chat_js.cmd_user).forEach(o=>{
+    window.onConsole("command",o,window.chat_js.cmd_user[o]);
+})
+Object.keys(window.chat_js.message_user).forEach(o=>{
+    window.onConsole("message",o,window.chat_js.message_user[o]);
+})
 
 window.chat_js.one_filter_user = [];// 한번 닉네임 필터링 거친사람
 
