@@ -120,7 +120,7 @@ client.on("ban", (channel, msg, self, tags) => {
 // const bad_user = getStorage(`${channel}_${login}_bad`,[]);//금지닉
 
 client.on('message', (channel, tags, message, self) => {
-    if (self) return;
+    if (self || tags.username == login) return;
     const isPermiss = tags.badges ? tags.badges.hasOwnProperty("moderator") || tags.badges.hasOwnProperty("broadcaster") : false;
 
     let isCmd = false;
@@ -174,18 +174,61 @@ client.on('message', (channel, tags, message, self) => {
                 else 
                     client.say(channel, `/me 잘못된 명령입니다 - 인수가 잘못되었습니다.(필터링 문장은 적어도 5자 이상 적어주세요!)`);
                 break;
-            case `${window.command_tag}클립`:
-                postApi(`https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}`,{
-                    "Authorization": `Bearer ${token}`,
-                    "Client-Id" : client_id
-                },function(data){
-                    if(data){
-                        const {id, edit_url} = data.data[0];
-                        client.say(channel, `/me 클립을 제작함 - https://www.twitch.tv/${channel.substring(1)}/clip/${id}`);
-                        client.say("#tuesucmd", `/me 클립 편집점[${channel.substring(1)}] - ${edit_url}`);
-                    }else{
-                        client.say(channel, `/me 클립 제작에 실패함!`);
+                /**
+                 * curl -X POST 'https://api.twitch.tv/helix/clips?broadcaster_id=44322889' \
+                    -H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
+                    -H 'Client-Id: uo6dggojyb8d6soh92zknwmi5ej1q2'
+                 */
+            // case `${window.command_tag}클립`:
+            //     postApi(`https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}`,{
+            //         "Authorization": `Bearer ${token}`,
+            //         "Client-Id" : client_id
+            //     },function(data){
+            //         if(data){
+            //             //https://dev.twitch.tv/docs/api/reference#create-clip
+            //             const {id, edit_url} = data.data[0];
+            //             client.say(channel, `/me 클립을 제작함 - https://www.twitch.tv/${channel.substring(1)}/clip/${id}`);
+            //             client.say("#tuesucmd", `/me 클립 편집점[${channel.substring(1)}] - ${edit_url}`);
+            //         }else{
+            //             client.say(channel, `/me 클립 제작에 실패함!`);
+            //         }
+            //     });
+            //     break;
+                /**
+                 * 마커생성
+                 * curl -X POST 'https://api.twitch.tv/helix/streams/markers' \
+                    -H 'Authorization: Bearer cfabdegwdoklmawdzdo98xt2fo512y' \
+                    -H 'Client-Id: uo6dggojyb8d6soh92zknwmi5ej1q2' \
+                    -H 'Content-Type: application/json' \
+                    -d '{"user_id":"123", "description":"hello, this is a marker!"}'
+
+                    
+                    들	유형	기술
+                    created_at	끈	마커의 RFC3339 타임 스탬프입니다.
+                    description	끈	마커에 대한 설명입니다.
+                    id	끈	마커의 고유 ID입니다.
+                    position_seconds	정수	스트림 시작부터 마커의 상대적 오프셋 (초)입니다.
+
+                    {
+                        "id": 123,
+                        "created_at": "2018-08-20T20:10:03Z",
+                        "description": "hello, this is a marker!",
+                        "position_seconds": 244
                     }
+                 */
+            case `${window.command_tag}마커`:
+                const text = commands.slice(1).join(" ") || "";
+                axios.post("https://api.twitch.tv/helix/streams/markers", {
+                    user_id :`${channel_id}`,
+                    description: `${tags["display-name"]} - ${text}`
+                }, {
+                    'Content-Type':'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'Client-Id': client_id,
+                }).then(o=>{
+                    client.say(channel, `/me 마커생성 ${o.data.position_seconds}`);
+                }).catch(e=>{
+                    client.say(channel, `/me 마커생성 실패 - 생방송 중이 아닌거 같습니다!`);
                 });
                 break;
             default:// 존재하지 않는 명령어
