@@ -291,13 +291,13 @@ function list_item({f,i,l,n}){
 
 	// tr.C("td").html("Create :" +new Date(i.user.created_at).format("yyyy-MM-dd(E)HH:mm:ss")).styles("font-size","0.5em");
 	tr = ele.C("tr");
-	tr.C("td").html('<a title="ban"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
+	tr.C("td").html('<a title="ban"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
 		var table = this.parentNode.parentNode;
 		unfollow_user(table.data("id"),true,function(){
 			table.remove();
 		});
 	};
-	tr.C("td").html('<a title="unfollow"><i class="fas fa-ban"></i></a>').styles("cursor","pointer").onclick=function(){
+	tr.C("td").html('<a title="unfollow"><i class="fas fa-shield-alt"></i></a>').styles("cursor","pointer").onclick=function(){
 		var table = this.parentNode.parentNode;
 		unfollow_user(table.data("id"),false,function(){
 			table.remove();
