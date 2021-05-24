@@ -136,6 +136,8 @@ img{
 			</div></br>
 			channel:<span id="loading_channel">None</span><span id="loading_channel_total">None</span></br>&nbsp;&nbsp;
 			<h1>뷰봇 필터 -><button onclick="search_view_bot()">뷰봇한테 당했어요!</button></h1>
+      <label for="is_kor_nick"><input type="checkbox" name="한글닉니엠?" id="is_kor_nick">한글닉 뷰봇일경우 체크</label>
+      </br></br>
 			<h4>(특정 조건으로 사용자를 전채검색합니다)</br>
 				초당 팔로우 횟수로 사용자 조건을 탐색합니다. 현재 설정된량 : 초당<span id="follower_sec"></span>
 			</h4>
@@ -143,7 +145,8 @@ img{
 			필터:<input type="date" id="day_start" name="trip-start"><input id="time_start" type="time">
 			~<input type="date" id="day_end" name="trip-start"><input id="time_end" type="time">
 			<button type="button" name="button" onclick="clear();window.tmp = list_filter(window.users); window.tmp.forEach(element=>list_item(element))">적용</button>
-			<!-- <button type="button" name="button" onclick="reset()">초기화</button> -->
+			<button type="button" name="button" onclick="reset()">초기화</button>
+      <button type="button" name="button" onclick="reset()">초기화</button>
 			<button type="button" name="button" onclick="save('userlist.json', JSON.stringify(list_filter(window.tmp || window.users)))">유저목록 다운로드</button>
 			<div id="user_unfollow" class="">
 				<h3>사용자 차단 및 언팔로우</h3><h4>현재 보여지는 사용자를</h4>
@@ -162,7 +165,7 @@ img{
 		<button id=append_load onclick="if(window.cursor)load_list(window.cursor);else this.styles('display','none')">추가 불러오기</button>
 	</div>
 	<script src="./js/followers.js"></script>
-	<script>
+	<!-- <script>
 	const svgDimensions = {
         width: 300,
         height: 300,
@@ -236,6 +239,6 @@ img{
           .style("fill", "#e65100");
         d3.select(this).select("text").attr("display", "block");
       }
-	</script>
+	</script> -->
 </body>
 </html>

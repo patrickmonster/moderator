@@ -1,4 +1,3 @@
-
 'use strict';
 window.ver = "2.0.0";
 
@@ -133,32 +132,41 @@ function search_view_bot(){
 			}
 		});
 		if(is_viewbot){
-			alert(`비정상적인 팔로우 관측 : 최소${is_viewbot}`);
+			alert(`비정상적인 팔로우 관측 : 최소(초당)${is_viewbot}`);
 		}else{
 			alert(`비정상적인 팔로우가 관측되지 않았습니다.`);
-			clear();
 			list.forEach(element => {
 				list_item(element);
 			});
+			append_bt.styles("display","none");//display: none;
+			window.cursor = undefined;
 			end();
 			return;
 		}
 		const filter = [];
-		for(const [k, v] in times)
-			if(v >= viewbot_follow)
+		for (const k in times){
+			if(times[k] >= viewbot_follow)
 				filter.push(k);
+		}
 		
-		const newList =  list.filter(o=>filter.includes(new Date(o.f).format("yyyy-MM-dd HH:mm") && o.l == o.n));// 필터에 접촉 / 닉네임 동일 
-		alert_ele.html(`사용자 분류... ${newList.length}명 필터링됨`);
+		const is_kor = document.getElementById("is_kor_nick").checked;
+		const newList =  Object.assign([],list.filter(o=>filter.includes(new Date(o.f).format("yyyy-MM-dd HH:mm")) && ( is_kor || o.l == o.n)));// 필터에 접촉 / 닉네임 동일 
+		alert_ele.html(`사용자 분류... ${newList.length}명 분류됨`);
+		alert(`사용자 분류... ${newList.length}명 분류됨`);
 		
-		clear();
 		newList.forEach(element => {
 			list_item(element);
 		});
+		window.tmp = newList;
+		append_bt.styles("display","none");//display: none;
+		window.cursor = undefined;
+
 		end();
 	}
 
+	clear();
 	if(!window.allList){
+		window.users = 0;// 초기화 후 다시 불러오기
 		getUserList(false,allFunc).then(then).catch(e=>{});
 	}else {
 		then(window.allList);
@@ -203,11 +211,14 @@ function load_list(cursor){
 		}
 		window.total = total;
 		document.getElementById("loading_channel_total").html(`${window.total}명`);
+
+		window.users = window.users|| [];
+		window.users.push(...list);
+
 		if(cursor){
 			append_bt.styles("display","block");//display: none;
 			window.cursor = cursor;
 		}else {
-			window.allList = window.users;
 			append_bt.styles("display","none");//display: none;
 			window.cursor = undefined;
 		}
@@ -217,8 +228,6 @@ function load_list(cursor){
 			list_item(element);
 		});
 		end();
-		window.users = window.users|| [];
-		window.users.push(...list);
 	}).catch(e=>{
 		alert("불러오는 도중, 에러가 발생하였습니다!");
 		end();
@@ -294,6 +303,12 @@ function list_item({f,i,l,n}){
 			table.remove();
 		});
 	};
+	tr.C("td").html('<a title="remove list item"><i class="far fa-times-circle"></i></a>').styles("cursor","pointer").onclick=function(){
+		var table = this.parentNode.parentNode;
+		window.tmp = window.tmp || Object.assign([],window.users);// 배열 복사
+		window.tmp = window.tmp.filter(o=>table.data("id") != o.i);
+		table.remove();
+	};
 }
 
 function clear(){
@@ -335,15 +350,14 @@ function list_filter(l){
 }
 
 function unfollow_user(user,is_ban,f){
-	window.token.instance.delete(`users/follows/?to_id=${window.broadcaster.id}&from_id=${user}`).then(o=>{
-		if(is_ban){
-			window.token.instance.put(`users/blocks?reason=harassment&source_context=chat&target_user_id=${user}`).then(o=>{
+	const query = `users/blocks?target_user_id=${user}`;
+	window.token.instance.put(query).then(o=>{
+		if(!is_ban){
+			window.token.instance.delete(query).then(o=>{
 				if(typeof f == "function")f();
 			}).catch(e=>{});
-		}else if(typeof f == "function")f(); 
-	}).catch(e=>{
-
-	});
+		}else if(typeof f == "function")f();
+	}).catch(e=>{});
 }
 
 function unfollow_users(l,is_ban){
