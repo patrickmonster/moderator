@@ -15,13 +15,6 @@ const viewbot_follow = 20;
 
 //=======================================================================================================
 
-/*
-o=eyJhY2Nlc3NfdG9rZW4iOiJ0YW45ZDE4cXhlZTB0b2VqejVuZmtpbGxkeWw2Y2wiLCJzY29wZSI6InVzZXI6bWFuYWdlOmJsb2NrZWRfdXNlcnMgdXNlcjplZGl0OmZvbGxvd3MiLCJkYXRlIjoiMjAyMS0wNS0yNFQwNToyMToyNy42NTVaIn0.c2VjcmV0
-#channel=access_token=tan9d18qxee0toejz5nfkilldyl6cl&
-scope=user%3Amanage%3Ablocked_users+user%3Aedit%3Afollows&state=undefined&token_type=bearer
-*/
-
-
 const append_bt = document.getElementById("append_load");
 /*
 순서
@@ -158,6 +151,7 @@ function search_view_bot(){
 		const newList =  list.filter(o=>filter.includes(new Date(o.f).format("yyyy-MM-dd HH:mm")));
 		alert_ele.html(`사용자 분류... ${newList.length}명 필터링됨`);
 		
+		clear();
 		newList.forEach(element => {
 			list_item(element);
 		});
