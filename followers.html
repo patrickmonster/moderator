@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>트봇 - Leaderboards</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-2"></script>
+    <script src="https://rawcdn.githack.com/blueimp/JavaScript-MD5/v2.10.0/js/md5.min.js" charset="utf-8"></script>
+	<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
+	<script src="https://patrickmonster.github.io/tgd/javascript/jwt-decode.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.js"></script>
+	<script src="./js/main.js"></script>
+	<style>
+*{
+	margin: 0px;
+	background-color:transparent;
+}
+img{
+	width: 6vh;
+	height: 6vh;
+	border-radius: 30px;
+}
+
+#user_list>table{
+	width: 200px;
+	height: 85px;
+	border: 1px solid;
+}
+
+/* ========================================================================= */
+#dash_bord{
+	width: 1300px;
+	height: 800px;
+	margin: 0 auto;
+}
+
+.filebox label {
+  display: inline-block;
+  padding: .5em .75em;
+  color: #fff;
+  font-size: inherit;
+  line-height: normal;
+  vertical-align: middle;
+  background-color: #5cb85c;
+  cursor: pointer;
+  border: 1px solid #4cae4c;
+  border-radius: .25em;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+
+.filebox label:hover {
+  background-color: #6ed36e;
+}
+
+.filebox label:active {
+  background-color: #367c36;
+}
+
+.filebox input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+/* ========================================================================= */
+#user_list{
+	width: 1300px;
+	height: 800px;
+	overflow: scroll;
+}
+
+#append_load {
+	width: 1300px;
+	height: 200px;
+	font-size: 4em;
+}
+
+.user_item{
+	position: relative;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	min-width: 0;
+	float: left;
+	word-wrap: break-word;
+	background-color: #fff;
+	background-clip: border-box;
+	border: 1px solid rgba(0,0,0,.125);
+	border-radius: .25rem;
+}
+.user_item>div{
+	width: 240px;
+}
+
+.over_word{
+	word-break:break-all;
+}
+
+.dialogue{
+	position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #3335;
+	z-index: 9999;
+	margin: 0 auto;
+}
+
+.dialogue span{
+	display: block;
+	width: 200px;
+	height: 100px;
+	background-color: #fff;
+	margin: 0 auto;
+	text-align:center;
+	transform: translate(0%, 100%);
+}
+	</style>
+	<script type="text/javascript">
+
+	</script>
+</head>
+<body>
+    <!-- <script src="../js/chat.js"></script> -->
+	<div id=dash_bord>
+		<div class="" style="text-align:center;">
+			<div class="">
+				<h1 style="color:red">경고!</h1>이 채널은 사용자의 팔로우 리스트를 관리합니다.!<br> 스트리머 본인의 팔로우 리스트를 수정 하실때에는 주의하여 주시기 바랍니다!
+				<h4>팔로우가 해재되었을 경우, 복구가 불가능합니다!</h4>
+				</br><h4>현재 권한: <i id="permiss"></i></h4>
+			</div></br>
+			channel:<span id="loading_channel">None</span><span id="loading_channel_total">None</span></br>&nbsp;&nbsp;
+			<h1>뷰봇 필터 -><button onclick="search_view_bot()">뷰봇한테 당했어요!</button></h1>
+			<h4>(특정 조건으로 사용자를 전채검색합니다)</br>
+				초당 팔로우 횟수로 사용자 조건을 탐색합니다. 현재 설정된량 : 초당<span id="follower_sec"></span>
+			</h4>
+			</br>
+			필터:<input type="date" id="day_start" name="trip-start"><input id="time_start" type="time">
+			~<input type="date" id="day_end" name="trip-start"><input id="time_end" type="time">
+			<button type="button" name="button" onclick="clear();window.tmp = list_filter(window.users); window.tmp.forEach(element=>list_item(element))">적용</button>
+			<!-- <button type="button" name="button" onclick="reset()">초기화</button> -->
+			<button type="button" name="button" onclick="save('userlist.json', JSON.stringify(list_filter(window.tmp || window.users)))">유저목록 다운로드</button>
+			<div id="user_unfollow" class="">
+				<h3>사용자 차단 및 언팔로우</h3><h4>현재 보여지는 사용자를</h4>
+				<button type="button" name="button" onclick="unfollow_users(list_filter(window.tmp || window.users),false)">팔로우 취소</button>
+				<button type="button" name="button" onclick="unfollow_users(list_filter(window.tmp || window.users),true)">팔로우 취소 및 벤</button>
+			</div>
+			<!-- <div class="filebox">
+				<label for="ex_file">업로드</label>
+				<input type="file" id="ex_file">
+			</div> -->
+		</div>
+		<div class="block">
+			<div id="user_list">
+			</div>
+		</div>
+		<button id=append_load onclick="if(window.cursor)load_list(window.cursor);else this.styles('display','none')">추가 불러오기</button>
+	</div>
+	<script src="./js/followers.js"></script>
+	<script>
+	const svgDimensions = {
+        width: 300,
+        height: 300,
+      };
+      const radius = Math.min(svgDimensions.width, svgDimensions.height) / 2;
+      const data = [420, 80, 130, 210, 510, 80];
+
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", svgDimensions.width)
+        .attr("height", svgDimensions.height)
+        .style("border", "1px solid rgba(0,0,0,0.1)");
+
+      const g = svg
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${svgDimensions.width / 2}, ${svgDimensions.height / 2})`
+        );
+      const color = d3.scaleOrdinal([
+        "#ff9800",
+        "#ffa726",
+        "#ffb74d",
+        "#ffcc80",
+        "#ffe0b2",
+        "#fff3e0",
+      ]);
+
+      const pie = d3.pie();
+      const arc = d3.arc().innerRadius(0).outerRadius(radius);
+      const arcs = g
+        .selectAll("arc")
+        .data(pie(data))
+        .enter()
+        .append("g")
+        .attr("class", "arc")
+        .on("mouseover", onMouseOver)
+        .on("mouseout", onMouseOut);
+
+      arcs
+        .append("path")
+        .attr("fill", (d, i) => color(i))
+        .attr("d", arc);
+
+      arcs
+        .append("text")
+        .attr("transform", (d) => `translate(${arc.centroid(d)})`)
+        .text((d) => d.value)
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "18px")
+        .attr("font-weight", "bold")
+        .attr("fill", "#fff")
+        .attr("text-anchor", "middle")
+        .attr("display", "none");
+
+      function onMouseOut(d, i) {
+        d3.select(this)
+          .select("path")
+          .transition()
+          .duration(200)
+          .style("fill", color(i));
+        d3.select(this).select("text").attr("display", "none");
+      }
+
+      function onMouseOver(d, i) {
+        d3.select(this)
+          .select("path")
+          .transition()
+          .duration(200)
+          .style("fill", "#e65100");
+        d3.select(this).select("text").attr("display", "block");
+      }
+	</script>
+</body>
+</html>
