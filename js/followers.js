@@ -164,7 +164,7 @@ function search_view_bot(){
 		end();
 	}
 
-	clear();
+	clear_();
 	if(!window.allList){
 		window.users = 0;// 초기화 후 다시 불러오기
 		getUserList(false,allFunc).then(then).catch(e=>{});
@@ -202,7 +202,7 @@ async function getUserList(cursor,f){
  * 사용자 리스트를 불러옴
  */
 function load_list(cursor){
-	if (!cursor) clear();
+	if (!cursor) clear_();
 	const end = onDialogue(document.createElement("span").html("데이터를 불러오는중..."));
 	getUserList(cursor, (list, cursor, total)=>{
 		window.total = window.total || 0;
@@ -311,7 +311,8 @@ function list_item({f,i,l,n}){
 	};
 }
 
-function clear(){
+function clear_(){
+	console.log("????");
 	target.html("");
 }
 
@@ -324,7 +325,10 @@ function reset(){
 	document.getElementById("time_start").value ="";
 	document.getElementById("time_end").value ="";
 	window.tmp = 0;
-	list_followers(window.users);
+	clear_();
+	window.users.forEach(i=>{
+		list_item(i);
+	})
 }
 
 /**
@@ -402,4 +406,28 @@ function save(fileName, content){
 function isIE() {
     return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
         navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
+}
+
+
+function openTextFile(f) {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = "text/json"; // 확장자가 xxx, yyy 일때, ".xxx, .yyy"
+    input.onchange = function (event) {
+        processFile(event.target.files[0], f);
+    };
+    input.click();
+}
+function processFile(file, f) {
+    var reader = new FileReader();
+    reader.onload = function () {
+		try{
+			const js = JSON.parse(reader.result);
+			f(js);
+		}catch(e){
+			alert("파일을 불러오는데 오류가 발생함");
+		}
+        // output.innerText = reader.result;
+    };
+    reader.readAsText(file, /* optional */ "euc-kr");
 }

@@ -144,9 +144,9 @@ img{
 			</br>
 			필터:<input type="date" id="day_start" name="trip-start"><input id="time_start" type="time">
 			~<input type="date" id="day_end" name="trip-start"><input id="time_end" type="time">
-			<button type="button" name="button" onclick="clear();window.tmp = list_filter(window.users); window.tmp.forEach(element=>list_item(element))">적용</button>
+			<button type="button" name="button" onclick="clear_();window.tmp = list_filter(window.users); window.tmp.forEach(element=>list_item(element))">적용</button>
 			<button type="button" name="button" onclick="reset()">초기화</button>
-      <button type="button" name="button" onclick="reset()">초기화</button>
+      <button type="button" name="button" onclick="clear_(); openTextFile((l)=>{l.forEach(i=>{list_item(i)})})">파일 불러오기</button>
 			<button type="button" name="button" onclick="save('userlist.json', JSON.stringify(list_filter(window.tmp || window.users)))">유저목록 다운로드</button>
 			<div id="user_unfollow" class="">
 				<h3>사용자 차단 및 언팔로우</h3><h4>현재 보여지는 사용자를</h4>
