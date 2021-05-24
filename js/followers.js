@@ -11,7 +11,7 @@ const permissions = ["user:manage:blocked_users", "user:edit:follows"]; // "chat
 
 const oauth = getParams("o");
 const access_token = getParams("access_token", rawauth);
-const viewbot_follow = 20;
+const viewbot_follow = 10;
 
 //=======================================================================================================
 
@@ -148,7 +148,7 @@ function search_view_bot(){
 			if(v >= viewbot_follow)
 				filter.push(k);
 		
-		const newList =  list.filter(o=>filter.includes(new Date(o.f).format("yyyy-MM-dd HH:mm")));
+		const newList =  list.filter(o=>filter.includes(new Date(o.f).format("yyyy-MM-dd HH:mm") && o.l == o.n));// 필터에 접촉 / 닉네임 동일 
 		alert_ele.html(`사용자 분류... ${newList.length}명 필터링됨`);
 		
 		clear();
