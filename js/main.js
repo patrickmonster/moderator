@@ -2,6 +2,7 @@ Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return th
 window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
 Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
 Element.prototype.styles=function(e,f){this.style[e]=f;return this};
+Element.prototype.attr=function(e,f){if(f){this.setAttribute(e,f);return this;}else return this.getAttribute(e)};
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
 Element.prototype.delClass=function(className){this.classList.remove(className);return this};
 Element.prototype.html=function(str){this.innerHTML = str;return this};

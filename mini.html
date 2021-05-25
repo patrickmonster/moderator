@@ -8,6 +8,7 @@
 		document.cookie = "safeCookie1=foo; SameSite=Lax";document.cookie = "safeCookie2=foo";document.cookie = "crossCookie=bar; SameSite=None; Secure";
 	</script>
 	<script src="https://patrickmonster.github.io/tgd/javascript/jwt-decode.js"></script>
+	<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="./javascript/tmi.min.js"></script>
 	<script src="./js/main.js"></script>
@@ -114,7 +115,7 @@ function isMobile(){
     <div class="block console_menu">
 		<h2>예약명령
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
-			<button onclick="window.bot.addMsg();">추가</button>
+			<button onclick="addReservation((msg, time)=>{consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green')});">추가</button>
 		</h2>
 		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
 		<div id=console_scroll class="scroll">
@@ -122,7 +123,7 @@ function isMobile(){
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
 		</div>
     </div>
-    <div id=badlangs_scroll class="block console_menu">
+    <!-- <div id=badlangs_scroll class="block console_menu">
 		<h2>금지어
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
 			<button onclick="window.bot.addBadlangs();">추가</button>
@@ -132,17 +133,16 @@ function isMobile(){
 			<table id=badlangs></table>
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
 		</div>
-    </div>
+    </div> -->
     <div class="block console_option">
         <h2>뷰봇/기능</h2>
 		<div class="scroll" style="height:calc( 100% - 35px );">
-			<button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(3자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
-			<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
-			<br>채팅 기록을 불러와 벤합니다...
-			<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span>
+			<button onclick="chatbot();">채팅탐지</button>
+			<!-- <button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button> -->
+			<br><span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span>
 			<br><button onclick="window.open('https://patrickmonster.github.io/moderator/followers.html'+location.hash)">팔로우 필터</button>
 	        <br>팔로우 일시를 기준으로 필터링 합니다.<br>
-			<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
+			<button onclick="location.href=oauth_redirect_uri">사용자 변경</button>
 		</div>
     </div>
     <!-- <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">

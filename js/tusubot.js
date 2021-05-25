@@ -2,15 +2,17 @@
 window.ver = "2.0.0";
 
 const oauth_client_id = "upe7qsmxj1soazkgf1ry7pf8w3d89u";
-const oauth_redirect_uri = `${location.origin}${location.pathname}`;// 리다이렉션
+const oauth_redirect_uri = `${window.location.origin}${window.location.pathname}`;// 리다이렉션
 
 const rawauth = document.location.href.replace("#", "?");
 const channel = location.hash.substr(1) || getParams("state") || 0;//채널정보가 없을때 / 스코프 / 0
-const permissions = ["channel:moderate", "whispers:edit", "clips:edit"]; // "chat:edit"
+const permissions = ["chat:read","chat:edit", "channel:moderate", "whispers:edit", "clips:edit"]; // "chat:edit"
 
 const oauth = getParams("o");
 const access_token = getParams("access_token", rawauth);
 const chat_log_limit = 1000;
+
+const is_test = false;
 
 //=======================================================================================================
 
@@ -74,22 +76,35 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 		}, 1000);
 	}
 	window.token.instance.get("users").then(({data: {data}}) =>{
-		console.log(data[0]);
 		if(!data.length)return;// 사용자가 없다?
-		const {login : username , id} = data[0];
-		// window.client = new tmi.Client({
-		// 	connection: { reconnect: true, secure: true },
-		// 	identity: { username,password: window.token.access_token},
-		// });
-		// window.client.on("chat",(channel, userstate, message, self)=>{
-		// 	if(self)return;
-		// 	addChat(userstate, message, userstate.id);
-		// });
+		const {login : username} = data[0];
+		console.log(data[0]);
+		const identity = { username,  password: window.token.access_token};
+		console.log(identity);
+		window.client = new tmi.Client({
+			options: {
+				debug: is_test,
+				level: 'warn',
+			},
+			connection: { reconnect: true, secure: true },
+			identity,
+			channels : [channel]
+		});
+		window.client.on("chat",(channel, userstate, message, self)=>{
+			if(self)return;
+			addChat(userstate, message, userstate.id);
+		});
+		window.client.on("ban", (channel, username, reason)=>{consoleMessage(`(유저 벤) ${username} ${reason  || ""}`)}, "blue");
+		window.client.on("timeout", (channel, username, reason, duration)=>{consoleMessage(`(유저 타임아웃 ${duration}) ${username} ${reason || ""}`)}, "blue");
+		window.client.on("hosted", (channel, username, viewers, autohost)=>{if(!autohost)consoleMessage(`(호스팅 ${viewers}) ${username}`)}, "blue");
+		window.client.on("redeem", (channel, username, rewardType, tag)=>{consoleMessage(`(포인트 보상[${rewardType}]) ${username}`)}, "blue");
+		window.client.connect().catch(console.error);
 	})
 
 	setBrodcast((o)=>{// 스트리머 정보
 		getStream(()=>{// 스트림 여부
 			initTime();// 시간 루퍼
+			initBadges(); // 배찌 불러오기
 		});
 		setInterval(getStream, 5 * 60 * 1000);// 스트림 상태
 	});
@@ -112,10 +127,10 @@ function scrollDiv(target){
  * @param {element} html 표기
  * @param {Function} end 종료후
  */
-function onDialogue(html){
+function onDialogue(html,f){
 	const dia = document.body.C("div");
 	dia.addClass("dialogue");
-	dia.onclick =()=>{}; // 클릭무시
+	dia.onclick =()=>{if(f)f();}; // 클릭무시
 
 	const parent = document.body;//맨앞으로 이동
 	parent.insertBefore(dia, parent.firstChild);
@@ -138,6 +153,33 @@ function setBrodcast(f){
 	}).catch(e=>console.error(e));
 }
 
+/**
+ * 뱃지를 불러옴
+ * GET https://api.twitch.tv/kraken/chat/<channel ID>/badges
+ */
+function initBadges() {
+	axios.get(`https://api.twitch.tv/kraken/chat/${window.broadcaster.id}/badges`, {
+		headers : { "Client-Id" : oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
+	}).then(({data})=>{
+		window.badges = new Map();
+		for(const k in data)window.badges.set(k, data[k].image);
+	}).catch(e=>{
+		console.error(e);
+	})
+}
+
+/**
+ * 
+ * @param {*} bages 
+ */
+ function getBadges(badges) {
+	let out = [];
+	for (const k in badges){
+		out.push(window.badges.get(k));
+	}
+	out = out.filter(o=> o != undefined);
+	return out.map(o=>`<img src=${o} />`).join("");
+}
 
 /**
  * https://dev.twitch.tv/docs/api/reference#create-poll
@@ -263,6 +305,8 @@ function addCommand(f){
 	const bord = document.createElement("span");
 	const end = onDialogue(bord);
 
+	bord.C("p").html(`명령을 추가합니다`);
+
 	const command = bord.C("input");
 	command.setAttribute("type", "text");
 	command.setAttribute("placeholder", "명령어를 입력해 주세요");
@@ -270,7 +314,6 @@ function addCommand(f){
 	msg.setAttribute("type", "text");
 	msg.setAttribute("placeholder", "출력할 내용을 입력해 주세요");
 	bord.C("br");
-	bord.C("button").html("취소").onclick = end;
 	bord.C("button").html("저장").onclick = function(){
 		if(command.value.length < 3){
 			alert("명령어는 최소 3자 이상으로 해주세요!");
@@ -284,10 +327,36 @@ function addCommand(f){
 			return;
 		}
 		window.command[command.value] = msg.value;
+		addCommandTxt(command.value, msg.value);
 		if(f)f(command.value, msg.value);
 		alert("저장되었습니다.");
 		end();
 	};
+	bord.C("button").html("취소").onclick = end;
+}
+
+function addCommandTxt(k,v) {
+	document.getElementById("command").C("p").html(`${k} -> ${v}`).onclick= function(event){
+		const element = this;
+		const bord = document.createElement("span");
+		const end = onDialogue(bord);
+
+		bord.C("button").html("커맨드변경").onclick = ()=>{
+			end();
+			editCommand((tk, tv)=>{
+				k = tk;v = tv;
+				element.html(`${k} -> ${v}`);
+			}, k, false);
+		};
+		bord.C("button").html("명령변경").onclick = ()=>{
+			end();
+			editCommand((tk, tv)=>{
+				k = tk;v = tv;
+				element.html(`${k} -> ${v}`);
+			}, k, true);
+		};
+
+	}
 }
 
 /**
@@ -300,7 +369,8 @@ function editCommand(f, target, is_msg = true){
 	const bord = document.createElement("span");
 	const end = onDialogue(bord);
 
-	bord.C("input").html(target).setAttribute("readonly","readonly");
+	bord.C("p").html(`바꿀 ${is_msg ? "메세지" : "명령어"}를 입력해 주세요!`);
+	bord.C("input").attr("readonly","readonly").value = target;
 
 	const command = bord.C("input");
 	command.setAttribute("type", "text");
@@ -310,7 +380,7 @@ function editCommand(f, target, is_msg = true){
 		if(!is_msg && command.value.length < 3){
 			alert("명령어는 최소 3자 이상으로 해주세요!");
 			return;
-		}else if( is_msg && msg.value.length < 1){
+		}else if( is_msg && command.value.length < 1){
 			alert("출력메세지는 최소 1자입니다.");
 			return;
 		}else if(!is_msg && window.command[command.value]){
@@ -329,7 +399,7 @@ function editCommand(f, target, is_msg = true){
 			delete window.command[target];
 			if(f)f(command.value, window.command[command.value]);
 		}
-		alert("저장되었습니다.");
+		alert("변경되었습니다.");
 		end();
 	};
 	bord.C("button").html("취소").onclick = end;
@@ -381,7 +451,8 @@ function addReservation(f){
 		window.reservation_msg.push({
 			msg : msg.value,
 			time: time.value,
-			id : setInterval(sendChat,time.value, msg.value)
+			is : true,
+			id : setInterval(item=>{if(item.is)sendChat(item.msg)},time.value * 60 * 1000, item)
 		});
 		alert("저장되었습니다.");
 		if(f)f(msg.value,time.value);
@@ -390,16 +461,112 @@ function addReservation(f){
 	bord.C("button").html("취소").onclick = end;
 }
 
+function addReservationTxt(item){
+	// consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green');
+	document.getElementById("command").C("p").html(`[${item.time}] -> ${item.msg}`).onclick= function(event){
+		const element = this;
+		const bord = document.createElement("span");
+		const end = onDialogue(bord);
+
+		bord.C("button").html("메세지변경").onclick = ()=>{
+			end();
+			editReservation((i)=>{
+				item = i;
+				element.html(`[${item.time}] -> ${item.msg}`);
+				consoleMessage(`메세지변경 ${item.msg} ${item.time}s`, 'green');
+			}, false);
+		};
+		bord.C("button").html("시간변경").onclick = ()=>{
+			end();
+			editReservation((i)=>{
+				item = i;
+				element.html(`[${item.time}] -> ${item.msg}`);
+				consoleMessage(`반복시간변경 ${item.msg} ${item.time}s`, 'green');
+			}, true);
+		};
+		bord.C("button").html("삭제").onclick = ()=>{
+			end();
+			removeReservation((i)=>{
+				consoleMessage(`반복메세지 삭제 ${i.msg} ${i.time}s`, 'green');
+			},item);
+			element.remove();
+		};
+	}
+}
+
+/**
+ * 주기적 명령 변경
+ * @param {*} f 콜백
+ * @param {*} msg 메세지
+ * @param {*} is_time 시간인지 여부
+ */
+function editReservation(f, msg, is_time = true){
+	const bord = document.createElement("span");
+	const end = onDialogue(bord);
+
+	const item = window.reservation_msg.filter(o=> o.msg == msg)[0];
+	if(!item)return; // 아이템이 없음
+
+	const check = bord.C("input").attr("type", "checkbox").attr("title", "on/off").addClass("checkbox");
+	check.checked = item.is;
+	check.onchange = function(){
+		item.is = this.checked;
+	}
+
+	bord.C("p").html(`바꿀 ${is_time ? "시간" : "메세지"}를 입력해 주세요!`);
+	bord.C("input").attr("readonly","readonly").value = `(${item.time}) ${msg}`;
+
+	const command = bord.C("input");
+	command.setAttribute("type", is_time ? "number" : "text");
+	if(is_time){
+		command.setAttribute("min", "5");
+		command.setAttribute("max", "60");
+		command.setAttribute("step", "5");
+		command.setAttribute("value", "5");
+	}
+	command.setAttribute("placeholder", is_time ? "시간주기" : "명령어를 입력해 주세요");
+
+	bord.C("br");
+	bord.C("button").html("저장").onclick = function(){
+		if(!is_time && command.value.length < 3){
+			alert("메세지는 최소 3자 이상으로 해주세요!");
+			return;
+		}else if( is_time && command.value <= 1){
+			alert("1분이상으로 설정해 주세요!");
+			return;
+		}else if(!is_time && window.command[command.value]){
+			alert("이미 존재하는 명령어 입니다!");
+			return;
+		}else if(!is_time && command.value == msg){
+			alert("변경내용과, 이전내용이 동일합니다!");
+			end();
+			return;
+		}
+		if(is_time){
+			item.time = command.value;
+			clearInterval(item.id);// 타이머 제거
+			item.id = setInterval(item=>{
+				if(item.is)sendChat(item.msg)
+			},time.value * 60 * 1000, item);
+		}else{
+			item.msg = command.value;
+		}
+		if(f)f(item);
+		alert("변경되었습니다.");
+		end();
+	};
+	bord.C("button").html("취소").onclick = end;
+}
+
 /**
  * 반복메세지 삭제
- * @param {*}} msg 
+ * @param {*} msg 
  */
-function removeReservation(msg){
-	const list = window.reservation_msg.filter(({msg: message})=> message == msg);
-	list.forEach(o=>{
-		clearInterval(o.id);
-		delete window.reservation_msg[o];
-	});
+function removeReservation(f,item){
+	clearInterval(item.id);// 타이머 제거
+	delete window.reservation_msg[item];
+	item.is = false;
+	f(item);
 }
 //======================================================================================
 
@@ -427,33 +594,68 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 			});
 		}
 	}
-	document.getElementById("console").C("p").html(`[${user.username}] ${msg}`);
+	const nick = user["display-name"] == user.username ? user.username : `${user["display-name"]}<p style='font-size:0.2em;display:contents;'>${user.username}</p>`;
+	document.getElementById("console").C("p").addClass("hover_pointer").styles("cursor","pointer").html(`[${nick}] ${msg}`).onclick = function(){
+		const bord = document.createElement("span");
+		const end = onDialogue(bord, ()=>{ end() });
+
+		bord.onclick = (event)=>{event.stopPropagation()};
+		bord.styles("width", "300px");
+		bord.styles("height", "150px");
+
+		bord.C("p").html(nick).styles("color", user.color || "#000").styles("cursor","pointer").attr("placeholder","사용자 채팅 기록").onclick = () =>{
+			window.open(`https://www.twitch.tv/popout/${window.broadcaster.login}/viewercard/${user.username}?popout=`);
+		};
+		bord.C("p").html(getBadges(user.badges));
+		bord.C("p").html(user.id);
+		bord.C("p").html(msg);
+
+		//timeout
+		bord.C("button").attr("placeholder","타임아웃 (30s)").html(`<i class="fas fa-shield-alt"></i>`).onclick = () => {
+			end();
+			consoleMessage(`${user.username}사용자를 타임아웃 (30s)`);
+		};
+		// ban
+		bord.C("button").attr("placeholder","벤").html(`<i class="fas fa-ban"></i>`).onclick = () => {
+			end();
+			consoleMessage(`${user.username}사용자를 차단함`);
+		};
+		/// delete message
+		bord.C("button").attr("placeholder","메세지 삭제").html(`<i class="far fa-times-circle"></i>`).onclick = () => {
+			end();
+			consoleMessage(`${user.id}메세지를 삭제함`);
+		};
+	};
 	scrollDiv(document.getElementById("console_scroll"));
 }
 
 function sendChat(msg){// 채팅 전송
 	console.log("[send]", msg);
-	if(window.client)
+	if(window.client && !is_test)
 		window.client.say(`#${window.broadcaster.login}`,msg);
 }
 
 function banUser(user){// 벤
 	console.log("[ban]", user);
-	if(window.client)
+	if(window.client && !is_test)
 		window.client.ban(`#${window.broadcaster.login}`, user, "당신은 필터에 의해 제거되었습니다");
 
 }
 function timeoutUser(user, time){// 채팅 전송
 	console.log("[timeout]", time, user);
-	if(window.client)
+	if(window.client && !is_test)
 		window.client.timeout(`#${window.broadcaster.login}`, user, time, `당신은 필터에 의해 ${time}동안 차단당하였습니다`);
 }
 function removChat(msg_id){// 채팅 전송
 	console.log("[remove]", msg_id);
-	if(window.client)
+	if(window.client && !is_test)
 		window.client.deletemessage(`#${window.broadcaster.login}`, msg_id);
 }
 
+function consoleMessage(message, color = "red") {
+	document.getElementById("console").C("p").html(`[console] ${message}`).styles("background", color).styles("color", "#fff");
+	scrollDiv(document.getElementById("console_scroll"));
+}
 
 //======================================================================================
 /**
@@ -519,21 +721,17 @@ function filterChatbot(msg){
 		filter.forEach(({user})=>{
 			banUser(user.login);
 		});
-		document.getElementById("console").C("p").html(`[console] ${filter.length}명을 일괄 벤 하였습니다.`);
+		consoleMessage(`${filter.length}명을 일괄 벤 하였습니다.`);
 		sendChat(`/me [tusubot] ${filter.length}명을 일괄 벤하였습니다.`);
-		scrollDiv(document.getElementById("console_scroll"));
 		end();
-		//처리
 
 	};
-	console.log(filter.length);
 	bord.C("button").html("일괄 타임아웃(30초)").onclick = () => {
 		filter.forEach(({user})=>{
 			timeoutUser(user.login, 30);
 		});
-		document.getElementById("console").C("p").html(`[console] ${filter.length}명을 일괄 타임아웃(30s) 하였습니다.`);
+		consoleMessage(`${filter.length}명을 일괄 타임아웃(30s) 하였습니다.`);
 		sendChat(`/me [tusubot] ${filter.length}명을 일괄 타임아웃(30s) 하였습니다`);
-		scrollDiv(document.getElementById("console_scroll"));
 		end();
 		// 처리
 	};
@@ -541,9 +739,8 @@ function filterChatbot(msg){
 		filter.forEach(({msg_id})=>{
 			removChat(msg_id);
 		});
-		document.getElementById("console").C("p").html(`[console] ${filter.length}개의 채팅을 일괄 삭제 하였습니다.`);
+		consoleMessage(`${filter.length}개의 채팅을 일괄 삭제 하였습니다.`);
 		sendChat(`/me [tusubot] ${filter.length}개의 채팅을 일괄 삭제 하였습니다.`);
-		scrollDiv(document.getElementById("console_scroll"));
 		end();
 		// 처리
 	};
@@ -551,13 +748,3 @@ function filterChatbot(msg){
 }
 
 //======================================================================================
-/**
- * 
- * @param {Function} f 아이템 클릭 이벤트(콜백)
- * @param {Element} target 
- * @param  {...element} items 
- */
-function appendItem(f, target ,...items){
-	if(!target)return false;
-	items.forEach(element=>target.appendChild(element));
-}
