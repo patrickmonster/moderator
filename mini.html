@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta name="viewport" content="width=1000, user-scalable=no">
+    <title>트봇mini - Leaderboards</title>
+	<script type="text/javascript">
+		document.cookie = "safeCookie1=foo; SameSite=Lax";document.cookie = "safeCookie2=foo";document.cookie = "crossCookie=bar; SameSite=None; Secure";
+	</script>
+	<script src="https://patrickmonster.github.io/tgd/javascript/jwt-decode.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="./javascript/tmi.min.js"></script>
+	<script src="./js/main.js"></script>
+	<script src="./js/tusubot.js"></script>
+	<style>
+*{
+	margin: 0px !important;
+	padding: 0px !important;
+	background-color:transparent;
+}
+body{
+	width:1000px;/*1920px;*/
+	height:100%;/*1080px;*/
+  /* overflow:hidden; */
+	text-align:center;
+}
+img{
+	width: 4vh;
+	height: 4vh;
+}
+
+body > div.block{
+	width: 496px;
+	margin: 2px !important;
+}
+
+.dialogue{
+	position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #3335;
+	z-index: 9999;
+	margin: 0 auto;
+}
+
+.dialogue span{
+	display: block;
+	width: 200px;
+	height: 100px;
+	background-color: #fff;
+	margin: 0 auto !important;
+	text-align:center;
+	transform: translate(0%, 100%);
+}
+
+#is_online{
+	background-color: blue;
+	width: 60px;
+	height: 15px;
+	border-radius: 50px;
+    padding: 0px 5px !important;
+
+}
+	</style>
+	<link rel="stylesheet" href="./css/followers.css">
+	<script type="text/javascript">
+
+function isMobile(){
+	const uAgent = navigator.userAgent.toLowerCase(); 
+	const mobilePhones = new RegExp(/\b(:?iphone|ipod|ipad|android|blackberry|windows ce|nokia|webos|opera mini|sonyericsson|opera mobi|iemobile)\b/g);
+	return mobilePhones.test(uAgent);
+}
+//Mobile여부를 구분하기 위함
+	</script>
+</head>
+<body>
+	<!-- 싱글 데시보드 -->
+	<!-- 콘솔창 -->
+	<div class="title_ui">
+		<span id=title>Null</span> 
+		현재 접속중인 채널: <span id=channel>Null</span>
+		<span id=is_online>Off-line</span>
+		<span id=uptime>00:00:00</span> 
+	</div>
+    <div class="block console_ui">
+		<!-- 테이블 한도 - 500개 -->
+		<div id=console_scroll class="scroll" style="width: 100%;height: 100%;background: #afeae8;">
+			<table id=console></table>
+		</div>
+    </div>
+    <div id=command_scroll class="block console_menu">
+        <h2>채팅 명령<input type="checkbox" title="자동응답 on/off" id="is_commands" class="checkbox">
+			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
+			<button onclick="addCommand();">추가</button>
+		</h2>
+		<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+        <div class="scroll ">
+			<table id=command></table>
+			<div class="back_space" onclick="removeAllClass('over_view')"></div>
+		</div>
+    </div>
+    <!-- <div class="block console_menu">
+		<h2>방문자
+			<span id="chat_length" title="현재까지 방문집계">0</span>명<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked>
+			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view');list_user(window.chatClientE.users);document.getElementById('user-input-filter').value=''">리스트</button>
+		</h2>
+		<input type="checkbox" class="up_down" onclick="var v = document.getElementById('user-input-filter');this.checked?this.parentNode.styles('height','300px')&&list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v))):this.parentNode.styles('height','35px');">
+		<div class="scroll" id=user_scroll>
+			<input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(v!=''?window.chatClientE.users.filter((a,b)=>a.indexOf(v)!=-1):window.chatClientE.users);">
+			<table id=user></table>
+			<div class="back_space" onclick="removeAllClass('over_view')"></div>
+		</div>
+    </div> -->
+    <div class="block console_menu">
+		<h2>예약명령
+			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
+			<button onclick="window.bot.addMsg();">추가</button>
+		</h2>
+		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
+		<div id=console_scroll class="scroll">
+			<table id=msg></table>
+			<div class="back_space" onclick="removeAllClass('over_view')"></div>
+		</div>
+    </div>
+    <div id=badlangs_scroll class="block console_menu">
+		<h2>금지어
+			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
+			<button onclick="window.bot.addBadlangs();">추가</button>
+		</h2>
+		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px')" checked>
+		<div class="scroll " style="height:calc( 100% - 35px );">
+			<table id=badlangs></table>
+			<div class="back_space" onclick="removeAllClass('over_view')"></div>
+		</div>
+    </div>
+    <div class="block console_option">
+        <h2>뷰봇/기능</h2>
+		<div class="scroll" style="height:calc( 100% - 35px );">
+			<button onclick="var c = prompt( '필터링할 채팅을 입력해 주세요(3자 이상)','');if(c.length < 3){alert('3자이상 입력해 주세요!');return;}window.bot.viewbot(c);">채팅탐지</button>
+			<button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button>
+			<br>채팅 기록을 불러와 벤합니다...
+			<span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span>
+			<br><button onclick="window.open('https://patrickmonster.github.io/moderator/followers.html'+location.hash)">팔로우 필터</button>
+	        <br>팔로우 일시를 기준으로 필터링 합니다.<br>
+			<button onclick="location.href=window.oauth_redirect_uri">사용자 변경</button>
+		</div>
+    </div>
+    <!-- <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
+				<h2>오픈채팅</button><input type="checkbox" id="is_chat" class="checkbox" onclick="if(this.checked){this.parentNode.parentNode.styles('height','275px')}else{this.parentNode.parentNode.styles('height','55px')}"></h2>
+        <div class="scroll" style="height:calc( 250px - 35px );">
+            <table id=chat></table>
+        </div>
+        <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
+        <button type="submit" id="right-search-btn">채팅</button> -->
+    </div>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
+	<script type="text/javascript">
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'UA-158025067-4');
+	</script>
+</body>
+</html>

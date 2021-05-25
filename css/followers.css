@@ -1,0 +1,245 @@
+html {
+  background: #333333b8;
+}
+
+input.largeinput {
+  width: calc(100% - 20%);
+  background: #fff;
+  border: 0px;
+  border-bottom: 1px solid;
+}
+button {
+  border: 1px solid skyblue;
+  background-color: rgba(0, 0, 0, 0);
+  color: skyblue;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  color: white;
+  background-color: skyblue;
+}
+div.scroll::-webkit-scrollbar-thumb {
+  /* width: 3px; */
+  background: #333;
+  border-radius: 500px;
+}
+div.scroll::-webkit-scrollbar {
+  width: 3px;
+  /* background: #ffffff36; */
+}
+a {
+  cursor: pointer;
+}
+#console_scroll a {
+  color: blue;
+}
+
+.checkbox {
+  top: 40px;
+  right: 20px;
+  -webkit-appearance: none;
+  width: 40px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 20px;
+  cursor: pointer;
+  outline: none;
+}
+.checkbox:checked {
+  background-color: #3498db;
+}
+.checkbox::before {
+  content: '';
+  position: inherit;
+  width: 12px;
+  height: 12px;
+  background-color: #fff;
+  border-radius: 20px;
+  transition: 0.3s linear;
+  margin: 4px 0 0 4px;
+  display: block;
+}
+.checkbox:checked::before {
+  margin-left: 23px;
+}
+/* 모바일 화면 */
+@media (max-width: 720px) {
+}
+
+.twitch-stream {
+  width: 854px;
+  height: 540px;
+  position: relative;
+  transition: 1s;
+  background: #0086ff7a;
+}
+#flake {
+  overflow: hidden;
+}
+
+/* =========================================================================== */
+table#console {
+  margin: 5px;
+  padding: 0px;
+  width: 100%;
+  text-align: left;
+  background-color: cyan;
+  color: #333;
+  table-layout: fixed;
+}
+table#console > tr > td {
+  padding-left: 10px;
+}
+#console > tr > td:nth-child(1) {
+  width: 40px;
+}
+#console > tr > td:nth-child(2) {
+  text-overflow: ellipsis;
+}
+.scroll {
+  width: 100%;
+  height: calc(100% - 35px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.block {
+  position: relative;
+  width: 400px;
+  height: 600px;
+  margin: 5px 5px 0 0;
+  border-radius: 13px;
+  float: left;
+  overflow: hidden;
+  color: #fff;
+  background: #333;
+}
+.alr {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 250px;
+}
+.twitch-stream {
+  position: relative;
+  width: 720px;
+  height: calc(480px + 50px);
+}
+.twitch-stream iframe {
+  height: 480px;
+  width: 720px;
+}
+
+/* ============================================================================= */
+.title_ui {
+  color: #fff;
+}
+
+.title_ui > #title {
+  float: left;
+}
+.title_ui > #uptime {
+  float: right;
+}
+/* ============================================================================= */
+
+#user-input-filter {
+  width: 100%;
+}
+
+.console_menu {
+  height: 300px;
+}
+.console_option {
+  height: 200px;
+}
+/* 유저 리스트 */
+#user.table {
+  width: 100%;
+}
+#user.table > tr > td > a {
+  float: right;
+  cursor: pointer;
+}
+#user.table > tr > td {
+  float: right;
+  width: 30px;
+}
+#command > tr > td:nth-child(2),
+#user > tr > td:nth-child(1) {
+  text-align: left;
+  width: 100%;
+}
+#command > tr > td:nth-child(2) {
+  width: 75%;
+}
+#user > tr > td:nth-child(n + 2) {
+  cursor: pointer;
+}
+
+#chat > tr > td:nth-child(1) {
+  width: 40px;
+}
+
+#chat > tr > td:nth-child(3) {
+  text-align: left;
+}
+.bottom {
+  height: 300px;
+}
+/* ============================================================================= */
+/* ============================================================================= */
+.up_down {
+  top: 20px;
+  right: 20px;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  outline: none;
+  background: url('../img/down.png') left/20px no-repeat;
+  transition: 1s;
+}
+
+.up_down {
+  position: absolute;
+  margin: 5px;
+  top: 0;
+}
+
+.up_down:checked {
+  transform: rotate(180deg);
+}
+/* ============================================================================= */
+
+input.largeinput {
+  width: calc(100% - 20%);
+  background: #fff;
+  border: 0px;
+  border-bottom: 1px solid;
+}
+button {
+  border: 1px solid skyblue;
+  background-color: rgba(0, 0, 0, 0);
+  color: skyblue;
+  margin: 2px !important;
+
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  color: white;
+  background-color: skyblue;
+}
+a {
+  cursor: pointer;
+}
+#console_scroll a {
+  color: blue;
+}
+
+.hover_pointer:hover {
+  background-color: skyblue;
+}
