@@ -6,6 +6,7 @@ Element.prototype.attr=function(e,f){if(f){this.setAttribute(e,f);return this;}e
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
 Element.prototype.delClass=function(className){this.classList.remove(className);return this};
 Element.prototype.html=function(str){this.innerHTML = str;return this};
+Element.prototype.getPosition=function(){return this.getBoundingClientRect()};
 Element.prototype.A=function(a,b){this[a]=b;return this};
 String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
 String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
@@ -46,4 +47,76 @@ function getParams(name, address = window.location.href) {
     } else {
         return url.searchParams.get(name);
     }
+}
+
+/**
+ * 팝업 관리자 - 팝업창을 띄움
+ * @param {*} max 최대 팝업 (이후삽입은 팝업 스텍)
+ * @returns 생성함수
+ */
+function Popup(max = 10){//팝업 관리자
+    const list = [];// 팝업 스텍
+    const msg_queue = [];
+    window.addStyle(`#popup{position:fixed;margin:10px !important;bottom: 0%;}#popup *{width:100%;display: inline-block;}`);
+    function create(element = "test", time = 5){
+        const popup = document.body.C("pupup").attr("id","popup");
+        let i = 0;
+        let isEnable = true;
+
+        if(time < 5)time = 5;
+
+        popup.target_pos = 0;//목표하는 높이
+        for(; i < max; i++){
+            if(!list[i]){
+                list[i] = popup.styles("z-index",`${9999 - i}`);// 삽입
+                popup.list_index = i;// 번지
+                break;
+            }
+            else popup.target_pos += list[i].getPosition().height;
+        }
+        if(i >= max){
+            isEnable = false;// 활성화 되지 못함
+            msg_queue.push(popup.styles("opacity", "0"));
+        }
+
+        if(typeof element === "string"){
+            element = popup.C("span").html(element);
+        }else popup.appendChild(element);
+        
+        popup.pos_value = element.styles("padding", "10px").styles("background","#349ac3").getPosition().height;
+        popup.styles("bottom", `${popup.pos_value * -1}px`).onclick = function(){end(this)};
+        popup.loop = ()=>{
+            popup.styles("bottom", `${(popup.pos_value -= (popup.list_index + 1)) * -1}px`);
+            if(popup.pos_value >= -1 * popup.target_pos){
+                window.requestAnimationFrame(popup.loop);
+            }
+            else setTimeout(end,time * 1000, popup);
+        }
+        if(isEnable){
+            popup.loop();// 활성화 시에만
+        }
+        return ()=>{end(popup)};
+    }
+    function end(popup){
+        const max = popup.getPosition().height;
+        popup.styles("z-index",`${9999 - popup.list_index}`);
+        const loop = ()=>{
+            popup.styles("bottom", `${(popup.pos_value += (popup.list_index + 1)) * -1}px`);
+            if(popup.pos_value <= max)window.requestAnimationFrame(loop);
+            else {
+                popup.remove();
+                if(msg_queue.length){
+                    const element = msg_queue.shift();
+                    element.target_pos = 0;//목표하는 높이
+                    element.list_index = popup.list_index;
+                    element.target_pos = popup.target_pos;
+                    list[element.list_index] = element;// 삽입
+                    element.styles("z-index",9999 - element.list_index).styles("opacity", "1");
+                    element.loop();
+                }else delete list[popup.list_index];
+            }
+        }
+        loop();
+    }
+    return create;
 }

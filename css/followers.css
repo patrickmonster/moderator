@@ -51,7 +51,7 @@ a {
   background-color: #3498db;
 }
 .checkbox::before {
-  content: "";
+  content: '';
   position: inherit;
   width: 12px;
   height: 12px;
@@ -79,14 +79,21 @@ a {
   overflow: hidden;
 }
 
+line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: #333;
+}
+
 /* =========================================================================== */
 table#console {
   margin: 5px;
   padding: 0px;
   width: 100%;
   text-align: left;
-  background-color: cyan;
-  color: #333;
+  background-color: #333;
+  color: #fff;
   table-layout: fixed;
 }
 table#console > p {
@@ -144,6 +151,7 @@ table#console > tr > td {
 
 .title_ui > #title {
   float: left;
+  max-width: 500px;
 }
 .title_ui > #uptime {
   float: right;
@@ -196,6 +204,13 @@ table#console > tr > td {
 }
 /* ============================================================================= */
 /* ============================================================================= */
+.add_bt {
+  position: absolute;
+  top: 0;
+  right: 50px;
+  font-size: 20px;
+  cursor: pointer;
+}
 .up_down {
   top: 20px;
   right: 20px;
@@ -205,7 +220,7 @@ table#console > tr > td {
   border-radius: 20px;
   cursor: pointer;
   outline: none;
-  background: url("../img/down.png") left/20px no-repeat;
+  background: url('../img/down.png') left/20px no-repeat;
   transition: 1s;
 }
 
@@ -246,6 +261,23 @@ a {
   color: blue;
 }
 
+/* ============================================================================= */
 .hover_pointer:hover {
   background-color: skyblue;
+}
+
+.delete_message {
+  text-decoration: line-through;
+}
+.highlighted_message,
+.subs_mode {
+  background-color: rgb(229, 255, 0);
+}
+.highlighted_message::before {
+  content: '강조메세지';
+  font-size: 0.5em;
+}
+.subs_mode::before {
+  content: '비구독자메세지';
+  font-size: 0.5em;
 }

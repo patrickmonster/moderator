@@ -26,8 +26,8 @@ body{
 	text-align:center;
 }
 img{
-	width: 4vh;
-	height: 4vh;
+	width: 20px;
+	height: 20px;
 }
 
 body > div.block{
@@ -81,20 +81,21 @@ function isMobile(){
 		<span id=title>Null</span> 
 		현재 접속중인 채널: <span id=channel>Null</span>
 		<span id=is_online>Off-line</span>
-		<span id=uptime>00:00:00</span> 
+		<span id=uptime title="업타임">00:00:00</span> 
 	</div>
     <div class="block console_ui">
 		<!-- 테이블 한도 - 500개 -->
-		<div id=console_scroll class="scroll" style="width: 100%;height: 100%;background: #afeae8;">
+		<div id=console_scroll class="scroll" style="width: 100%;height: 100%;">
 			<table id=console></table>
 		</div>
     </div>
     <div id=command_scroll class="block console_menu">
-        <h2>채팅 명령<input type="checkbox" title="자동응답 on/off" id="is_commands" class="checkbox">
+        <h2>채팅 명령
+			<input type="checkbox" title="자동응답 on/off" id="is_commands" class="checkbox">
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
-			<button onclick="addCommand();">추가</button>
 		</h2>
-		<input type="checkbox" class="up_down" checked style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+		<input type="checkbox" class="up_down" style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked>
+		<i class="fas fa-plus add_bt" title="추가" onclick="addCommand();"></i>
         <div class="scroll ">
 			<table id=command></table>
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
@@ -115,12 +116,21 @@ function isMobile(){
     <div class="block console_menu">
 		<h2>예약명령
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
-			<button onclick="addReservation((msg, time)=>{consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green')});">추가</button>
+			<!-- <button onclick="addReservation((msg, time)=>{consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green')});">추가</button> -->
 		</h2>
 		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
+		<i class="fas fa-plus add_bt" title="추가" onclick="addReservation((msg, time)=>{consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green')});"></i>
 		<div id=console_scroll class="scroll">
 			<table id=msg></table>
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
+		</div>
+    </div>
+	
+    <div class="block console_menu">
+		<h2>관리자 매뉴</h2>
+		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
+		<div class="scroll" style="height:calc( 100% - 35px );">
+			
 		</div>
     </div>
     <!-- <div id=badlangs_scroll class="block console_menu">
@@ -137,7 +147,8 @@ function isMobile(){
     <div class="block console_option">
         <h2>뷰봇/기능</h2>
 		<div class="scroll" style="height:calc( 100% - 35px );">
-			<button onclick="chatbot();">채팅탐지</button>
+			자동스크롤<input type="checkbox" title="자동스크롤 on/off" id="is_commands" class="checkbox" checked>
+			<br><button onclick="chatbot();">채팅탐지</button>
 			<!-- <button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button> -->
 			<br><span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span>
 			<br><button onclick="window.open('https://patrickmonster.github.io/moderator/followers.html'+location.hash)">팔로우 필터</button>
