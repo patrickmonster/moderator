@@ -14,6 +14,9 @@ const chat_log_limit = 1000;
 
 const is_test = false;
 
+window.autoscroll = true;
+window.command = {};
+
 // 채팅 모드
 const chat_mod = {
 	"emote-only" : "이모티콘 전용 모드" ,
@@ -22,7 +25,7 @@ const chat_mod = {
 	"slow" : "느린 대화 모드",
 	"subs-only" : "구독자 전용 모드"
 };
-
+//@client-nonce=46dc4a903d9d360d7350a62b615b0562;reply-parent-msg-id=b208830b-28ce-40fa-9373-9b5c9ae83168 PRIVMSG #sjrnf0113 :답장 테스트
 //=======================================================================================================
 
 const append_bt = document.getElementById("append_load");
@@ -84,6 +87,10 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			document.getElementById("uptime").html(window.static_time.format("HH:mm:ss"));
 		}, 1000);
 	}
+	window._channel = function(str){
+		const channel = (str ? str : '').toLowerCase();
+		return channel[0] === '#' ? channel : '#' + channel;
+	}
 	window.token.instance.get("users").then(({data: {data}}) =>{
 		if(!data.length)return;// 사용자가 없다?
 		const {login : username} = data[0];
@@ -97,10 +104,14 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			identity : { username,  password: window.token.access_token},
 			channels : [channel]
 		});
+		window.client.reply=function reply(channel, msg_id, message){
+			this.log.info(`[${channel}] Reply message: ${command}`);
+			this.ws.send(`@reply-parent-msg-id=${msg_id} PRIVMSG ${window._channel(channel)} :${message}`);
+		}
 		window.client.on("chat",(channel, userstate, message, self)=>{if(self)return;addChat(userstate, message, userstate.id)});
 		window.client.on("ban", (channel, username, reason)=>{removeConsole(username);consoleMessage(`(유저 벤) ${username} ${reason  || ""}`, "blue")});
 		window.client.on("timeout", (channel, username, reason, duration)=>{removeConsole(username);consoleMessage(`(유저 타임아웃 ${duration}) ${username} ${reason || ""}`, "blue")});
-		window.client.on("messagedeleted", (channel, username, deletedMessage, userstate)=>{removeConsole(deletedMessage);consoleMessage(`(메세지 삭제) ${username}`, "blue")});
+		window.client.on("messagedeleted", (channel, username, deletedMessage, userstate)=>{removeConsole(userstate.id);consoleMessage(`(메세지 삭제) ${username}`, "blue")});
 		window.client.on("hosted", (channel, username, viewers, autohost)=>{
 			if(!autohost){
 				consoleMessage(`(호스팅 ${viewers}) ${username}`, "blue");
@@ -108,19 +119,19 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				window.client.popup(document.createElement("span").html(`(호스팅 ${viewers}) ${username}`).styles("background","blue").styles("color","#fff"), 30);
 			}
 		});
-		
 		window.client.on("redeem", (channel, username, rewardType, tag)=>{
-			console.log( username, rewardType, tag);
 			switch(rewardType){
 				case "highlighted-message":
-					window.client.popup(document.createElement("span").html(`(포인트 보상[강조 메세지]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
-					highlightedConsole(tag.id);
-					consoleMessage(`(포인트 보상[강조 메세지]) ${username}`, "blue");
+					window.client.msg_op = "highlighted_message"
+					// window.client.popup(document.createElement("span").html(`(포인트 보상[강조 메세지]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
+					// highlightedConsole(tag.id);
+					// consoleMessage(`(포인트 보상[강조 메세지]) ${username}`, "blue");
 					break;
 				case "skip-subs-mode-message":
-					window.client.popup(document.createElement("span").html(`(포인트 보상[비 구독자 메세지]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
-					subsModeConsole(tag.id);
-					consoleMessage(`(포인트 보상[비 구독자 메세지]) ${username}`, "blue");
+					window.client.msg_op = "subs_mode"
+					// window.client.popup(document.createElement("span").html(`(포인트 보상[비 구독자 메세지]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
+					// subsModeConsole(tag.id);
+					// consoleMessage(`(포인트 보상[비 구독자 메세지]) ${username}`, "blue");
 					break;
 				default:
 					//`(포인트 보상[${rewardType}]) ${username}`
@@ -137,8 +148,9 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			consoleMessage(`(AutoMod) ${username}`, "blue");
 		});
 		window.client.on("roomstate",(channel, state)=>{
+			console.log(state);
 			for(const k in chat_mod){
-				if(state[k]){
+				if(state[k] && (k != "followers-only" || state[k] != "-1")){
 					let is = false;
 					const event = ()=>{
 						if(is)return;
@@ -166,9 +178,24 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 		initTime();// 시간 루퍼
 		initBadges(); // 배찌 불러오기
 		getStream(); // 스트림 여부
+		// getEmoteListView();
 		setInterval(getStream, 5 * 60 * 1000);// 스트림 상태
 	});
 }
+
+/**
+ * GET https://api.twitch.tv/kraken/chat/emoticon_images
+ */
+// function getEmoteListView(){
+// 	// targetPopup
+// 	axios.get(`https://api.twitch.tv/kraken/chat/emoticon_images`, {
+// 		headers : { "Client-Id" : oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
+// 	}).then(({data})=>{
+// 		console.log(data);
+// 	}).catch(e=>{
+// 		console.error(e);
+// 	})
+// }
 
 // 가독성 떨어지게 하는 코드
 // const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -226,7 +253,7 @@ function getMessageHTML(message, { emotes }) {
 
 		stringReplacements.push({
 			stringToReplace: stringToReplace,
-			replacement: `<img style="transform: translateY(5px);" src="https://static-cdn.jtvnw.net/emoticons/v1/${id}/1.0">`,
+			replacement: `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${id}/1.0">`,
 		});
 	});
 
@@ -261,7 +288,7 @@ function initBadges() {
 		headers : { "Client-Id" : oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
 	}).then(({data})=>{
 		window.badges = new Map();
-		for(const k in data)window.badges.set(k, data[k].image);
+		for(const k in data)if(data[k])window.badges.set(k, data[k].image);
 	}).catch(e=>{
 		console.error(e);
 	})
@@ -292,7 +319,7 @@ const newExcitingAlerts = (function (msg = "New!") {
         window.onmousemove = null;
         timeoutId = null;
     };
-	window.open().close();
+	try{if(isMobile)window.open().close();}catch(e){;}
     return function () {
         if (!timeoutId) {
             timeoutId = setInterval(blink, 1000);
@@ -365,10 +392,8 @@ function endPolls(f,id,is_privates = false){
  * POST https://api.twitch.tv/helix/clips
  */
 function createClips(f){
-	window.token.instance.post(`clips?broadcaster_id=${window.broadcaster.id}`).then(({data})=>{
-		data.forEach(({id, edit_url})=> {
-			f(id,edit_url);
-		});
+	window.token.instance.post(`clips?broadcaster_id=${window.broadcaster.id}`).then(({data:{data}})=>{
+		if(data.length)f(data[0].id,data[0].edit_url);
 	}).catch(e=>{
 		console.error(e);
 	})
@@ -427,7 +452,8 @@ function getStream(f){
  */
 function addCommand(f){
 	const bord = document.createElement("span");
-	const end = onDialogue(bord);
+	const end = onDialogue(bord, ()=>{ end() });
+	bord.onclick = (event)=>{event.stopPropagation()};
 
 	bord.C("p").html(`명령을 추가합니다`);
 
@@ -491,7 +517,8 @@ function addCommandTxt(k,v) {
  */
 function editCommand(f, target, is_msg = true){
 	const bord = document.createElement("span");
-	const end = onDialogue(bord);
+	const end = onDialogue(bord, ()=>{ end() });
+	bord.onclick = (event)=>{event.stopPropagation()};
 
 	bord.C("p").html(`바꿀 ${is_msg ? "메세지" : "명령어"}를 입력해 주세요!`);
 	bord.C("input").attr("readonly","readonly").value = target;
@@ -545,7 +572,8 @@ window.reservation_msg = [];// 예약명령어
  */
 function addReservation(f){
 	const bord = document.createElement("span");
-	const end = onDialogue(bord);
+	const end = onDialogue(bord, ()=>{ end() });
+	bord.onclick = (event)=>{event.stopPropagation()};
 	
 	bord.styles("height", "130px")
 	
@@ -590,7 +618,8 @@ function addReservationTxt(item){
 	document.getElementById("command").C("p").html(`[${item.time}] -> ${item.msg}`).onclick= function(event){
 		const element = this;
 		const bord = document.createElement("span");
-		const end = onDialogue(bord);
+		const end = onDialogue(bord, ()=>{ end() });
+		bord.onclick = (event)=>{event.stopPropagation()};
 
 		bord.C("button").html("메세지변경").onclick = ()=>{
 			end();
@@ -626,7 +655,8 @@ function addReservationTxt(item){
  */
 function editReservation(f, msg, is_time = true){
 	const bord = document.createElement("span");
-	const end = onDialogue(bord);
+	const end = onDialogue(bord, ()=>{ end() });
+	bord.onclick = (event)=>{event.stopPropagation()};
 
 	const item = window.reservation_msg.filter(o=> o.msg == msg)[0];
 	if(!item)return; // 아이템이 없음
@@ -708,9 +738,9 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 	const console_div = document.getElementById("console");
 	if(chat_log_limit <= window.chatting_log.length)window.chatting_log.shift();
 	if(document.getElementById("is_commands").checked){
-		for (const k of window.command.keys()){
+		for (const k in window.command){
 			if(msg.includes(k)){
-				sendChat(window.command[k]);
+				window.client.reply(channel, msg_id, window.command[k]);
 				break;
 			}
 		}
@@ -719,15 +749,17 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 		if(comm == "!클립"){
 			createClips(({id,edit_url})=>{
 				// 클립 url
-				console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
-				sendChat(`@${user.username} 클립생성! ${id}`);
+				// console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
+				consoleMessage(`[console] ${id}클립생성 - ${edit_url}`);
+				window.client.popup(`[console] ${id}클립생성 - ${edit_url}`, 500);
+				window.client.reply(channel, msg_id, `[클립생성] https://clips.twitch.tv/${id}`);
 				scrollDiv(document.getElementById("console_scroll"));
 			});
 		}
 	}
 	msg = getMessageHTML(msg, user);
 	const nick = user["display-name"] == user.username ? user.username : `${user["display-name"]}<p style='font-size:0.2em;display:contents;'>${user.username}</p>`;
-	console_div.C("p").addClass("hover_pointer").addClass(user.username).addClass(user.id).styles("cursor","pointer").html(`[<span style="color:${user.color || "#fff"}">${nick}</span>] ${msg}`).onclick = function(){
+	console_div.C("p").addClass("hover_pointer").addClass(user.username).addClass(user.id).addClass(window.client.msg_op || "none").styles("cursor","pointer").html(`[<span style="color:${user.color || "#fff"}">${nick}</span>] ${msg}`).onclick = function(){
 		const bord = document.createElement("span");
 		const end = onDialogue(bord, ()=>{ end() });
 
@@ -764,18 +796,38 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 			removChat(user.id);
 			consoleMessage(`${user.id}메세지를 삭제함`);
 		};
+		bord.C("button").attr("title","답장").html(`<i class="far fa-comment-alt"></i>`).onclick = () => {
+			const bord = document.createElement("span");
+			const end = onDialogue(bord, ()=>{ end() });
+			bord.onclick = (event)=>{event.stopPropagation()};
+
+			bord.parentNode.styles("z-index", "99999");
+			bord.C("p").html(`${nick}님께 답장하기`);
+			const input = bord.C("input").attr("type", "text").attr("placeholder", "내용을 입력해 주세요!");
+			const click = ()=>{
+				if(input.value && input.value.length <= 0)return;
+				end();
+				consoleMessage(`${user.username} 님께 답장 :${input.value}`);
+				window.client.reply(channel,user.id, input.value);//메세지 전송
+			};
+			bord.C("br").C("button").html("전송").onclick = click;
+			input.onkeypress=onKeypress(click, 1);// 키 이벤트
+			input.focus();
+			bord.C("button").html("취소").onclick = end;
+		};
 	};
-	
+	window.client.msg_op = undefined;// 메세지 강조
 	if(console_div.childElementCount > 5000){
 		console.log("비우기");
-		for(const i = 0; i < 1000; i++)
+		for(let i = 0; i < 1000; i++)
 			console_div.firstChild.remove();
 	}
-	scrollDiv(console_div.parentNode);
+	if(window.autoscroll)scrollDiv(console_div.parentNode);
 }
 
 function sendChat(msg){// 채팅 전송
 	console.log("[send]", msg);
+	consoleMessage(`[send] ${msg}`, 'blue');
 	if(window.client && !is_test)
 		window.client.say(`#${window.broadcaster.login}`,msg);
 }
@@ -802,32 +854,34 @@ function removChat(msg_id){// 채팅 전송
 
 function removeConsole(msg_id){
 	try{
-		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
-			element.addClass("delete_message");
-		});
-	}catch(e){;};// 오류처리
+		const list = document.getElementById("console").getElementsByClassName(msg_id);
+		for (let i = 0; i < list.length; i++)
+			if(list[i])list[i].addClass("delete_message");
+	}catch(e){
+		console.error(e);
+	};// 오류처리
 }
 //subsModeConsole
 
-function highlightedConsole(msg_id){
-	try{
-		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
-			element.addClass("highlighted_message");
-		});
-	}catch(e){;};// 오류처리
-}
+// function highlightedConsole(msg_id){
+// 	try{
+// 		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
+// 			element.addClass("highlighted_message");
+// 		});
+// 	}catch(e){;};// 오류처리
+// }
 
-function subsModeConsole(msg_id){
-	try{
-		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
-			element.addClass("subs_mode");
-		});
-	}catch(e){console.log(e);};// 오류처리
-}
+// function subsModeConsole(msg_id){
+// 	try{
+// 		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
+// 			element.addClass("subs_mode");
+// 		});
+// 	}catch(e){console.log(e);};// 오류처리
+// }
 
 function consoleMessage(message, color = "red") {
 	const console_div = document.getElementById("console");
-	scrollDiv(document.getElementById("console_scroll"));
+	if(window.autoscroll)scrollDiv(document.getElementById("console_scroll"));
 	return console_div.C("p").html(`[console] ${message}`).styles("background", color).styles("color", "#fff");
 }
 
@@ -837,7 +891,8 @@ function consoleMessage(message, color = "red") {
  */
 function chatbot(){
 	const bord = document.createElement("span");
-	const end = onDialogue(bord);
+	const end = onDialogue(bord, ()=>{ end() });
+	bord.onclick = (event)=>{event.stopPropagation()};
 
 	bord.C("p").html("인식채팅은 최대한 일치하게 적어 주세요!");
 	const text = bord.C("input");
@@ -862,7 +917,10 @@ function filterChatbot(msg){
 	}
 	
 	const bord = document.createElement("span");
-	const end = onDialogue(bord);
+
+	const end = onDialogue(bord, ()=>{ end() });
+	bord.onclick = (event)=>{event.stopPropagation()};
+
 	bord.C("p").html(`${msg}와 일치하는 채팅목록 (클릭시 예외처리)`);
 	bord.styles("width", "500px");
 	bord.styles("height", "400px");

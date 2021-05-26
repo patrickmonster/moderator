@@ -31,6 +31,15 @@ Date.prototype.format = function(f) {
         }
     });
 };
+
+function onKeypress(f,min=3){
+    return function(event){
+        if(event.keyCode!=13)return;// 엔터 아니면 빠꾸
+        const {value} = this;
+        if(!value || value.length < min)return;
+        else f(value);
+    }
+}
 function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
 function make_qury(option,out){out =[];for(var i in option)out.push(i + "=" + option[i]);return "?"+out.join("&")}
 function getParams(name, address = window.location.href) {
@@ -50,6 +59,16 @@ function getParams(name, address = window.location.href) {
 }
 
 /**
+ * 모바일 확인
+ * @returns 
+ */
+function isMobile(){
+	const uAgent = navigator.userAgent.toLowerCase(); 
+	const mobilePhones = new RegExp(/\b(:?iphone|ipod|ipad|android|blackberry|windows ce|nokia|webos|opera mini|sonyericsson|opera mobi|iemobile)\b/g);
+	return mobilePhones.test(uAgent);
+}
+
+/**
  * 팝업 관리자 - 팝업창을 띄움
  * @param {*} max 최대 팝업 (이후삽입은 팝업 스텍)
  * @returns 생성함수
@@ -57,7 +76,7 @@ function getParams(name, address = window.location.href) {
 function Popup(max = 10){//팝업 관리자
     const list = [];// 팝업 스텍
     const msg_queue = [];
-    window.addStyle(`#popup{position:fixed;margin:10px !important;bottom: 0%;}#popup *{width:100%;display: inline-block;}`);
+    window.addStyle(`#popup{position:fixed;left:0;margin:10px !important;bottom: 0%;}#popup *{width:100%;display: inline-block;}`);
     function create(element = "test", time = 5){
         const popup = document.body.C("pupup").attr("id","popup");
         let i = 0;
@@ -119,4 +138,16 @@ function Popup(max = 10){//팝업 관리자
         loop();
     }
     return create;
+}
+
+function getCmpPos(obj){
+	const { height, bottom, top, left } =obj.getPosition();
+    const h = height || bottom-top;
+	return {left,top: top+h+10};
+}
+
+function targetPopup(element, id="popup2"){
+    const {left, top} = getCmpPos(this);
+    const popup = document.body.C("pupup2");
+    return popup.attr("id",id).styles("left",`${left}px`).styles("top",`${top}px`).styles("position","fixed").appendChild(element.styles("width", "300px").styles("height", "auto"));
 }

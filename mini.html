@@ -64,15 +64,6 @@ body > div.block{
 }
 	</style>
 	<link rel="stylesheet" href="./css/followers.css">
-	<script type="text/javascript">
-
-function isMobile(){
-	const uAgent = navigator.userAgent.toLowerCase(); 
-	const mobilePhones = new RegExp(/\b(:?iphone|ipod|ipad|android|blackberry|windows ce|nokia|webos|opera mini|sonyericsson|opera mobi|iemobile)\b/g);
-	return mobilePhones.test(uAgent);
-}
-//Mobile여부를 구분하기 위함
-	</script>
 </head>
 <body>
 	<!-- 싱글 데시보드 -->
@@ -85,9 +76,12 @@ function isMobile(){
 	</div>
     <div class="block console_ui">
 		<!-- 테이블 한도 - 500개 -->
-		<div id=console_scroll class="scroll" style="width: 100%;height: 100%;">
+		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll" class="checkbox" onchange="window.autoscroll=this.checked; console.log(this.checked)" style="float:right;" checked>
+		<div id=console_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.autoscroll=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
 			<table id=console></table>
 		</div>
+		<input type="text" name="메세지" placeholder="채팅전송"  onkeypress="onKeypress((value)=>{this.value='';sendChat(value)},1).call(this,event)" style="background:#fff;width:calc(100% - 0px);height: 30px;font-size: 1.5em;border:0;">
+		<!-- <button style="height:30px;width:30px;margin: 0 !important;vertical-align: bottom;padding: 0 !important;" onclick="emote_view = document.getElementById('emote_view'); emote_view? emote_view.remove() :getEmoteListView.call(this)"><i class="fas fa-kiss-wink-heart"></i></button> -->
     </div>
     <div id=command_scroll class="block console_menu">
         <h2>채팅 명령
@@ -113,10 +107,9 @@ function isMobile(){
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
 		</div>
     </div> -->
-    <div class="block console_menu">
+    <!-- <div class="block console_menu">
 		<h2>예약명령
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
-			<!-- <button onclick="addReservation((msg, time)=>{consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green')});">추가</button> -->
 		</h2>
 		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
 		<i class="fas fa-plus add_bt" title="추가" onclick="addReservation((msg, time)=>{consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green')});"></i>
@@ -124,15 +117,15 @@ function isMobile(){
 			<table id=msg></table>
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
 		</div>
-    </div>
+    </div> -->
 	
-    <div class="block console_menu">
+    <!-- <div class="block console_menu">
 		<h2>관리자 매뉴</h2>
 		<input type="checkbox" class="up_down" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px');" checked>
 		<div class="scroll" style="height:calc( 100% - 35px );">
-			
+			이모티콘 전용챗<input type="checkbox" title="이모티콘 전용 on/off" id="is_only_emote" class="checkbox" onchange="window.autoscroll=this.checked; console.log(this.checked)" style="float:left;" checked>
 		</div>
-    </div>
+    </div> -->
     <!-- <div id=badlangs_scroll class="block console_menu">
 		<h2>금지어
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
@@ -147,7 +140,6 @@ function isMobile(){
     <div class="block console_option">
         <h2>뷰봇/기능</h2>
 		<div class="scroll" style="height:calc( 100% - 35px );">
-			자동스크롤<input type="checkbox" title="자동스크롤 on/off" id="is_commands" class="checkbox" checked>
 			<br><button onclick="chatbot();">채팅탐지</button>
 			<!-- <button onclick="save('ban'+new Date().format('MM_dd_HH')+'.txt',Object.values(window.bans).join('\r\n'))">뷰봇벤 리스트 다운로드</button> -->
 			<br><span>채팅을 비교하여 뷰봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span>
