@@ -240,6 +240,7 @@ const target = document.getElementById("user_list");
  * @param {*} param0 
  */
 function list_item({f,i,l,n}){
+
 	const ele = target.C("table").addClass("user_item").styles("white-space","nowrap");
 	
 	ele.data("created_at",f);//구독일
@@ -249,15 +250,15 @@ function list_item({f,i,l,n}){
 	
 	let tr = ele.C("tr");
 	let td = tr.C("td");
-
+	
 	tr.C("td").html(n==l?l:`${pad(n, 20)}(${l})`)
-		.styles("text-overflow"+"ellipsis")
-		.styles("cursor","pointer")
-		.addClass("over_word")
-		.onclick = function(){
-			window.open(`https://www.twitch.tv/${l}`);
-		};//이름
-
+	.styles("text-overflow","ellipsis")
+	.styles("cursor","pointer")
+	.addClass("over_word")
+	.onclick = function(){
+		window.open(`https://www.twitch.tv/${l}`);
+	};//이름
+	
 	// 사용자 정보 클릭
 	td.html(`
 		<svg aria-hidden="true" focusable="false" data-prefix="fas" style="height: 20px;width: 20px;" data-icon="user" class="svg-inline--fa fa-user fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
