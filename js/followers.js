@@ -241,7 +241,7 @@ const target = document.getElementById("user_list");
  */
 function list_item({f,i,l,n}){
 
-	const ele = target.C("table").addClass("user_item").styles("white-space","nowrap");
+	const ele = target.C("table").addClass("user_item").styles("white-space","nowrap").styles("overflow", "hidden");
 	
 	ele.data("created_at",f);//구독일
 	ele.data("id",i);//고유 id
