@@ -25,7 +25,7 @@ button:hover {
 }
 div.scroll::-webkit-scrollbar-thumb {
   /* width: 3px; */
-  background: #333;
+  background: #fff;
   border-radius: 500px;
 }
 div.scroll::-webkit-scrollbar {
@@ -54,7 +54,7 @@ a {
   background-color: #3498db;
 }
 .checkbox::before {
-  content: "";
+  content: '';
   position: inherit;
   width: 12px;
   height: 12px;
@@ -103,6 +103,7 @@ table#console > p {
   text-overflow: ellipsis;
   height: 20px;
   white-space: nowrap;
+  overflow: hidden;
 }
 table#console > tr > td {
   padding-left: 10px;
@@ -224,7 +225,7 @@ table#console > tr > td {
   border-radius: 20px;
   cursor: pointer;
   outline: none;
-  background: url("../img/down.png") left/20px no-repeat;
+  background: url('../img/down.png') left/20px no-repeat;
   transition: 1s;
 }
 
@@ -284,16 +285,19 @@ table#console > p > img {
   padding-top: 10px !important;
   background-color: #737373;
 }
-.highlighted_message::after {
-  content: "강조메세지";
+.highlighted_message span.span_front::after {
+  content: '강조메세지';
 }
-.subs_mode::after {
-  content: "비구독자메세지";
+.subs_mode span.span_front::after {
+  content: '비구독자메세지';
 }
 
-.highlighted_message::after,
-.subs_mode::after {
+.highlighted_message span.span_front::after,
+.subs_mode span.span_front::after {
   font-size: 0.5em;
-  float: right;
+  float: left;
+  width: 0px;
   margin: -10px 0;
+  height: 0px;
+}
 }

@@ -1,7 +1,11 @@
 Element.prototype.data=function(){var a=arguments,b=a.length;if(!(b-1))return this.getAttribute("data-"+a[0]);else this.setAttribute("data-"+a[0],a[1]);return this;};
 window.addStyle=document.addStyle=function(a,b){b=document.head.C('style');b.innerHTML=a;return b};
 Element.prototype.createElement=Element.prototype.C=function(ele){var ele=document.createElement(ele);this.appendChild(ele);return ele};
-Element.prototype.styles=function(e,f){this.style[e]=f;return this};
+Element.prototype.styles=function(e,f){
+    if(!f)return this.style[e];
+    this.style[e]=f;
+    return this
+};
 Element.prototype.attr=function(e,f){if(f){this.setAttribute(e,f);return this;}else return this.getAttribute(e)};
 Element.prototype.addClass=function(className){this.classList.add(className);return this};
 Element.prototype.delClass=function(className){this.classList.remove(className);return this};
@@ -32,12 +36,13 @@ Date.prototype.format = function(f) {
     });
 };
 
-function onKeypress(f,min=3){
+function onKeypress(f /*,min=3*/){
     return function(event){
         if(event.keyCode!=13)return;// 엔터 아니면 빠꾸
-        const {value} = this;
-        if(!value || value.length < min)return;
-        else f(value);
+        // const {value} = this;
+        // if(!value || value.length < min)return;
+        // else 
+        f(/*value*/);
     }
 }
 function randomItem(a) {return a[Math.floor(Math.random() * a.length)]}
@@ -76,9 +81,17 @@ function isMobile(){
 function Popup(max = 10){//팝업 관리자
     const list = [];// 팝업 스텍
     const msg_queue = [];
+    const logs = [];
     window.addStyle(`#popup{position:fixed;left:0;margin:10px !important;bottom: 0%;}#popup *{width:100%;display: inline-block;}`);
     function create(element = "test", time = 5){
-        const popup = document.body.C("pupup").attr("id","popup");
+        const timeText = document.createElement("p").html(new Date().format("hh:mm:ss"));
+        if(element == "")
+            return logs;
+        else if (time == -1){
+            logs.push(`${timeText.innerHTML}${typeof element === "string" ? element :element.innerHTML}`);
+            return;
+        }
+        const popup = document.body.C("pupup").attr("id","popup").styles("background","#349ac3");
         let i = 0;
         let isEnable = true;
 
@@ -101,8 +114,7 @@ function Popup(max = 10){//팝업 관리자
         if(typeof element === "string"){
             element = popup.C("span").html(element);
         }else popup.appendChild(element);
-        
-        popup.pos_value = element.styles("padding", "10px").styles("background","#349ac3").getPosition().height;
+        popup.pos_value = element.styles("padding", "10px").getPosition().height;
         popup.styles("bottom", `${popup.pos_value * -1}px`).onclick = function(){end(this)};
         popup.loop = ()=>{
             popup.styles("bottom", `${(popup.pos_value -= (popup.list_index + 1)) * -1}px`);
@@ -114,6 +126,7 @@ function Popup(max = 10){//팝업 관리자
         if(isEnable){
             popup.loop();// 활성화 시에만
         }
+        logs.push(element.innerHTML);
         return ()=>{end(popup)};
     }
     function end(popup){
