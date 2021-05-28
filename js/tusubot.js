@@ -932,7 +932,7 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 	if(document.getElementById("is_commands").checked){
 		const [comm, ...args] = msg.split();
 		switch(comm){
-			case ".클립":
+			case ";클립":
 				if(window.is_online)
 					createClips(({id,edit_url})=>{
 						// 클립 url
@@ -948,11 +948,11 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 					consoleMessage(`오프라인 상태 입니다!`);
 				}
 				break;
-			case ".후원":
+			case ";후원":
 				window.client.reply(channel, msg_id, `후원링크 twip.kr/donate/${channel}`);
 				consoleMessage(`메세지 전송 - 후원링크 twip.kr/donate/${channel}`);
 				break;
-			case ".트봇":
+			case ";트봇":
 				window.client.reply(channel, msg_id, `트수가 관리하는 채팅방 - ${oauth_redirect_uri}`);
 				consoleMessage(`메세지 전송 - 트수가 관리하는 채팅방 - ${oauth_redirect_uri}`);
 				break;

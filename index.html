@@ -91,6 +91,7 @@ body > div.block{
 			<table id=console></table>
 		</div>
 		<input type="text" id=chat name="메세지" placeholder="채팅전송"  onkeypress="onKeypress(()=>{sendChat(value);this.value=''}).call(this,event)" style="background:#fff;width:calc(100% - 0px);height: 30px;font-size: 1.5em;border:0;">
+		<input type="text" id=chat name="메세지" placeholder="메세지 전송"  onkeypress="onKeypress(()=>{sendChat(value);this.value=''}).call(this,event)" style="background:#fff;width:calc(100% - 0px);height: 30px;font-size: 1.5em;border:0;">
 		<!-- <button style="height:30px;width:30px;margin: 0 !important;vertical-align: bottom;padding: 0 !important;" onclick="emote_view = document.getElementById('emote_view'); emote_view? emote_view.remove() :getEmoteListView.call(this)"><i class="fas fa-kiss-wink-heart"></i></button> -->
     </div>
     <div id=command_scroll class="block console_menu">
@@ -135,7 +136,7 @@ body > div.block{
 		<div class="scroll" style="height:calc( 100% - 35px );">
 			<button style="padding: 5px !important;" onclick="window.open(location.href, '', 'width=1000; height=850, toolbar=no, resizeble=no, menubar=no, scrollbars=no ');" onload="if(window.opener)this.setAttribute('disabled','disabled')">팝업창으로 띄우기</button>
 			<button style="padding: 5px !important;" onclick="popupLogList()">로그리스트</button>
-			<h3>방송옵션</h3>
+			<!-- <h3>방송옵션</h3>
 			이모티콘 전용챗<input type="checkbox" title="이모티콘 전용 on/off" id="is_only_emote" class="checkbox" onchange="" checked>
 			구독자 전용모드<input type="checkbox" title="구독자 전용모드" id="is_only_sub" class="checkbox" onchange="" checked>
 			<br>
@@ -143,7 +144,7 @@ body > div.block{
 			느린대화 모드<input type="number" title="팔로우 전용모드/일" id="is_only_follow" class="checkbox" style="background-color:#3498db;color:#fff;padding:5px;" value="0" onchange="" checked>
 			<br>
 			<button style="padding: 5px !important;">투표</button>
-			<button style="padding: 5px !important;">클립</button>
+			<button style="padding: 5px !important;">클립</button> -->
 		</div>
     </div>
     <!-- <div id=badlangs_scroll class="block console_menu">
