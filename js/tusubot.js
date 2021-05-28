@@ -78,6 +78,10 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 	location.href = `https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=${oauth_client_id}&redirect_uri=${oauth_redirect_uri}&scope=${permissions.join("%20")}&state=${channel}`;
 }else {
 	window.token = window.jwt_decode(oauth, {header : true});
+	if(window.token.date > new Date().setDate(new Date().getDate() - 1)){// 일정시간 지나면, 토큰 갱신
+		alert("토큰갱신");
+		location.href = `${oauth_redirect_uri}${location.hash}`;
+	}
 	window.token.instance = axios.create({
 		baseURL: 'https://api.twitch.tv/helix/',
 		headers: { 
@@ -195,6 +199,28 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 					}
 				}
 			})
+			/*
+			@badge-info=;
+			badges=broadcaster/1
+			color=#00FFD0;
+			display-name=네오캣짱;
+			emotes=
+			flags=
+			id=597c57ae-b91a-4aba-b4ae-b30289202b09
+			mod=0
+			reply-parent-display-name=방송알림
+			reply-parent-msg-body=!후원
+			reply-parent-msg-id=ee0d5342-c6d6-4b43-bf14-4db8fae8a68c
+			reply-parent-user-id=672407277
+			reply-parent-user-login=orefinger
+			room-id=129955642
+			subscriber=0
+			tmi-sent-ts=1622167928146
+			turbo=0
+			user-id=129955642
+			user-type= :neocats_!neocats_@neocats_.tmi.twitch.tv PRIVMSG #neocats_ :@방송알림 후원링크 twip.kr/donate/neocats_
+
+			*/
 
 			//roomstate(channel: string, state: RoomState): void;
 			//
@@ -205,7 +231,14 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				window.opener.document.write("페이지가 탭으로 넘어갔습니다. 창을 닫으셔도 좋습니다!");
 				document.title = "트봇mini - Leaderboards";
 			}
-		})
+		});
+
+		window.command = JSON.parse(localStorage.getItem(`moderator_${channel}`) || `{}`);
+		console.log(`moderator_${channel}`,window.command);
+		for(const k in window.command){
+			console.log(k,window.command[k]);
+			addCommandTxt(k, window.command[k]);
+		}
 
 		setBrodcast((o)=>{// 스트리머 정보
 			initTime();// 시간 루퍼
@@ -609,8 +642,10 @@ function getStream(f){
 			document.getElementById("game").html(game_name);
 			document.getElementById("is_online").html("On-line").styles("background", "red");
 			window.static_time.setTime(new Date().getTime() - new Date(started_at).getTime());// 시간 연산
+			window.is_online = true;
 			if(f)f(data[0]);
 		}else {
+			window.is_online = false;
 			document.getElementById("is_online").html("Off-line").styles("background", "blue");
 			getChannelStates(f);// 방송중이 아닐때, 정보 전달
 		}
@@ -652,6 +687,7 @@ function addCommand(f){
 		}
 		window.command[command.value] = msg.value;
 		addCommandTxt(command.value, msg.value);
+		localStorage.setItem(`moderator_${channel}`, JSON.stringify(window.command));
 		if(f)f(command.value, msg.value);
 		alert("저장되었습니다.");
 		end();
@@ -663,8 +699,10 @@ function addCommandTxt(k,v) {
 	document.getElementById("command").C("p").html(`${k} -> ${v}`).onclick= function(event){
 		const element = this;
 		const bord = document.createElement("span");
-		const end = onDialogue(bord);
+		const end = onDialogue(bord, ()=>{ end() });
+		bord.onclick = (event)=>{event.stopPropagation()};
 
+		bord.styles("height", "auto");
 		bord.C("button").html("커맨드변경").onclick = ()=>{
 			end();
 			editCommand((tk, tv)=>{
@@ -679,6 +717,7 @@ function addCommandTxt(k,v) {
 				element.html(`${k} -> ${v}`);
 			}, k, true);
 		};
+		bord.C("button").html("취소").onclick = end;
 
 	}
 }
@@ -724,6 +763,7 @@ function editCommand(f, target, is_msg = true){
 			delete window.command[target];
 			if(f)f(command.value, window.command[command.value]);
 		}
+		localStorage.setItem(`moderator_${channel}`, JSON.stringify(window.command));
 		alert("변경되었습니다.");
 		end();
 	};
@@ -736,6 +776,7 @@ function editCommand(f, target, is_msg = true){
 function subCommand(comm){
 	if(!window.command[comm])return;
 	delete window.command[comm];
+	localStorage.setItem(`moderator_${channel}`, JSON.stringify(window.command));
 }
 
 window.reservation_msg = [];// 예약명령어
@@ -781,6 +822,7 @@ function addReservation(f){
 			id : setInterval(item=>{if(item.is)sendChat(item.msg)},time.value * 60 * 1000, item)
 		});
 		alert("저장되었습니다.");
+
 		if(f)f(msg.value,time.value);
 		end();
 	};
@@ -914,9 +956,10 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 	if(chat_log_limit <= window.chatting_log.length)window.chatting_log.shift();
 
 	if(document.getElementById("is_commands").checked){
-		const [comm, ...args] = msg;
+		const [comm, ...args] = msg.split();
 		switch(comm){
 			case "!클립":
+				if(window.is_online)
 				createClips(({id,edit_url})=>{
 					// 클립 url
 					// console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
@@ -926,13 +969,17 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 					window.client.reply(channel, msg_id, `[클립생성] clips.twitch.tv/${id}`);
 					scrollDiv(document.getElementById("console_scroll"));
 				});
+				else window.client.reply(channel, msg_id, `오프라인 상태입니다!`);
 				break;
 			case "!후원":
 				window.client.reply(channel, msg_id, `후원링크 twip.kr/donate/${channel}`);
 				break;
+			case "!트봇":
+				window.client.reply(channel, msg_id, `트수가 관리하는 채팅방 - ${oauth_redirect_uri}`);
+				break;
 			default:
 				for (const k in window.command){
-					if(msg.includes(k)){
+					if(msg.startsWith(k)){
 						window.client.reply(channel, msg_id, window.command[k]);
 						break;
 					}
@@ -950,7 +997,7 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 		.styles("cursor","pointer")
 		.html(`<span style="width:1px;height:1px" class=span_front></span>[<span style="color:${user.color || "#fff"}">${user.nick}</span>] ${user.msg}`)
 		.onclick = ()=>{userprofile(user)};
-	window.client.msg_op = undefined;// 메세지 강조
+	window.client.msg_op && window.client.msg_op.id == msg_id && (window.client.msg_op = undefined);// 메세지 강조
 	if(console_div.childElementCount > 5000){
 		for(let i = 0; i < 1000; i++)
 			console_div.firstChild.remove();
