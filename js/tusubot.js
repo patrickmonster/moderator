@@ -934,7 +934,7 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 		switch(comm){
 			case ";클립":
 				if(window.is_online)
-					createClips(({id,edit_url})=>{
+					createClips((id,edit_url)=>{
 						// 클립 url
 						// console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
 						const out = `[console] <a src="clips.twitch.tv/${id}">${id}</a>클립생성 - ${edit_url}`;
