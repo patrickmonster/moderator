@@ -199,28 +199,6 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 					}
 				}
 			})
-			/*
-			@badge-info=;
-			badges=broadcaster/1
-			color=#00FFD0;
-			display-name=네오캣짱;
-			emotes=
-			flags=
-			id=597c57ae-b91a-4aba-b4ae-b30289202b09
-			mod=0
-			reply-parent-display-name=방송알림
-			reply-parent-msg-body=!후원
-			reply-parent-msg-id=ee0d5342-c6d6-4b43-bf14-4db8fae8a68c
-			reply-parent-user-id=672407277
-			reply-parent-user-login=orefinger
-			room-id=129955642
-			subscriber=0
-			tmi-sent-ts=1622167928146
-			turbo=0
-			user-id=129955642
-			user-type= :neocats_!neocats_@neocats_.tmi.twitch.tv PRIVMSG #neocats_ :@방송알림 후원링크 twip.kr/donate/neocats_
-
-			*/
 
 			//roomstate(channel: string, state: RoomState): void;
 			//
@@ -609,10 +587,6 @@ function getChannelStates(f){
 	})
 }
 
-function getChannelGame(){
-
-}
-
 function setChannelStates(f, options){
 	const {
 		game_id,
@@ -958,24 +932,29 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 	if(document.getElementById("is_commands").checked){
 		const [comm, ...args] = msg.split();
 		switch(comm){
-			case "!클립":
+			case ".클립":
 				if(window.is_online)
-				createClips(({id,edit_url})=>{
-					// 클립 url
-					// console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
-					const out = `[console] <a src="clips.twitch.tv/${id}">${id}</a>클립생성 - ${edit_url}`;
-					consoleMessage(out);
-					window.client.popup(out, 500);
-					window.client.reply(channel, msg_id, `[클립생성] clips.twitch.tv/${id}`);
-					scrollDiv(document.getElementById("console_scroll"));
-				});
-				else window.client.reply(channel, msg_id, `오프라인 상태입니다!`);
+					createClips(({id,edit_url})=>{
+						// 클립 url
+						// console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
+						const out = `[console] <a src="clips.twitch.tv/${id}">${id}</a>클립생성 - ${edit_url}`;
+						consoleMessage(out);
+						window.client.popup(out, 500);
+						window.client.reply(channel, msg_id, `[클립생성] clips.twitch.tv/${id}`);
+						scrollDiv(document.getElementById("console_scroll"));
+					});
+				else {
+					window.client.reply(channel, msg_id, `오프라인 상태입니다!`);
+					consoleMessage(`오프라인 상태 입니다!`);
+				}
 				break;
-			case "!후원":
+			case ".후원":
 				window.client.reply(channel, msg_id, `후원링크 twip.kr/donate/${channel}`);
+				consoleMessage(`메세지 전송 - 후원링크 twip.kr/donate/${channel}`);
 				break;
-			case "!트봇":
+			case ".트봇":
 				window.client.reply(channel, msg_id, `트수가 관리하는 채팅방 - ${oauth_redirect_uri}`);
+				consoleMessage(`메세지 전송 - 트수가 관리하는 채팅방 - ${oauth_redirect_uri}`);
 				break;
 			default:
 				for (const k in window.command){
