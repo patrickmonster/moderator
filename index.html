@@ -90,7 +90,6 @@ body > div.block{
 		<div id=console_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.autoscroll=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
 			<table id=console></table>
 		</div>
-		<input type="text" id=chat name="메세지" placeholder="채팅전송"  onkeypress="onKeypress(()=>{sendChat(value);this.value=''}).call(this,event)" style="background:#fff;width:calc(100% - 0px);height: 30px;font-size: 1.5em;border:0;">
 		<input type="text" id=chat name="메세지" placeholder="메세지 전송"  onkeypress="onKeypress(()=>{sendChat(value);this.value=''}).call(this,event)" style="background:#fff;width:calc(100% - 0px);height: 30px;font-size: 1.5em;border:0;">
 		<!-- <button style="height:30px;width:30px;margin: 0 !important;vertical-align: bottom;padding: 0 !important;" onclick="emote_view = document.getElementById('emote_view'); emote_view? emote_view.remove() :getEmoteListView.call(this)"><i class="fas fa-kiss-wink-heart"></i></button> -->
     </div>
