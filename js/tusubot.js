@@ -133,7 +133,7 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				for(const id of ids){
 					if(!obj[id])continue;
 					for(const {code, id: _id} of obj[id]){
-						emots.C("img").attr("src",`https://static-cdn.jtvnw.net/emoticons/v1/${_id}/1.0`).attr("title", code).onclick=()=>{
+						emots.C("img").attr("src",`https://static-cdn.jtvnw.net/emoticons/v1/${_id}/2.0`).attr("title", code).onclick=()=>{
 							const chat = document.getElementById("chat");
 							if(chat.value.length&&chat.value[chat.value.length - 1] != " ")chat.value += " ";
 							chat.value = `${chat.value}${code} `;
@@ -144,17 +144,20 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			})
 			window.client.on("ban", (channel, username, reason)=>{
 				removeConsole(username);
+				console.log("벤" ,username);
 				const ele = consoleMessage(`(유저 벤) ${username} ${reason  || ""}`, "blue").styles("cursor","pointer");
 				window.client.popup(ele,-1);
 				ele.onclick=()=>{window.open(`https://www.twitch.tv/popout/${window.broadcaster.login}/viewercard/${username}?popout=`)};
 			});
 			window.client.on("timeout", (channel, username, reason, duration)=>{
 				removeConsole(username);
+				console.log("타임아웃", duration ,username);
 				const ele = consoleMessage(`(유저 타임아웃 ${duration}) ${username} ${reason || ""}`, "blue").styles("cursor","pointer")
 				window.client.popup(ele,-1);
 				ele.onclick=()=>{window.open(`https://www.twitch.tv/popout/${window.broadcaster.login}/viewercard/${username}?popout=`)};
 			});
 			window.client.on("messagedeleted", (channel, username, deletedMessage, userstate)=>{
+				console.log("메세지 삭제" ,username, deletedMessage);
 				removeConsole(userstate.id,(element)=>{
 					console.log(element.getPosition());
 					window.client.popup(consoleMessage(`(메세지 삭제) ${username}`, "blue"),-1)
@@ -182,23 +185,31 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 						// consoleMessage(`(포인트 보상[비 구독자 메세지]) ${username}`, "blue");
 						break;
 					default:
+						console.log("(유저보상)", username, rewardType);
 						//`(포인트 보상[${rewardType}]) ${username}`
 						window.client.popup(document.createElement("span").html(`(포인트 보상[${rewardType}]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
 						consoleMessage(`(포인트 보상[${rewardType}]) ${username}`, "blue");
 						break;
 				}
 			});
-			window.client.on("automod", (channel, msgID , message)=>{
-				//msgID = ['msg_rejected' | 'msg_rejected_mandatory']
+			window.client.on("automod", (channel, msgID , message)=>{//본인메세지만
 				if(msgID == "msg_rejected"){
 					consoleMessage(`(AutoMod) 메세지가 보류중... ${message}`, "blue");
 				}else {
 					consoleMessage(`(AutoMod) 메세지가 게시되지 않았습니다 ${message}`, "red");
 				}
 			});
+			const modes_bool = {
+				//is_only_emote
+				"emote-only" : "is_only_emote"
+			}
 			window.client.on("roomstate",(channel, state)=>{
 				console.log(state);
 				for(const k in chat_mod){
+					console.log(modes_bool[k]);
+					if(modes_bool[k]){
+						document.getElementById(modes_bool[k]).checked = state[k];
+					}
 					if(state[k] && (k != "followers-only" || state[k] != "-1")){
 						let is = false;
 						const event = ()=>{
@@ -209,10 +220,13 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 							consoleMessage(`(채팅모드) ${chat_mod[k]} 해제됨`, "green")
 							window.client.popup(document.createElement("span").html(`(채팅모드) ${chat_mod[k]} 해제됨`).styles("background","green").styles("color","#fff"), 30);
 						};
+						
 						const popup = document.createElement("span").html(`(채팅모드) ${chat_mod[k]} ${state[k] == true ? "" : " - " + state[k]}`).styles("background","red").styles("color","#fff");
 						window.client.popup(popup, 60);
 						popup.onclick=event;
 						consoleMessage(`(채팅모드) ${chat_mod[k]} ${state[k] == true ? "" : " - " + state[k]}`, "red").styles("cursor","pointer").attr("title",`${chat_mod[k]}해제하기`).onclick=event;
+					}else{
+
 					}
 				}
 			})
@@ -643,7 +657,7 @@ function getStream(f){
 			document.getElementById("title").html(title);
 			document.getElementById("game").html(game_name);
 			document.getElementById("is_online").html("On-line").styles("background", "red");
-			window.static_time.setTime(new Date().getTime() - new Date(started_at).getTime());// 시간 연산
+			window.static_time.setTime((new Date().getTime() - new Date(started_at).getTime()) + new Date().getTimezoneOffset() * 60000);// 시간 연산
 			window.is_online = true;
 			if(f)f(data[0]);
 		}else {
@@ -665,11 +679,13 @@ function addCommand(f){
 	const end = onDialogue(bord, ()=>{ end() });
 	bord.onclick = (event)=>{event.stopPropagation()};
 
+	bord.styles("height", "auto");
 	bord.C("p").html(`명령을 추가합니다`);
 
 	const command = bord.C("input");
 	command.setAttribute("type", "text");
 	command.setAttribute("placeholder", "명령어를 입력해 주세요");
+	bord.C("br")
 	const msg = bord.C("input");
 	msg.setAttribute("type", "text");
 	msg.setAttribute("placeholder", "출력할 내용을 입력해 주세요");
@@ -960,16 +976,18 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 		const [comm, ...args] = msg.split();
 		switch(comm){
 			case ";클립":
-				if(window.is_online)
+				console.log(user,msg,msg_id);
+				if(window.is_online){
+					consoleMessage("클립 제작을 시작함!","blue");
 					createClips((id,edit_url)=>{
-						// 클립 url
-						// console_div.C("p").html(`[console] ${id}클립생성 - ${edit_url}`);
-						const out = `[console] <a src="clips.twitch.tv/${id}">${id}</a>클립생성 - ${edit_url}`;
-						consoleMessage(out);
+						console.log(id, edit_url);
+						const out = `<a href="//clips.twitch.tv/${id}" target="_blank">${id.substr(5)}</a>클립생성 - ${edit_url}`;
+						consoleMessage(out,"blue");
 						window.client.popup(out, 500);
 						window.client.reply(channel, msg_id, `[클립생성] clips.twitch.tv/${id}`);
 						scrollDiv(document.getElementById("console_scroll"));
 					});
+				}
 				else {
 					window.client.reply(channel, msg_id, `오프라인 상태입니다!`);
 					consoleMessage(`오프라인 상태 입니다!`);
@@ -993,15 +1011,18 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 				break;
 		}
 	}
+	if(!msg_id)return;
 	user.msg = getMessageHTML(msg, user);
-	user.nick = user["display-name"] == user.username ? user.username : `${user["display-name"]}<p style='font-size:0.2em;display:contents;'>${user.username}</p>`; 
+	user.nick = user["display-name"] == user.username ? user.username : `${user["display-name"]}<p style='font-size:0.2em;display:contents;'>${user.username}</p>`;
+	const time = new Date();
+	time.setTime(user["tmi-sent-ts"]);
 	console_div.C("p")
 		.addClass("hover_pointer")
 		.addClass(user.username)
 		.addClass(user.id)
 		.addClass(window.client.msg_op && window.client.msg_op.id == msg_id ? (window.client.msg_op.rewardType || "none") : "none")
 		.styles("cursor","pointer")
-		.html(`<span style="width:1px;height:1px" class=span_front></span>[<span style="color:${user.color || "#fff"}">${user.nick}</span>] ${user.msg}`)
+		.html(`<span style="width:1px;height:1px" class=span_front>${time.format('hh:mm')}</span>[<span style="color:${user.color || "#fff"}">${user.nick}</span>] ${user.msg}`)
 		.onclick = ()=>{userprofile(user)};
 	window.client.msg_op && window.client.msg_op.id == msg_id && (window.client.msg_op = undefined);// 메세지 강조
 	if(console_div.childElementCount > 5000){
@@ -1139,6 +1160,16 @@ function consoleMessage(message, color = "red") {
 	const console_div = document.getElementById("console");
 	if(window.autoscroll)scrollDiv(document.getElementById("console_scroll"));
 	return console_div.C("p").html(`[console] ${message}`).styles("background", color).styles("color", "#fff");
+}
+
+function toggleTime(is){
+	//span_front
+	window.toggle_styles = window.toggle_styles || document.head.C("style");
+	window.toggle_styles.html(`
+	.span_front{
+		font-size: ${is ? "1em" : "0"};
+	}`)
+	
 }
 
 //======================================================================================

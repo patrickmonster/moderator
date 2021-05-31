@@ -35,9 +35,9 @@ div.scroll::-webkit-scrollbar {
 a {
   cursor: pointer;
 }
-#console_scroll a {
+/* #console_scroll a {
   color: blue;
-}
+} */
 
 .checkbox {
   top: 40px;
@@ -263,7 +263,7 @@ a {
   cursor: pointer;
 }
 #console_scroll a {
-  color: blue;
+  color: #bbbf;
 }
 
 /* 이미지 중앙정렬 */
@@ -284,6 +284,10 @@ table#console > p > img {
 .subs_mode {
   padding-top: 10px !important;
   background-color: #737373;
+}
+.span_front{
+  font-size: 0;
+  color: #fff7;
 }
 .highlighted_message span.span_front::after {
   content: '강조메세지';

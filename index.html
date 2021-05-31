@@ -165,12 +165,12 @@ function initPopup(){//버튼 캔슬 이벤트
 			<div class="over_bord" onclick="event.stopPropagation();">
 				<ul>
 					<li class="line no-drag"><span>채팅 모드</span></li>
-					<li><label class="no-drag" for="is_only_emote">이모티콘 전용 채팅<input type="checkbox" title="이모티콘 전용 채팅 on/off" id="is_only_emote" class="checkbox" style="float:right;"></label></li>
-					<li><label class="no-drag" for="is_only_follow">팔로우 전용 채팅<button id="is_only_follow">꺼짐</button></label></li>
-					<li><label class="no-drag" for="is_slow">슬로우 모드<button id="is_slow">꺼짐</button></label></li>
+					<li><label class="no-drag" for="is_only_emote">이모티콘 전용 채팅<input type="checkbox" title="이모티콘 전용 채팅 on/off" id="is_only_emote" class="checkbox" style="float:right;" onclick="var i = this;window.client[i.checked ? 'emoteonly' : 'emoteonlyoff'](window.broadcaster.login).then(o=>console.log(o)).catch(e=>{console.log(e);i.checked=false})"></label></li>
+					<!-- <li><label class="no-drag" for="is_only_follow">팔로우 전용 채팅<button id="is_only_follow">꺼짐</button></label></li> -->
+					<!-- <li><label class="no-drag" for="is_slow">슬로우 모드<button id="is_slow">꺼짐</button></label></li> -->
 					<li class="line no-drag"><span>채팅 보조</span></li>
-					<li><label class="no-drag" for="is_timestamp">타임 스탬프 표기<input type="checkbox" title="타임 스탬프 표기 on/off" id="is_timestamp" class="checkbox" style="float:right;"></label></li>
-					<li><label class="no-drag" for="on_popup_open">팝업으로 띄우기<button id="on_popup_open" onclick="window.open(location.href, '', 'width=1000; height=650, toolbar=no, resizeble=no, menubar=no, scrollbars=no ');"><i class="fas fa-external-link-alt"></i></button></label></li>
+					<li><label class="no-drag" for="is_timestamp">타임 스탬프 표기<input type="checkbox" title="타임 스탬프 표기 on/off" id="is_timestamp" class="checkbox" style="float:right;" onclick="toggleTime(this.checked)"></label></li>
+					<li><label class="no-drag" for="on_popup_open">팝업으로 띄우기<button id="on_popup_open" onclick="window.open(location.href, '', 'width=1000; height=670, toolbar=no, resizeble=no, menubar=no, scrollbars=no ');"><i class="fas fa-external-link-alt"></i></button></label></li>
 					<li><label class="no-drag" for="on_open_loglist">로그 리스트<button id="on_open_loglist" onclick="popupLogList()"></button></label></li>
 				</ul>
 			</div>
@@ -263,7 +263,17 @@ function initPopup(){//버튼 캔슬 이벤트
 			<br><span>채팅을 비교하여 챗봇을 처리합니다! 일반 사용자도 차단이 될 수 있습니다!</span>
 			<br><button onclick="window.open('//patrickmonster.github.io/moderator/followers.html'+location.hash)">팔로우 필터</button>
 	        <br>팔로우 일시를 기준으로 필터링 합니다.<br><br>
-			<button onclick="location.href=oauth_redirect_uri" style="font-size: 1.5em;">사용자 변경(Logout)</button>
+			<button onclick="addChat(false,';클립', 0)" style="font-size: 1.5em;">클립제작</button>
+			<br><button onclick="location.href=oauth_redirect_uri" style="font-size: 1.5em;">사용자 변경(Logout)</button>
+		</div>
+    </div>
+
+    <div class="block console_option" style="height: auto;">
+        <h2>업데이트 로그</h2>
+		<div>
+			<ul>
+				<li>릴리즈 오픈 - 현재 몃몃이벤트가 동작하지는 않지만, 원인파악을 하고 있습니다.</li>
+			</ul>
 		</div>
     </div>
     <!-- <div class="block alr" style="background: #949494;height: 55px;transition:1s;border-radius: 30px 30px 0 0;">
