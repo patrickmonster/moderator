@@ -82,7 +82,7 @@ function Popup(max = 10){//팝업 관리자
     const list = [];// 팝업 스텍
     const msg_queue = [];
     const logs = [];
-    window.addStyle(`#popup{position:fixed;left:0;margin:10px !important;bottom: 0%;}#popup *{width:100%;display: inline-block;}`);
+    window.addStyle(`#popup{position:fixed;right:0;margin:10px !important;bottom: 0%;}#popup *{width:100%;display: inline-block;}`);
     function create(element = "test", time = 5){
         const timeText = document.createElement("p").html(new Date().format("hh:mm:ss"));
         if(element == "")

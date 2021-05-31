@@ -153,7 +153,7 @@ table#console > tr > td {
   height: 30px;
 }
 
-.title_ui > #title {
+.title_ui > .title{
   float: left;
   max-width: 500px;
   white-space: nowrap;

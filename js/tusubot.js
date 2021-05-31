@@ -118,13 +118,31 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			});
 			window.client.reply=function reply(channel, msg_id, message){
 				this.log.info(`[${channel}] Reply message: ${command}`);
-				this.ws.send(`@reply-parent-msg-id=${msg_id} PRIVMSG ${window._channel(channel)} :${message}`);
-			}
+				if(msg_id)
+					this.ws.send(`@reply-parent-msg-id=${msg_id} PRIVMSG ${window._channel(channel)} :${message}`);
+			};
 			window.client.once("connected", (s,p)=>{window.client.popup(document.createElement("span").html(`트위치 채팅채널에 정상적으로 연결되었습니다! ${s}(${p})`).styles("background","blue").styles("color","#fff"), 30)});
 			window.client.on("join", (channel, username, self)=>{if(self)window.client.popup(document.createElement("span").html(`${channel}에 연결됨`).styles("background","blue").styles("color","#fff"), 30)});
 			window.client.on("part", (channel, username, self)=>{if(self)window.client.popup(document.createElement("span").html(`${channel}에 퇴장됨`).styles("background","blue").styles("color","#fff"), 30)});
 			window.client.on("reconnect", ()=>{window.client.popup(document.createElement("span").html(`서버가 불안정하여 재접속을 시도합니다...`).styles("background","red").styles("color","#fff"), 30)});
 			window.client.on("chat",(channel, userstate, message, self)=>{if(self)return;addChat(userstate, message, userstate.id)});
+			window.client.on("emotesets",(sets, obj)=>{
+				const ids = window.client.emotes.split(",").reverse();
+				const emots = document.getElementById("emots");
+				emots.html("");
+				for(const id of ids){
+					console.log(id, obj[id]);
+					if(!obj[id])continue;
+					for(const {code, id: _id} of obj[id]){
+						emots.C("img").attr("src",`https://static-cdn.jtvnw.net/emoticons/v1/${_id}/1.0`).attr("title", code).onclick=()=>{
+							const chat = document.getElementById("chat");
+							if(chat.value.length&&chat.value[chat.value.length - 1] != " ")chat.value += " ";
+							chat.value = `${chat.value}${code} `;
+						};
+					}
+					emots.C("line");
+				}
+			})
 			window.client.on("ban", (channel, username, reason)=>{
 				removeConsole(username);
 				const ele = consoleMessage(`(유저 벤) ${username} ${reason  || ""}`, "blue").styles("cursor","pointer");
@@ -248,11 +266,11 @@ function popupLogList(){
 	
 }
 /**
- * GET https://api.twitch.tv/kraken/chat/emoticon_images
+ * GET https://api.twitch.tv/kraken/chat/emoticons
  */
 // function getEmoteListView(){
 // 	// targetPopup
-// 	axios.get(`https://api.twitch.tv/kraken/chat/emoticon_images`, {
+// 	axios.get(`https://api.twitch.tv/kraken/chat/emoticons`, {
 // 		headers : { "Client-Id" : oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
 // 	}).then(({data})=>{
 // 		console.log(data);
@@ -562,6 +580,7 @@ function createClips(f){
 
 /**
  * https://dev.twitch.tv/docs/api/reference#get-channel-information
+ * channel:manage:broadcast
  * 채널 정보
  * {
       "broadcaster_id": "141981764",
@@ -587,6 +606,12 @@ function getChannelStates(f){
 	})
 }
 
+/**
+ * 채널정보 수정
+ * @param {*} f 콜백
+ * @param {*} options 방제
+ * @returns 
+ */
 function setChannelStates(f, options){
 	const {
 		game_id,
@@ -599,13 +624,17 @@ function setChannelStates(f, options){
 		if(title) query.title = title;
 	}else return;
 	window.token.instance.patch(`channels?broadcaster_id=${window.broadcaster.id}`, query).then(({data})=>{
-		f(query);
+		if(f)f(query);
 		document.getElementById("title").html(title);
 	}).catch(e=>{
 		console.error(e);
 	})
 }
 
+/**
+ * 스트림 정보를 불러옴
+ * @param {*} f 콜백
+ */
 function getStream(f){
 	window.token.instance.get(`streams?user_id=${window.broadcaster.id}`).then(({data : {data}})=>{
 		window.static_time = new Date("1900-01-01 00:00:00");
@@ -627,7 +656,6 @@ function getStream(f){
 		console.error(e);
 	})
 }
-
 //======================================================================================
 
 /**
