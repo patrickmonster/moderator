@@ -734,6 +734,10 @@ function addCommandTxt(k,v) {
 				element.html(`${k} -> ${v}`);
 			}, k, true);
 		};
+		bord.C("button").html("삭제").onclick = ()=>{
+			end();
+			subCommand(k);
+		};
 		bord.C("button").html("취소").onclick = end;
 
 	}
