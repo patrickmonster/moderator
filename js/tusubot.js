@@ -131,7 +131,6 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				const emots = document.getElementById("emots");
 				emots.html("");
 				for(const id of ids){
-					console.log(id, obj[id]);
 					if(!obj[id])continue;
 					for(const {code, id: _id} of obj[id]){
 						emots.C("img").attr("src",`https://static-cdn.jtvnw.net/emoticons/v1/${_id}/1.0`).attr("title", code).onclick=()=>{
