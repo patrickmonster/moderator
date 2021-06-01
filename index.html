@@ -15,7 +15,6 @@
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="./javascript/tmi.min.js"></script>
 	<script src="./js/main.js"></script>
-	<script src="./js/tusubot.js"></script>
 	<style>
 *{
 	margin: 0px !important;
@@ -150,6 +149,7 @@ function initPopup(){//버튼 캔슬 이벤트
 }
 
 	</script>
+	<!-- <script src="./js/tusubot.js"></script> -->
 	<!-- 싱글 데시보드 -->
 	<!-- 콘솔창 -->
 	<div class="title_ui no-drag">
@@ -174,7 +174,7 @@ function initPopup(){//버튼 캔슬 이벤트
 					<li><label class="no-drag" for="follow5040"><input type="radio" name="follow" id="follow5040" style="float: left;" onclick="followChange(this.id.replace('follow',''))">1주일</label></li>
 					<li><label class="no-drag" for="follow43200"><input type="radio" name="follow" id="follow43200" style="float: left;" onclick="followChange(this.id.replace('follow',''))">1개월</label></li>
 					<li><label class="no-drag" for="follow129600"><input type="radio" name="follow" id="follow129600" style="float: left;" onclick="followChange(this.id.replace('follow',''))">3개월</label></li>
-					<li><label class="no-drag" for="follow-1"><input type="radio" name="follow" id="follow-1" style="float: left;" onclick="followChange(this.id.replace('follow',''))">끄기</label></li>
+					<li><label class="no-drag" for="follow-1"><input type="radio" name="follow" id="follow-1" style="float: left;" onclick="followChange(this.id.replace('follow',''))" checked>끄기</label></li>
 					<input type="radio" name="follow" id="followother" style="display:none;">
 					<!-- 기타선택 -->
 				</ul>
@@ -192,7 +192,7 @@ function initPopup(){//버튼 캔슬 이벤트
 					<li><label class="no-drag" for="slowchat30"><input type="radio" name="slowchat" id="slowchat30" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">30초(기본값)</label></li>
 					<li><label class="no-drag" for="slowchat60"><input type="radio" name="slowchat" id="slowchat60" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">60</label></li>
 					<li><label class="no-drag" for="slowchat120"><input type="radio" name="slowchat" id="slowchat120" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">120</label></li>
-					<li><label class="no-drag" for="slowchatfalse"><input type="radio" name="slowchat" id="slowchatfalse" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">끄기</label></li>
+					<li><label class="no-drag" for="slowchatfalse"><input type="radio" name="slowchat" id="slowchatfalse" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))" checked>끄기</label></li>
 					<input type="radio" name="slowchat" id="slowchatother" style="display:none;">
 					<!-- 기타선택 -->
 				</ul>
@@ -307,11 +307,12 @@ function initPopup(){//버튼 캔슬 이벤트
 		</div>
     </div>
 
-    <div class="block console_option" style="height: auto;">
+    <div class="block console_option" style="height: auto">
         <h2>업데이트 로그</h2>
-		<div>
-			<ul>
-				<li>릴리즈 오픈 - 현재 몃몃이벤트가 동작하지는 않지만, 원인파악을 하고 있습니다.</li>
+		<div style="overflow-y: scroll;height: 100px;">
+			<ul style="">
+				<li>2.1.0 - 팔로우모드/슬로우 모드 적용</li>
+				<li>2.0.0 - 현재 몃몃이벤트가 동작하지는 않지만, 원인파악을 하고 있습니다.</li>
 			</ul>
 		</div>
     </div>

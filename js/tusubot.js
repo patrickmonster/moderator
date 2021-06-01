@@ -1,5 +1,5 @@
 'use strict';
-window.ver = "2.0.0";
+window.ver = "2.1.0";
 
 const oauth_client_id = "upe7qsmxj1soazkgf1ry7pf8w3d89u";
 const oauth_redirect_uri = `${window.location.origin}${window.location.pathname}`;// 리다이렉션
@@ -989,7 +989,7 @@ function addChat(user, msg, msg_id){// 채팅기록관리
 					consoleMessage("클립 제작을 시작함!","blue");
 					createClips((id,edit_url)=>{
 						console.log(id, edit_url);
-						const out = `<a href="//clips.twitch.tv/${id}" target="_blank">${id.substr(5)}</a>클립생성 - ${edit_url}`;
+						const out = `<a href="//clips.twitch.tv/${id}" target="_blank">${id.substr(5)}</a>클립생성 - <a href=${edit_url}>편집하기</a>`;
 						consoleMessage(out,"blue");
 						window.client.popup(out, 500);
 						window.client.reply(channel, msg_id, `[클립생성] clips.twitch.tv/${id}`);
@@ -1204,10 +1204,12 @@ function followChangeSet(time){
 		const t = i.id.replace("follow","");
 		if(t == time){
 			i.checked = true;
+			document.getElementById("is_slow_chat").html(i.innerHTML);
 			return;
 		}
 	}
 	eles[eles.length-1].checked = true;
+	document.getElementById("is_slow_chat").html("사용자 지정");
 }
 /**
  * 슬로우 모드 변경
@@ -1233,10 +1235,12 @@ function slowchatChangeSet(time){
 		if(t == time){
 			console.log(time, i);
 			i.checked = true;
+			document.getElementById("is_slow_chat").html(i.innerHTML);
 			return;
 		}
 	}
 	eles[eles.length-1].checked = true;
+	document.getElementById("is_slow_chat").html("사용자 지정");
 }
 
 //======================================================================================
