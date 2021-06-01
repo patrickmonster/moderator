@@ -149,7 +149,7 @@ function initPopup(){//버튼 캔슬 이벤트
 }
 
 	</script>
-	<!-- <script src="./js/tusubot.js"></script> -->
+	<script src="./js/tusubot.js"></script>
 	<!-- 싱글 데시보드 -->
 	<!-- 콘솔창 -->
 	<div class="title_ui no-drag">
@@ -206,10 +206,9 @@ function initPopup(){//버튼 캔슬 이벤트
 					<li><label class="no-drag" for="is_only_emote">이모티콘 전용 채팅<input type="checkbox" title="이모티콘 전용 채팅 on/off" id="is_only_emote" class="checkbox" style="float:right;" onclick="var i = this;window.client[i.checked ? 'emoteonly' : 'emoteonlyoff'](window.broadcaster.login).then(o=>console.log(o)).catch(e=>{console.log(e);i.checked=false})"></label></li>
 					<li><label class="no-drag" for="is_only_follow">팔로우 전용 채팅<button id="is_only_follow" onclick="document.getElementById('chatting_option').checked=true;document.getElementById('follow_chat').checked=false;">꺼짐</button></label></li>
 					<li><label class="no-drag" for="is_slow_chat">슬로우 모드 채팅<button id="is_slow_chat" onclick="document.getElementById('chatting_option').checked=true;document.getElementById('slowchat_chat').checked=false;">꺼짐</button></label></li>
-					<!-- <li><label class="no-drag" for="is_slow">슬로우 모드<button id="is_slow">꺼짐</button></label></li> -->
 					<li class="line no-drag"><span>채팅 보조</span></li>
 					<li><label class="no-drag" for="is_timestamp">타임 스탬프 표기<input type="checkbox" title="타임 스탬프 표기 on/off" id="is_timestamp" class="checkbox" style="float:right;" onclick="toggleTime(this.checked)"></label></li>
-					<li><label class="no-drag" for="on_popup_open">팝업으로 띄우기<button id="on_popup_open" onclick="window.open(location.href, '', 'width=1000; height=670, toolbar=no, resizeble=no, menubar=no, scrollbars=no ');"><i class="fas fa-external-link-alt"></i></button></label></li>
+					<li><label class="no-drag" for="on_popup_open">팝업으로 띄우기<button id="on_popup_open" onclick="window.open(location.href, '', 'width=1020; height=670, toolbar=no, resizeble=no, menubar=no, scrollbars=no ');"><i class="fas fa-external-link-alt"></i></button></label></li>
 					<li><label class="no-drag" for="on_open_loglist">로그 리스트<button id="on_open_loglist" onclick="popupLogList()"></button></label></li>
 				</ul>
 			</div>
