@@ -148,6 +148,7 @@ function initPopup(){//버튼 캔슬 이벤트
 	// document.querySelectorAll(".dialogue").forEach(e=>e.remove());
 	document.getElementById('title').styles('display','block').previousSibling.nextSibling.nextSibling.nextSibling.styles('display','none');
 }
+
 	</script>
 	<!-- 싱글 데시보드 -->
 	<!-- 콘솔창 -->
@@ -161,12 +162,50 @@ function initPopup(){//버튼 캔슬 이벤트
     <div class="block console_ui">
 		<!-- 통 매뉴 - 채팅 설정 옵션들 -->
 		<span style="float: left;">
-			<span title="채팅 설정" onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked"><i class="fas fa-cog button"></i></span><input type="checkbox" class="over_bord_hide" checked>
+			<span title="팔로우 전용 채팅" onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked"></span><input type="checkbox" class="over_bord_hide" id=follow_chat checked>
+			<div class="over_bord" onclick="event.stopPropagation();" style="width: 200px;">
+				<ul>
+					<li class="no-drag"><label for="followback"><input type="button" value="<" style="display:inline;float:left;color:#fff;border:0;" id="followback" onclick="document.getElementById('chatting_option').checked=false;document.getElementById('follow_chat').checked=true;"></input><span>채팅 설정</span> </li></label>
+					<li><label class="no-drag" for="follow0"><input type="radio" name="follow" id="follow0" style="float: left;" onclick="followChange(this.id.replace('follow',''))">0분(모든팔로워)</label></li>
+					<li><label class="no-drag" for="follow10"><input type="radio" name="follow" id="follow10" style="float: left;" onclick="followChange(this.id.replace('follow',''))">10분</label></li>
+					<li><label class="no-drag" for="follow30"><input type="radio" name="follow" id="follow30" style="float: left;" onclick="followChange(this.id.replace('follow',''))">30분</label></li>
+					<li><label class="no-drag" for="follow60"><input type="radio" name="follow" id="follow60" style="float: left;" onclick="followChange(this.id.replace('follow',''))">1시간</label></li>
+					<li><label class="no-drag" for="follow720"><input type="radio" name="follow" id="follow720" style="float: left;" onclick="followChange(this.id.replace('follow',''))">1일</label></li>
+					<li><label class="no-drag" for="follow5040"><input type="radio" name="follow" id="follow5040" style="float: left;" onclick="followChange(this.id.replace('follow',''))">1주일</label></li>
+					<li><label class="no-drag" for="follow43200"><input type="radio" name="follow" id="follow43200" style="float: left;" onclick="followChange(this.id.replace('follow',''))">1개월</label></li>
+					<li><label class="no-drag" for="follow129600"><input type="radio" name="follow" id="follow129600" style="float: left;" onclick="followChange(this.id.replace('follow',''))">3개월</label></li>
+					<li><label class="no-drag" for="follow-1"><input type="radio" name="follow" id="follow-1" style="float: left;" onclick="followChange(this.id.replace('follow',''))">끄기</label></li>
+					<input type="radio" name="follow" id="followother" style="display:none;">
+					<!-- 기타선택 -->
+				</ul>
+			</div>
+		</span>
+		<span style="float: left;">
+			<span title="느린 채팅" onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked"></span><input type="checkbox" class="over_bord_hide" id=slowchat_chat checked>
+			<div class="over_bord" onclick="event.stopPropagation();" style="width: 200px;">
+				<ul>
+					<li class="no-drag"><label for="slowchatback"><input type="button" value="<" style="display:inline;float:left;color:#fff;border:0;" id="slowchatback" onclick="document.getElementById('chatting_option').checked=false;document.getElementById('slowchat_chat').checked=true;"></input><span>채팅 설정</span> </li></label>
+					<li><label class="no-drag" for="slowchat3"><input type="radio" name="slowchat" id="slowchat3" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">3초</label></li>
+					<li><label class="no-drag" for="slowchat5"><input type="radio" name="slowchat" id="slowchat5" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">5초</label></li>
+					<li><label class="no-drag" for="slowchat10"><input type="radio" name="slowchat" id="slowchat10" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">10초</label></li>
+					<li><label class="no-drag" for="slowchat20"><input type="radio" name="slowchat" id="slowchat20" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">20초</label></li>
+					<li><label class="no-drag" for="slowchat30"><input type="radio" name="slowchat" id="slowchat30" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">30초(기본값)</label></li>
+					<li><label class="no-drag" for="slowchat60"><input type="radio" name="slowchat" id="slowchat60" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">60</label></li>
+					<li><label class="no-drag" for="slowchat120"><input type="radio" name="slowchat" id="slowchat120" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">120</label></li>
+					<li><label class="no-drag" for="slowchatfalse"><input type="radio" name="slowchat" id="slowchatfalse" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">끄기</label></li>
+					<input type="radio" name="slowchat" id="slowchatother" style="display:none;">
+					<!-- 기타선택 -->
+				</ul>
+			</div>
+		</span>
+		<span style="float: left;">
+			<span title="채팅 설정" onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked"><i class="fas fa-cog button"></i></span><input type="checkbox" class="over_bord_hide" id="chatting_option" checked>
 			<div class="over_bord" onclick="event.stopPropagation();">
 				<ul>
 					<li class="line no-drag"><span>채팅 모드</span></li>
 					<li><label class="no-drag" for="is_only_emote">이모티콘 전용 채팅<input type="checkbox" title="이모티콘 전용 채팅 on/off" id="is_only_emote" class="checkbox" style="float:right;" onclick="var i = this;window.client[i.checked ? 'emoteonly' : 'emoteonlyoff'](window.broadcaster.login).then(o=>console.log(o)).catch(e=>{console.log(e);i.checked=false})"></label></li>
-					<!-- <li><label class="no-drag" for="is_only_follow">팔로우 전용 채팅<button id="is_only_follow">꺼짐</button></label></li> -->
+					<li><label class="no-drag" for="is_only_follow">팔로우 전용 채팅<button id="is_only_follow" onclick="document.getElementById('chatting_option').checked=true;document.getElementById('follow_chat').checked=false;">꺼짐</button></label></li>
+					<li><label class="no-drag" for="is_slow_chat">슬로우 모드 채팅<button id="is_slow_chat" onclick="document.getElementById('chatting_option').checked=true;document.getElementById('slowchat_chat').checked=false;">꺼짐</button></label></li>
 					<!-- <li><label class="no-drag" for="is_slow">슬로우 모드<button id="is_slow">꺼짐</button></label></li> -->
 					<li class="line no-drag"><span>채팅 보조</span></li>
 					<li><label class="no-drag" for="is_timestamp">타임 스탬프 표기<input type="checkbox" title="타임 스탬프 표기 on/off" id="is_timestamp" class="checkbox" style="float:right;" onclick="toggleTime(this.checked)"></label></li>

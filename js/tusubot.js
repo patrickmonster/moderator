@@ -174,19 +174,12 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				switch(rewardType){
 					case "highlighted-message":
 						window.client.msg_op = {id: tag.id, rewardType : "highlighted_message"}
-						// window.client.popup(document.createElement("span").html(`(포인트 보상[강조 메세지]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
-						// highlightedConsole(tag.id);
-						// consoleMessage(`(포인트 보상[강조 메세지]) ${username}`, "blue");
 						break;
 					case "skip-subs-mode-message":
 						window.client.msg_op = {id: tag.id, rewardType : "subs_mode"}
-						// window.client.popup(document.createElement("span").html(`(포인트 보상[비 구독자 메세지]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
-						// subsModeConsole(tag.id);
-						// consoleMessage(`(포인트 보상[비 구독자 메세지]) ${username}`, "blue");
 						break;
 					default:
 						console.log("(유저보상)", username, rewardType);
-						//`(포인트 보상[${rewardType}]) ${username}`
 						window.client.popup(document.createElement("span").html(`(포인트 보상[${rewardType}]) ${username}`).styles("background","blue").styles("color","#fff"), 30);
 						consoleMessage(`(포인트 보상[${rewardType}]) ${username}`, "blue");
 						break;
@@ -203,28 +196,39 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				//is_only_emote
 				"emote-only" : "is_only_emote"
 			}
+			const modes_func = {
+				"followers-only": followChangeSet,
+				"slow" : slowchatChangeSet
+			}
 			window.client.on("roomstate",(channel, state)=>{
 				console.log(state);
 				for(const k in chat_mod){
-					console.log(modes_bool[k]);
-					if(modes_bool[k]){
-						document.getElementById(modes_bool[k]).checked = state[k];
+					if(modes_bool[k])document.getElementById(modes_bool[k]).checked = state[k];// bool 형 데이터 삽입
+					if(modes_func[k])modes_func[k](state[k]); // func처리형 삽입
+					// state[k] 가 존재하고
+					if(k=="followers-only"){
+						if(state[k] == false)
+							state[k] = 0;
+						else if(state[k] == -1){
+							state[k] = false;
+						}
 					}
-					if(state[k] && (k != "followers-only" || state[k] != "-1")){
+					if(state[k] !== false && state[k] !== undefined){
 						let is = false;
+						console.log(k, state[k]);
 						const event = ()=>{
 							if(is)return;
 							is = true;
-							const off = `${k.replace("-","")}off`;
+							const off = `${k.replace(/-/g,"")}off`;
 							window.client[off](channel);
 							consoleMessage(`(채팅모드) ${chat_mod[k]} 해제됨`, "green")
 							window.client.popup(document.createElement("span").html(`(채팅모드) ${chat_mod[k]} 해제됨`).styles("background","green").styles("color","#fff"), 30);
 						};
 						
-						const popup = document.createElement("span").html(`(채팅모드) ${chat_mod[k]} ${state[k] == true ? "" : " - " + state[k]}`).styles("background","red").styles("color","#fff");
+						const popup = document.createElement("span").html(`(채팅모드) ${chat_mod[k]} ${state[k] ? " - " + state[k] : ""}`).styles("background","red").styles("color","#fff");
 						window.client.popup(popup, 60);
 						popup.onclick=event;
-						consoleMessage(`(채팅모드) ${chat_mod[k]} ${state[k] == true ? "" : " - " + state[k]}`, "red").styles("cursor","pointer").attr("title",`${chat_mod[k]}해제하기`).onclick=event;
+						consoleMessage(`(채팅모드) ${chat_mod[k]} ${state[k] ? " - " + state[k] : ""}`, "red").styles("cursor","pointer").attr("title",`${chat_mod[k]}해제하기`).onclick=event;
 					}else{
 
 					}
@@ -1174,6 +1178,65 @@ function toggleTime(is){
 		font-size: ${is ? "1em" : "0"};
 	}`)
 	
+}
+
+/**
+ * 팔로우 모드 변경
+ * @param {*} time 
+ */
+function followChange(time){
+	if(time=='-1'){
+		window.client.followersonlyoff(window.broadcaster.login);
+		consoleMessage(`(채팅모드) 팔로우 전용 모드 해제됨`, "green");
+	}else window.client.followersonly(window.broadcaster.login,time);
+}
+
+/**
+ * 팔로우 모드 변경 콜
+ * @param {*} time 
+ * @returns 
+ */
+function followChangeSet(time){
+	const eles = document.querySelectorAll("input[name=follow]");
+	//document.querySelectorAll("input[name=follow]")
+	// consoleMessage(`팔로우 모드 변경 ${time}`, 'blue').onclick=()=>{followChangeSet("off")};
+	for(const i of eles){
+		const t = i.id.replace("follow","");
+		if(t == time){
+			i.checked = true;
+			return;
+		}
+	}
+	eles[eles.length-1].checked = true;
+}
+/**
+ * 슬로우 모드 변경
+ * @param {*} time 
+ */
+ function slowchatChange(time){
+	 console.log(time);
+	if(time=="false"){
+		window.client.slowoff(window.broadcaster.login);
+		consoleMessage(`(채팅모드) 느린 채팅 모드 해제됨`, "green");
+	}else window.client.slowmode(window.broadcaster.login,time);
+}
+
+/**
+ * 슬로우 모드 변경 콜
+ * @param {*} time 
+ * @returns 
+ */
+function slowchatChangeSet(time){
+	const eles = document.querySelectorAll("input[name=slowchat]");
+	for(const i of eles){
+		const t = i.id.replace("slowchat","");
+		if(t == time){
+			console.log(time, i);
+			i.checked = true;
+			return;
+		}
+	}
+	eles[eles.length-1].checked = true;
 }
 
 //======================================================================================
