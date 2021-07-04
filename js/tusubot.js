@@ -346,6 +346,12 @@ function onDialogue(html,f){
 	return end;
 }
 
+
+/*
+
+	$.fn.bottomup($.extend({},default_option,{html:`<img src="https://static-cdn.jtvnw.net/emoticons/v1/${id}/3.0" style="width:${default_option.size +5}px;height:${default_option.size +5}px">`}));
+	$.fn.bottomup($.extend({},default_option,{html:`<img src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0" style="width:${default_option.size +5}px;height:${default_option.size +5}px">`}));
+*/
 /**
  * https://www.stefanjudis.com/blog/how-to-display-twitch-emotes-in-tmi-js-chat-messages/
  * 이모지 단어를 html테그로 변경
@@ -373,7 +379,7 @@ function getMessageHTML(message, { emotes }) {
 
 		stringReplacements.push({
 			stringToReplace: stringToReplace,
-			replacement: `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${id}/1.0">`,
+			replacement: isNaN(id) ? `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/1.0">` : `<img src="https://static-cdn.jtvnw.net/emoticons/v1/${id}/1.0">`,
 		});
 	});
 
