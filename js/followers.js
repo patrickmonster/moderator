@@ -144,9 +144,12 @@ function search_view_bot(){
 			return;
 		}
 		const filter = [];
+		console.log(times);
 		for (const k in times){
-			if(times[k] >= viewbot_follow)
+			if(times[k].length >= viewbot_follow){
+				console.log(times[k], k);
 				filter.push(k);
+			}
 		}
 		
 		const is_kor = document.getElementById("is_kor_nick").checked;
