@@ -104,6 +104,25 @@ function onDialogue(html){
 	}
 }
 
+/**
+ * 배열 나누기
+ * @param {*} l 
+ * @param {*} n 
+ * @returns 
+ */
+function division(l, n) {
+	const arr = l;
+	const len = arr.length;
+	const cnt = Math.floor(len / n);
+	const tmp = [];
+
+	for (let i = 0; i <= cnt; i++) {
+		tmp.push(arr.splice(0, n));
+	}
+
+	return tmp;
+};
+
 //=======================================================================================================
 function search_view_bot(){
 	const alert_ele = document.createElement("span").html("데이터를 불러오는중...");
@@ -368,11 +387,36 @@ function unfollow_user(user,is_ban,f){
 	}).catch(e=>{});
 }
 
+/**
+ * 2021.09.29 업데이트 
+ * 사용자 리스트를 전체로 적용
+ * @param {*} l 
+ * @param {*} is_ban 
+ * division()
+ */
+function unfollow_users_list(list,is_ban,f){
+	const query = `users/blocks?target_user_id=${list.join("&target_user_id=")}`;
+	window.token.instance.put(query).then(o=>{
+		if(!is_ban){
+			window.token.instance.delete(query).then(o=>{
+				if(typeof f == "function")f();
+			}).catch(e=>{});
+		}else if(typeof f == "function")f();
+	}).catch(e=>{});
+}
+
+/**
+ * 사용자 벤
+ * 항목 95개씩 진행 (api콜 절약)
+ * @param {*} l 
+ * @param {*} is_ban 
+ */
 function unfollow_users(l,is_ban){
-	if(confirm('사용자'+l.length+'명이 언팔로우 됩니다!\n진행하시겠습니까?')==true)
-		l.forEach(({i})=>{
-			unfollow_user(i,is_ban);
+	if(confirm('사용자'+l.length+'명이 언팔로우 됩니다!\n진행하시겠습니까?')==true){
+		division(l, 95).forEach(i=>{
+			unfollow_users_list(i,is_ban);
 		});
+	}
 		save(`unfollow_${is_ban?"ban":"unban"}.json`, JSON.stringify(l))// 리스트
 }
 //=======================================================================================================

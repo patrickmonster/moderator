@@ -126,7 +126,6 @@ img{
 	</script>
 </head>
 <body>
-    <!-- <script src="../js/chat.js"></script> -->
 	<div id=dash_bord>
 		<div class="" style="text-align:center;">
 			<div class="">
@@ -150,13 +149,10 @@ img{
 			<button type="button" name="button" onclick="save('userlist.json', JSON.stringify(list_filter(window.tmp || window.users)))">유저목록 다운로드</button>
 			<div id="user_unfollow" class="">
 				<h3>사용자 차단 및 언팔로우</h3><h4>현재 보여지는 사용자를</h4>
-				<button type="button" name="button" onclick="unfollow_users(list_filter(window.tmp || window.users),false)">팔로우 취소</button>
-				<button type="button" name="button" onclick="unfollow_users(list_filter(window.tmp || window.users),true)">팔로우 취소 및 벤</button>
+        `현재상태에서, 하단의 버튼을 누르시면, 모든 팔로우가 날라갑니다!`
+				<button type="button" name="button" onclick="unfollow_users(list_filter(window.tmp || window.users),false)" style="background: blue">팔로우 취소</button>
+				<button type="button" name="button" onclick="unfollow_users(list_filter(window.tmp || window.users),true)" style="background: red">팔로우 취소 및 벤</button>
 			</div>
-			<!-- <div class="filebox">
-				<label for="ex_file">업로드</label>
-				<input type="file" id="ex_file">
-			</div> -->
 		</div>
 		<div class="block">
 			<div id="user_list">
@@ -165,80 +161,5 @@ img{
 		<button id=append_load onclick="if(window.cursor)load_list(window.cursor);else this.styles('display','none')">추가 불러오기</button>
 	</div>
 	<script src="./js/followers.js"></script>
-	<!-- <script>
-	const svgDimensions = {
-        width: 300,
-        height: 300,
-      };
-      const radius = Math.min(svgDimensions.width, svgDimensions.height) / 2;
-      const data = [420, 80, 130, 210, 510, 80];
-
-      const svg = d3
-        .select("body")
-        .append("svg")
-        .attr("width", svgDimensions.width)
-        .attr("height", svgDimensions.height)
-        .style("border", "1px solid rgba(0,0,0,0.1)");
-
-      const g = svg
-        .append("g")
-        .attr(
-          "transform",
-          `translate(${svgDimensions.width / 2}, ${svgDimensions.height / 2})`
-        );
-      const color = d3.scaleOrdinal([
-        "#ff9800",
-        "#ffa726",
-        "#ffb74d",
-        "#ffcc80",
-        "#ffe0b2",
-        "#fff3e0",
-      ]);
-
-      const pie = d3.pie();
-      const arc = d3.arc().innerRadius(0).outerRadius(radius);
-      const arcs = g
-        .selectAll("arc")
-        .data(pie(data))
-        .enter()
-        .append("g")
-        .attr("class", "arc")
-        .on("mouseover", onMouseOver)
-        .on("mouseout", onMouseOut);
-
-      arcs
-        .append("path")
-        .attr("fill", (d, i) => color(i))
-        .attr("d", arc);
-
-      arcs
-        .append("text")
-        .attr("transform", (d) => `translate(${arc.centroid(d)})`)
-        .text((d) => d.value)
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "18px")
-        .attr("font-weight", "bold")
-        .attr("fill", "#fff")
-        .attr("text-anchor", "middle")
-        .attr("display", "none");
-
-      function onMouseOut(d, i) {
-        d3.select(this)
-          .select("path")
-          .transition()
-          .duration(200)
-          .style("fill", color(i));
-        d3.select(this).select("text").attr("display", "none");
-      }
-
-      function onMouseOver(d, i) {
-        d3.select(this)
-          .select("path")
-          .transition()
-          .duration(200)
-          .style("fill", "#e65100");
-        d3.select(this).select("text").attr("display", "block");
-      }
-	</script> -->
 </body>
 </html>
