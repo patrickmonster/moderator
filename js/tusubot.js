@@ -86,7 +86,7 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 		baseURL: 'https://api.twitch.tv/helix/',
 		headers: { 
 			'Authorization':  `Bearer ${window.token.access_token}`,
-			"Client-Id" : window.client_id || oauth_client_id
+			"Client-Id" : window.token.client_id || oauth_client_id
 		}
 	});
 	
@@ -411,7 +411,7 @@ function setBrodcast(f){
  */
 function initBadges() {
 	axios.get(`https://api.twitch.tv/kraken/chat/${window.broadcaster.id}/badges`, {
-		headers : { "Client-Id" : window.client_id || oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
+		headers : { "Client-Id" : window.token.client_id || oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
 	}).then(({data})=>{
 		window.badges = new Map();
 		for(const k in data)if(data[k])window.badges.set(k, data[k].image);
