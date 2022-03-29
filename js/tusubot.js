@@ -411,7 +411,7 @@ function setBrodcast(f){
  */
 function initBadges() {
 	axios.get(`https://api.twitch.tv/kraken/chat/${window.broadcaster.id}/badges`, {
-		headers : { "Client-Id" : oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
+		headers : { "Client-Id" : window.client_id || oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
 	}).then(({data})=>{
 		window.badges = new Map();
 		for(const k in data)if(data[k])window.badges.set(k, data[k].image);
