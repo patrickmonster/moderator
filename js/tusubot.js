@@ -86,7 +86,7 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 		baseURL: 'https://api.twitch.tv/helix/',
 		headers: { 
 			'Authorization':  `Bearer ${window.token.access_token}`,
-			"Client-Id" : oauth_client_id
+			"Client-Id" : window.client_id || oauth_client_id
 		}
 	});
 	
