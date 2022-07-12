@@ -706,6 +706,20 @@ function getFollows(){
 		if(window.autoscroll_follow)scrollDiv(document.getElementById("follows").parentNode);
 	}).catch(e=>[]);
 }
+
+/**
+ * 팔로우 필터
+ * @param {*} f( { f: 팔로우 일자, i : 고유id, l: 영문id,  n : 닉네임 } )
+ * @param {*} isBlock 사용자 차단 여부
+ */
+function unfollowUsers(f, isBlock = false) {
+	const user_ids = Object.keys(window.follows);
+	for(const id of user_ids){
+		if(f(window.follows[id])){ // 삭제
+			blockUser(id, isBlock);
+		}
+	}
+}
 //======================================================================================
 
 /**
