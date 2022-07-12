@@ -127,12 +127,12 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				if(msg_id)
 					this.ws.send(`@reply-parent-msg-id=${msg_id} PRIVMSG ${window._channel(channel)} :${message}`);
 			};
-			window.client.once("connected", (s,p)=>{
+			window.client.on("connected", (s,p)=>{
 				window.client.popup(document.createElement("span")
 					.html(`트위치 채팅채널에 정상적으로 연결되었습니다! ${s}(${p})`)
 					.styles("background","blue").styles("color","#fff"), 30)
 				
-				consoleMessage(`[트봇]트봇이 트위치에 연결되었습니다. (V.${window.ver})`)
+				consoleMessage(`트봇이 트위치에 연결되었습니다. (V.${window.ver})`)
 			});
 			window.client.on("join", (channel, username, self)=>{if(self)window.client.popup(document.createElement("span").html(`${channel}에 연결됨`).styles("background","blue").styles("color","#fff"), 30)});
 			window.client.on("part", (channel, username, self)=>{if(self)window.client.popup(document.createElement("span").html(`${channel}에 퇴장됨`).styles("background","blue").styles("color","#fff"), 30)});
