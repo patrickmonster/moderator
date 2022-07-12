@@ -13,6 +13,7 @@ const permissions = ["chat:read","chat:edit", "channel:moderate",
 		"moderator:manage:automod", // Automod
 		"channel:manage:broadcast", // 방송 정보 수정
 		"channel:manage:polls", //설문
+		"user:manage:blocked_users","user:edit:follows", // 팔로우 정보 변경 - 차단 / 
 		"whispers:edit", // 귓속말
 		"clips:edit"]; // 클립생성
 
