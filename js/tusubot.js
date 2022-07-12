@@ -1,11 +1,13 @@
 'use strict';
-window.ver = "2.1.0";
+window.ver = "3.0.0";
 
 const oauth_client_id = "upe7qsmxj1soazkgf1ry7pf8w3d89u";
 const oauth_redirect_uri = `${window.location.origin}${window.location.pathname}`;// 리다이렉션
 
 const rawauth = document.location.href.replace("#", "?");
-const channel = location.hash.substr(1) || getParams("state") || 0;//채널정보가 없을때 / 스코프 / 0
+const channel = location.hash.substring(1) || getParams("state") || 0;//채널정보가 없을때 / 스코프 / 0
+
+console.log(channel, rawauth);
 const permissions = ["chat:read","chat:edit", "channel:moderate", 
 		"moderation:read",
 		"moderator:manage:automod", // Automod
@@ -21,7 +23,9 @@ const chat_log_limit = 1000;
 const is_test = false;
 
 window.autoscroll = true;
+window.autoscroll_follow = true;
 window.command = {};
+window.follows = {};
 
 // 채팅 모드
 const chat_mod = {
@@ -116,12 +120,19 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 				identity : { username,  password: window.token.access_token},
 				channels : [channel]
 			});
+			// 응답 객체 입니다
 			window.client.reply=function reply(channel, msg_id, message){
 				this.log.info(`[${channel}] Reply message: ${command}`);
 				if(msg_id)
 					this.ws.send(`@reply-parent-msg-id=${msg_id} PRIVMSG ${window._channel(channel)} :${message}`);
 			};
-			window.client.once("connected", (s,p)=>{window.client.popup(document.createElement("span").html(`트위치 채팅채널에 정상적으로 연결되었습니다! ${s}(${p})`).styles("background","blue").styles("color","#fff"), 30)});
+			window.client.once("connected", (s,p)=>{
+				window.client.popup(document.createElement("span")
+					.html(`트위치 채팅채널에 정상적으로 연결되었습니다! ${s}(${p})`)
+					.styles("background","blue").styles("color","#fff"), 30)
+				
+				consoleMessage(`[트봇]트봇이 트위치에 연결되었습니다. (V.${window.ver})`)
+			});
 			window.client.on("join", (channel, username, self)=>{if(self)window.client.popup(document.createElement("span").html(`${channel}에 연결됨`).styles("background","blue").styles("color","#fff"), 30)});
 			window.client.on("part", (channel, username, self)=>{if(self)window.client.popup(document.createElement("span").html(`${channel}에 퇴장됨`).styles("background","blue").styles("color","#fff"), 30)});
 			window.client.on("reconnect", ()=>{window.client.popup(document.createElement("span").html(`서버가 불안정하여 재접속을 시도합니다...`).styles("background","red").styles("color","#fff"), 30)});
@@ -238,7 +249,7 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			//roomstate(channel: string, state: RoomState): void;
 			//
 			window.client.popup = Popup();
-			window.client.connect().catch(console.error);
+			window.client.connect().catch(console.error); // 연결 - 임시 주석
 			if(window.opener != null){
 				window.opener.location.href = "about:blank";
 				window.opener.document.write("페이지가 탭으로 넘어갔습니다. 창을 닫으셔도 좋습니다!");
@@ -253,12 +264,16 @@ if(access_token){ // 토큰은 1회성 코드 (발급 당시 사용하고 바로
 			addCommandTxt(k, window.command[k]);
 		}
 
+
+
 		setBrodcast((o)=>{// 스트리머 정보
 			initTime();// 시간 루퍼
 			initBadges(); // 배찌 불러오기
 			getStream(end); // 스트림 여부
-			// getEmoteListView();
-			setInterval(getStream, 5 * 60 * 1000);// 스트림 상태
+			getFollows();
+
+			setInterval(getStream, 5 * 60 * 1000);// 스트림 상태 - 임시 주석
+			setInterval(getFollows, 5 * 60 * 1000);// 팔로우 리스트
 		});
 	}
 }
@@ -282,21 +297,7 @@ function popupLogList(){
 		list.C("p").html(i).styles("hieght", "20px").styles("text-overflow","ellipsis").styles("white-space","nowrap").styles("overflow","hidden");
 	
 }
-/**
- * GET https://api.twitch.tv/kraken/chat/emoticons
- */
-// function getEmoteListView(){
-// 	// targetPopup
-// 	axios.get(`https://api.twitch.tv/kraken/chat/emoticons`, {
-// 		headers : { "Client-Id" : oauth_client_id, "Accept" : "application/vnd.twitchtv.v5+json" }
-// 	}).then(({data})=>{
-// 		console.log(data);
-// 	}).catch(e=>{
-// 		console.error(e);
-// 	})
-// }
 
-// 가독성 떨어지게 하는 코드
 // const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
@@ -679,6 +680,31 @@ function getStream(f){
 		console.error(e);
 	})
 }
+/**
+ * 팔로우 정보를 불러옴
+ * window.follows -- 글로벌 팔로우 객체 저장
+ * 
+ * 피코 - 아이디
+ * hbo790349444
+ * /[a-zA-Z]{3,}[0-9]{9,}/g
+ */
+function getFollows(){
+	// follows
+	
+	window.token.instance.get(`users/follows?first=100&to_id=${window.broadcaster.id}`).then(({data})=>
+		data.data.map(o=>{return {f: o.followed_at, i : o.from_id, l:o.from_login, n : o.from_name}})
+	).then(users => {
+		// 거꾸로 뒤집고, 역순 정렬
+		users = users.reverse();
+		for ( const user of users){
+			if( !window.follows[user.i] ){
+				window.follows[user.i] = user;
+				addFollows(user);
+			}
+		}
+		if(window.autoscroll_follow)scrollDiv(document.getElementById("follows").parentNode);
+	}).catch(e=>[]);
+}
 //======================================================================================
 
 /**
@@ -750,6 +776,45 @@ function addCommandTxt(k,v) {
 		};
 		bord.C("button").html("취소").onclick = end;
 
+	}
+}
+
+
+function addFollows({ f, i ,l ,n }){
+	document.getElementById("follows").C("p").styles("margin", "3px").styles("float", "left").html(`${n}(${l}) - ${f}`).onclick= function(event){
+		const element = this;
+		const bord = document.createElement("span");
+		const name = l == n ? n : `${n}(${l})`;
+
+		const end = onDialogue(bord, ()=>{ end() });
+		bord.onclick = (event)=>{event.stopPropagation()};
+		bord.C("p").html(`${name}유저`).onclick=()=>{
+			window.open(`https://www.twitch.tv/popout/${window.broadcaster.login}/viewercard/${l}?popout=`)
+		};
+		bord.styles("height", "auto").styles("min-width", "200px");
+		bord.C("line");
+		//timeout
+		bord.C("button").attr("title","타임아웃 (30s)").html(`<i class="fas fa-shield-alt"></i>`).onclick = () => {
+			end();
+			timeoutUser(username, 30);
+			consoleMessage(`${username}사용자를 타임아웃 (30s)`);
+		};
+		// ban
+		bord.C("button").attr("title","벤").html(`<i class="fas fa-ban"></i>`).onclick = () => {
+			end();
+			banUser(username);
+			consoleMessage(`${username}사용자를 차단함`);
+		};
+
+		bord.C("button").html("언팔로우").onclick = ()=>{
+			end();
+			blockUser(i, true);
+		};
+		bord.C("button").html("차단").onclick = ()=>{
+			end();
+			blockUser(i, true);
+		};
+		bord.C("button").html("취소").onclick = end;
 	}
 }
 
@@ -1074,13 +1139,13 @@ function userprofile({username, nick, id, color, badges, msg}){
 	//timeout
 	bord.C("button").attr("title","타임아웃 (30s)").html(`<i class="fas fa-shield-alt"></i>`).onclick = () => {
 		end();
-		removChat(username);
+		timeoutUser(username, 30);
 		consoleMessage(`${username}사용자를 타임아웃 (30s)`);
 	};
 	// ban
 	bord.C("button").attr("title","벤").html(`<i class="fas fa-ban"></i>`).onclick = () => {
 		end();
-		removChat(username);
+		banUser(username);
 		consoleMessage(`${username}사용자를 차단함`);
 	};
 	if(msg){
@@ -1132,6 +1197,18 @@ function timeoutUser(user, time){// 채팅 전송
 	removeConsole(user);
 	if(window.client && !is_test)
 		window.client.timeout(`#${window.broadcaster.login}`, user, time, `당신은 필터에 의해 ${time}동안 차단당하였습니다`);
+}
+// 유저 차단
+function blockUser(user_id, isBan = false){// 채팅 전송
+	console.log(isBan ? "[block]" : "[unfollow]", user_id);
+	window.token.instance.put(`/users/blocks?target_user_id=${user_id}`).then(o=>{
+		if( !isBan )
+			window.token.instance.delete(`/users/blocks?target_user_id=${user_id}`).catch(e=>{
+				consoleMessage(`${user_id}사용자  차단 해제에 실패하였습니다.`);
+			});
+	}).catch(e=>{
+		consoleMessage(`${user_id}사용자  차단에 실패하였습니다.`);
+	});
 }
 function removChat(msg_id){// 채팅 전송
 	console.log("[remove]", msg_id);

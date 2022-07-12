@@ -17,8 +17,8 @@
 	<script src="./js/main.js"></script>
 	<style>
 *{
-	margin: 0px !important;
-	padding: 0px !important;
+	margin: 0px;
+	padding: 0px;
 	background-color:transparent;
 }
 
@@ -241,6 +241,16 @@ function initPopup(){//버튼 캔슬 이벤트
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
 		</div>
     </div>
+
+    <div id=follow_scroll class="block console_menu no-drag animation_time">
+		<span class="no-drag">팔로우 리스트</span>
+		<!-- <input type="checkbox" class="up_down" style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked> -->
+		<!-- <i class="fas fa-plus add_bt" title="추가" onclick="addCommand();" style="color: #000;"></i> -->
+		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll_follow" class="checkbox" onchange="window.autoscroll_follow=this.checked" style="float:right;" checked>
+        <div class="scroll" onscroll="window.autoscroll_follow=document.getElementById('is_scroll_follow').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
+			<table id=follows></table>
+		</div>
+    </div>
     <!-- <div class="block console_menu">
 		<h2>방문자
 			<span id="chat_length" title="현재까지 방문집계">0</span>명<input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked>
@@ -308,8 +318,9 @@ function initPopup(){//버튼 캔슬 이벤트
 
     <div class="block console_option" style="height: auto">
         <h2>업데이트 로그</h2>
-		<div style="overflow-y: scroll;height: 100px;">
+		<div style="overflow-y: scroll;height: 150px;">
 			<ul>
+				<li>3.0.0(22.07.12) - 팔로우 리스트 보드</li>
 				<li>2.1.1 - 움직이는 이모티콘 적용</li>
 				<li>2.1.0 - 팔로우모드/슬로우 모드 적용</li>
 				<li>2.0.0 - 현재 몃몃이벤트가 동작하지는 않지만, 원인파악을 하고 있습니다.</li>
