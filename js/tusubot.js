@@ -1214,7 +1214,7 @@ function timeoutUser(user, time){// 채팅 전송
 		window.client.timeout(`#${window.broadcaster.login}`, user, time, `당신은 필터에 의해 ${time}동안 차단당하였습니다`);
 }
 // 유저 차단
-function blockUser(user_id, isBan = false){// 채팅 전송
+function  blockUser(user_id, isBan = false){// 채팅 전송
 	console.log(isBan ? "[block]" : "[unfollow]", user_id);
 	window.token.instance.put(`/users/blocks?target_user_id=${user_id}`).then(o=>{
 		if( !isBan )
