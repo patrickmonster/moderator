@@ -13,16 +13,14 @@
 	<h1 style="color: red;">!경고!</h1>
 	해당 서비스는 "트봇"서비스로, 악성 사용자를 차단을 위한 목적으로 제작되었습니다.<br>
 	현재 제공하는 권한은 "사용자 차단", "쪽지전송" 권한이 부여되며<br>
-	악성 사용자에 의하여 스트리머님의 모든 팔로우 리스트가 제거됩니다. (이후 팔로우가 불가능 합니다.)<br>
+	악성 사용자에 의하여 스트리머님의 모든 팔로우 리스트가 제거될 수 있습니다. (이후 팔로우가 불가능 합니다.)<br>
 
 	<br><br>
 	혹여나 모르는 사용자에게 요청을 받으셨다면 즉시 차단 및 신고 부탁드립니다<br>
 	해당 서비스 관리자 : "테스트:1121", "뚱이#6408" (by discord)<br>
 	<br><br>
 	주의사항을 숙지 하였다면, 하단의 권한을 부여해 주세요.<br>
-	<a id="auth">
-		권한부여
-	</a>
+	<a id="auth">권한부여</a>
 </body>
 <script>
 // 스트리머 인증 요청시, 해당 페이지에서 1회용 토큰을 발급함
@@ -40,33 +38,17 @@ const scope = [
 
 const rawauth = document.location.href.replace("#", "?");
 const access_token = getParams("access_token", rawauth);
-if ( access_token ){
-	axios.post(`https://api.twitch.tv/helix/whispers?from_user_id=${1}&to_user_id=${2}`, {
-		message : `state ${access_token}`
-	}).catch(_=>{alert("메세지 전송에 실패하였습니다! \n혹여나, 메세지를 수신받지 않았다면 위험한 행위 입니다! 멈춰주세요!");});
-	window.token.instance = axios.create({
-		baseURL: 'https://api.twitch.tv/helix/',
-		headers: { 
-			'Authorization':  `Bearer ${access_token}`,
-			"Client-Id" : oauth_client_id
-		}
-	});
-	
-}else{
-	confirm("해당서비스는 트봇으로, '뷰봇' 밎 악성 사용자의 차단을 위하여 도입된 시스템입니다.\n승인하시면, 해당 사용자에게 사용자 차단등의 관리 권한이 ")
-	location.href = `https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=${oauth_client_id}&redirect_uri=${oauth_redirect_uri}&scope=${permissions.join("%20")}&state=${user}`;
+if ( access_token ){ // 인증 후 처리
+
+	const jwt = window.jwt_encode({access_token,scope});
+
+	// axios.post(`https://api.twitch.tv/helix/whispers?from_user_id=${1}&to_user_id=${2}`, {
+	// 	message : `state ${access_token}`
+	// }).catch(_=>{alert("메세지 전송에 실패하였습니다! \n혹여나, 메세지를 수신받지 않았다면 위험한 행위 입니다! 멈춰주세요!");});
 }
 
+const auth = document.getElementById("auth");
 
-/*
-https://id.twitch.tv/oauth2/authorize
-    ?response_type=token
-    &client_id=hof5gwx0su6owfnys0yan9c87zr6t
-    &redirect_uri=http://localhost:3000
-    &scope=channel%3Amanage%3Apolls+channel%3Aread%3Apolls
-    &state=c3ab8aa609ea11e793ae92361f002671
-*/
-
+auth.setAttribute("href", `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${oauth_client_id}&redirect_uri=${oauth_redirect_uri}&scope=${scope.join("%20")}&state=${user}`)
 
 </script>
-</html>
