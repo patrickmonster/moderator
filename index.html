@@ -13,8 +13,10 @@
 	<script src="https://patrickmonster.github.io/tgd/javascript/jwt-decode.js"></script>
 	<script src="https://kit.fontawesome.com/aacb03e8a3.js" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<script src="./javascript/tmi.min.js"></script>
-	<script src="./js/main.js"></script>
+	<script src="./javascript/tmi.min.js"></script><!--  -->
+	<script src="./js/main.js"></script><!-- 매인 라이브러리 -->
+	<script src="./js/EventSocket.js"></script><!-- 이벤트 소캣 -->
+	<script src="./js/SubCommand.js"></script><!-- 명령 처리함수 -->
 	<style>
 *{
 	margin: 0px;
@@ -230,7 +232,7 @@ function initPopup(){//버튼 캔슬 이벤트
 		<input type="text" id=chat name="메세지" placeholder="메세지 전송"  onkeypress="onKeypress(()=>{sendChat(value);this.value=''}).call(this,event)" style="background:#fff;width:calc(100% - 50px);height: 30px;font-size: 1.5em;border:0;border-radius: 5px; padding: 0 5px !important;">
 		<!-- <button style="height:30px;width:30px;margin: 0 !important;vertical-align: bottom;padding: 0 !important;" onclick="emote_view = document.getElementById('emote_view'); emote_view? emote_view.remove() :getEmoteListView.call(this)"><i class="fas fa-kiss-wink-heart"></i></button> -->
     </div>
-    <div id=command_scroll class="block console_menu no-drag animation_time">
+    <!-- <div id=command_scroll class="block console_menu no-drag animation_time">
         <h2>채팅 명령
 			<input type="checkbox" title="채팅명령 on/off" id="is_commands" class="checkbox">
 			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view')">리스트</button>
@@ -241,7 +243,7 @@ function initPopup(){//버튼 캔슬 이벤트
 			<table id=command></table>
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
 		</div>
-    </div>
+    </div> -->
 
     <div id=follow_scroll class="block console_menu no-drag animation_time">
 		<span class="no-drag">팔로우 리스트</span>
@@ -249,6 +251,15 @@ function initPopup(){//버튼 캔슬 이벤트
 		<!-- <i class="fas fa-plus add_bt" title="추가" onclick="addCommand();" style="color: #000;"></i> -->
 		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll_follow" class="checkbox" onchange="window.autoscroll_follow=this.checked" style="float:right;" checked>
         <div class="scroll" onscroll="window.autoscroll_follow=document.getElementById('is_scroll_follow').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
+			<table id=follows></table>
+		</div>
+    </div>
+    <div id=join_scroll class="block console_menu no-drag animation_time">
+		<span class="no-drag">팔로우 리스트</span>
+		<!-- <input type="checkbox" class="up_down" style="position: absolute;margin: 5px;top: 0;" onclick="this.checked?this.parentNode.styles('height','300px'):this.parentNode.styles('height','35px') " checked> -->
+		<!-- <i class="fas fa-plus add_bt" title="추가" onclick="addCommand();" style="color: #000;"></i> -->
+		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll_join" class="checkbox" onchange="window.is_scroll_join=this.checked" style="float:right;" checked>
+        <div class="scroll" onscroll="window.autoscroll_follow=document.getElementById('is_scroll_join').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
 			<table id=follows></table>
 		</div>
     </div>
@@ -337,10 +348,15 @@ function initPopup(){//버튼 캔슬 이벤트
     </div> -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
 	<script type="text/javascript">
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'UA-158025067-4');
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-158025067-4');
+	</script>
+
+	<script>
+// const eventSokcket= new window.EventSocket();
+// eventSokcket.onOpen()
 	</script>
 </body>
 </html>
