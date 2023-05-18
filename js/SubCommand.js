@@ -1,6 +1,7 @@
 // `chrome://settings/content/siteDetails?site=${window.location.origin}`
 
-function popupLogList() {
+
+function popupLogList(name = "span") {
   const bord = document.createElement("span");
   const end = onDialogue(bord, () => {
     end();
@@ -29,8 +30,7 @@ function popupLogList() {
       .styles("text-overflow", "ellipsis")
       .styles("white-space", "nowrap")
       .styles("overflow", "hidden");
-}
-
+},
 // const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
@@ -437,7 +437,7 @@ function getChannelStates(f) {
     .get(`channels?broadcaster_id=${window.broadcaster.id}`)
     .then(({ data: { data } }) => {
       if (data.length) {
-        document.getElementById("title").html(data[0].title);
+        document.ID("title").html(data[0].title);
         document
           .getElementById("channel")
           .html(`${data[0].broadcaster_name}(${data[0].broadcaster_login})`);
@@ -470,7 +470,7 @@ function setChannelStates(f, options) {
     .patch(`channels?broadcaster_id=${window.broadcaster.id}`, query)
     .then(({ data }) => {
       if (f) f(query);
-      document.getElementById("title").html(title);
+      document.ID("title").html(title);
     })
     .catch((e) => {
       console.error(e);
@@ -489,9 +489,9 @@ function getStream(f) {
       if (data.length) {
         // 방송중일때 데이터 넘김
         const { title, user_login, user_name, started_at, game_name } = data[0];
-        document.getElementById("channel").html(`${user_name}(${user_login})`);
-        document.getElementById("title").html(title);
-        document.getElementById("game").html(game_name);
+        document.ID("channel").html(`${user_name}(${user_login})`);
+        document.ID("title").html(title);
+        document.ID("game").html(game_name);
         document
           .getElementById("is_online")
           .html("On-line")
@@ -549,7 +549,7 @@ function getFollows() {
         }
       }
       if (window.autoscroll_follow)
-        scrollDiv(document.getElementById("follows").parentNode);
+        scrollDiv(document.ID("follows").parentNode);
     })
     .catch((e) => []);
 }
@@ -619,7 +619,7 @@ function addCommand(f) {
 }
 
 function addCommandTxt(k, v) {
-  document.getElementById("command").C("p").html(`${k} -> ${v}`).onclick =
+  document.ID("command").C("p").html(`${k} -> ${v}`).onclick =
     function (event) {
       const element = this;
       const bord = document.createElement("span");
@@ -664,8 +664,7 @@ function addCommandTxt(k, v) {
 }
 
 function addFollows({ f, i, l, n }) {
-  document
-    .getElementById("follows")
+  document.ID("follows")
     .C("p")
     .styles("margin", "3px")
     .styles("float", "left")
@@ -847,8 +846,7 @@ function addReservation(f) {
 
 function addReservationTxt(item) {
   // consoleMessage(`반복메세지 설정 ${msg} ${time}s`, 'green');
-  document
-    .getElementById("command")
+  document.ID("command")
     .C("p")
     .html(`[${item.time}] -> ${item.msg}`).onclick = function (event) {
     const element = this;
@@ -990,11 +988,11 @@ window.chatting_log = [];
 function addChat(user, msg, msg_id) {
   // 채팅기록관리
   window.chatting_log.push({ user, msg, msg_id });
-  const console_div = document.getElementById("console");
+  const console_div = document.ID("console");
 
   if (chat_log_limit <= window.chatting_log.length) window.chatting_log.shift();
 
-  if (document.getElementById("is_commands").checked) {
+  if (document.ID("is_commands").checked) {
     const [comm, ...args] = msg.split();
     switch (comm) {
       case ";클립":
@@ -1013,7 +1011,7 @@ function addChat(user, msg, msg_id) {
               msg_id,
               `[클립생성] clips.twitch.tv/${id}`
             );
-            scrollDiv(document.getElementById("console_scroll"));
+            scrollDiv(document.ID("console_scroll"));
           });
         } else {
           window.client.reply(channel, msg_id, `오프라인 상태입니다!`);
@@ -1257,7 +1255,7 @@ function removeConsole(msg_id, f) {
 
 // function highlightedConsole(msg_id){
 // 	try{
-// 		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
+// 		document.ID("console").getElementsByClassName(msg_id).forEach(element=>{
 // 			element.addClass("highlighted_message");
 // 		});
 // 	}catch(e){;};// 오류처리
@@ -1265,15 +1263,15 @@ function removeConsole(msg_id, f) {
 
 // function subsModeConsole(msg_id){
 // 	try{
-// 		document.getElementById("console").getElementsByClassName(msg_id).forEach(element=>{
+// 		document.ID("console").getElementsByClassName(msg_id).forEach(element=>{
 // 			element.addClass("subs_mode");
 // 		});
 // 	}catch(e){console.log(e);};// 오류처리
 // }
 
 function consoleMessage(message, color = "red") {
-  const console_div = document.getElementById("console");
-  if (window.autoscroll) scrollDiv(document.getElementById("console_scroll"));
+  const console_div = document.ID("console");
+  if (window.autoscroll) scrollDiv(document.ID("console_scroll"));
   return console_div
     .C("p")
     .html(`[console] ${message}`)
@@ -1314,12 +1312,12 @@ function followChangeSet(time) {
     const t = i.id.replace("follow", "");
     if (t == time) {
       i.checked = true;
-      document.getElementById("is_slow_chat").html(i.innerHTML);
+      document.ID("is_slow_chat").html(i.innerHTML);
       return;
     }
   }
   eles[eles.length - 1].checked = true;
-  document.getElementById("is_slow_chat").html("사용자 지정");
+  document.ID("is_slow_chat").html("사용자 지정");
 }
 /**
  * 슬로우 모드 변경
@@ -1345,12 +1343,12 @@ function slowchatChangeSet(time) {
     if (t == time) {
       console.log(time, i);
       i.checked = true;
-      document.getElementById("is_slow_chat").html(i.innerHTML);
+      document.ID("is_slow_chat").html(i.innerHTML);
       return;
     }
   }
   eles[eles.length - 1].checked = true;
-  document.getElementById("is_slow_chat").html("사용자 지정");
+  document.ID("is_slow_chat").html("사용자 지정");
 }
 
 //======================================================================================
