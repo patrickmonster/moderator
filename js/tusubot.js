@@ -282,6 +282,7 @@ if (!window.tusu) {
         { v: "4.0.2", title: "채팅 로그 선택시, 사용자 조회" },
         { v: "4.0.3", title: "채팅 저장리밋 - 1만건으로 확장" },
         { v: "4.0.4", title: "로그창(콘솔분활), 채팅유저 정렬" },
+        { v: "4.0.5", title: "기능창 제거 (임시), 로그 리스트 수정" },
       ],
       modes_bool: { "emote-only": "is_only_emote" },
       modes_func: { "followers-only": () => {}, slow: () => {} },

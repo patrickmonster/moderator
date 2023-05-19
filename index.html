@@ -179,7 +179,6 @@ function initPopup(){//버튼 캔슬 이벤트
 					<li><label class="no-drag" for="follow129600"><input type="radio" name="follow" id="follow129600" style="float: left;" onclick="followChange(this.id.replace('follow',''))">3개월</label></li>
 					<li><label class="no-drag" for="follow-1"><input type="radio" name="follow" id="follow-1" style="float: left;" onclick="followChange(this.id.replace('follow',''))" checked>끄기</label></li>
 					<input type="radio" name="follow" id="followother" style="display:none;">
-					<!-- 기타선택 -->
 				</ul>
 			</div>
 		</span>
@@ -197,12 +196,13 @@ function initPopup(){//버튼 캔슬 이벤트
 					<li><label class="no-drag" for="slowchat120"><input type="radio" name="slowchat" id="slowchat120" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))">120</label></li>
 					<li><label class="no-drag" for="slowchatfalse"><input type="radio" name="slowchat" id="slowchatfalse" style="float: left;" onclick="slowchatChange(this.id.replace('slowchat',''))" checked>끄기</label></li>
 					<input type="radio" name="slowchat" id="slowchatother" style="display:none;">
-					<!-- 기타선택 -->
 				</ul>
 			</div>
 		</span>
 		<span style="float: left;">
-			<span title="채팅 설정" onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked"><i class="fas fa-cog button"></i></span><input type="checkbox" class="over_bord_hide" id="chatting_option" checked>
+			<!-- 문제있어서 일단 주석 -->
+			<!-- <span title="채팅 설정" onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked"><i class="fas fa-cog button"></i></span> -->
+			<input type="checkbox" class="over_bord_hide" id="chatting_option" checked>
 			<div class="over_bord" onclick="event.stopPropagation();">
 				<ul>
 					<li class="line no-drag"><span>채팅 모드</span></li>
@@ -330,6 +330,8 @@ function initPopup(){//버튼 캔슬 이벤트
     <div class="block console_option" style="height: auto;">
         <h2>로그아웃</h2>
 		<div>
+			<!-- <label class="no-drag" for="on_open_loglist">로그 리스트<button id="on_open_loglist" onclick="window.tusu.popupLogList()"></button></label> -->
+			<br><button onclick="window.tusu.popupLogList()"">로그 리스트</button>
 			<br><button onclick="window.open('//patrickmonster.github.io/moderator/followers.html'+location.hash)">팔로우 필터</button>
 			<br><button onclick="location.href=`${window.location.origin}${window.location.pathname}`" style="font-size: 1em;">사용자 변경(Logout)</button>
 		</div>
@@ -349,6 +351,7 @@ function initPopup(){//버튼 캔슬 이벤트
         <input class="largeinput"  type="text" placeholder="채팅(enter 입력)" onkeypress="if(event.keyCode!=13 || this.value=='')return;window.chatClientC.onSend(this.value);window.chatClientC.onChating({'display-name':'나','message':this.value});this.value=''">
         <button type="submit" id="right-search-btn">채팅</button>
     </div> -->
+	<h5>Create by. patrickmonster</h5>
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158025067-4"></script>
 	<script type="text/javascript">
 window.dataLayer = window.dataLayer || [];
