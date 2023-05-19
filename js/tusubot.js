@@ -792,7 +792,7 @@ if (!window.tusu) {
        */
       removeConsole(msg_id, f) {
         try {
-          const list = document.ID("console").getElementsByClassName(msg_id);
+          const list = document.ID("chat").getElementsByClassName(msg_id);
           for (let i = 0; i < list.length; i++)
             if (list[i]) {
               list[i].addClass("delete_message");
