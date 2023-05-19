@@ -217,11 +217,10 @@ function initPopup(){//버튼 캔슬 이벤트
 			</div>
 		</span>
 		<span id="game" class="no-drag">게임</span>
-		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll" class="checkbox" onchange="window.autoscroll=this.checked" style="float:right;" checked>
-		<div id=console_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.autoscroll=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
+		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll" class="checkbox" onchange="window.tusu.autoscroll=this.checked" style="float:right;" checked>
+		<div id=console_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.tusu.autoscroll=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
 			<table id=console></table>
 		</div>
-		<!-- window.client.emotes_id -->
 		
 		<span style="float: left;">
 			<button onclick="event.stopPropagation();var input = this.previousSibling.nextSibling.nextSibling;input.checked=!input.checked" style="transform:translateY(-3px);padding:7px !important;"><i class="fas fa-smile-wink"></i></button><input type="checkbox" class="over_bord_hide" checked>
@@ -249,13 +248,6 @@ function initPopup(){//버튼 캔슬 이벤트
 		<span class="no-drag">팔로우 리스트</span>
 		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll_follow" class="checkbox" onchange="window.autoscroll_follow=this.checked" style="float:right;" checked>
         <div class="scroll" onscroll="window.autoscroll_follow=document.getElementById('is_scroll_follow').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
-			<table id=follows></table>
-		</div>
-    </div> -->
-    <!-- <div id=join_scroll class="block console_menu no-drag animation_time">
-		<span class="no-drag">팔로우 리스트</span>
-		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll_join" class="checkbox" onchange="window.is_scroll_join=this.checked" style="float:right;" checked>
-        <div class="scroll" onscroll="window.autoscroll_follow=document.getElementById('is_scroll_join').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
 			<table id=follows></table>
 		</div>
     </div> -->

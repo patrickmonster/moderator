@@ -157,21 +157,20 @@ if (!window.tusu) {
         //   `/chat/badges?broadcaster_id=${broadcastChannel.id}`
         // );
 
-        const { data } = await axios.get(
-          `https://api.twitch.tv/kraken/chat/${broadcastChannel.login}/badges`,
-          {
-            headers: {
-              "Client-Id": SystemOptions.oauth_client_id,
-              Accept: "application/vnd.twitchtv.v5+json",
-            },
-          }
-        );
+        const {
+          data: { data },
+        } = await api.get("/chat/badges/global");
 
-        console.log("TUSU] 배찌정보", badges);
-        for (const k in data) {
-          if (data[k]) tusu.targetChannelBadges.set(k, data[k].image);
+        console.log("TUSU] 배찌정보", data);
+        for (const {
+          set_id,
+          versions: [{ image_url_2x }],
+        } of data) {
+          tusu.targetChannelBadges.set(set_id, image_url_2x);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
       tusu.streamStatus();
       setInterval(tusu.streamStatus, 5 * 60 * 1000); // 스트림 상태 - 임시 주석
 
@@ -581,7 +580,7 @@ if (!window.tusu) {
           )
           .on("click", () => tusu.userprofile(user));
 
-        scrollDiv(console_div.parentNode);
+        if (window.tusu.autoscroll) scrollDiv(console_div.parentNode);
       },
 
       /**
