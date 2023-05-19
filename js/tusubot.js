@@ -62,13 +62,15 @@ if (!window.tusu) {
     console.log("TUSU] 채널이 지정되지 않음");
     window.addEventListener("load", () => {
       document.body.innerHTML = `
-  <div id="input_surch">
+<div id="input_surch" style="color:#fff">
+    <h1>트봇</h1><h3>트수가 관리하는 채팅방</h3>
     <input id="user-input" type="text" value="" onkeypress="if(event.keyCode!=13)return;setChannel()" placeholder="채널의 id를 입력해 주세요!" focus="">
-    <button onclick="setChannel()" style="transform: translate(-70px, 20px);">
+    <button onclick="setChannel()" style="transform: translate(-67px, 3px);">
       <svg aria-hidden="true" style="transform:translate(0px, 4px)" focusable="false" data-prefix="fas" data-icon="sign-in-alt" class="svg-inline--fa fa-sign-in-alt fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path fill="currentColor" d="M416 448h-84c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h84c17.7 0 32-14.3 32-32V160c0-17.7-14.3-32-32-32h-84c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h84c53 0 96 43 96 96v192c0 53-43 96-96 96zm-47-201L201 79c-15-15-41-4.5-41 17v96H24c-13.3 0-24 10.7-24 24v96c0 13.3 10.7 24 24 24h136v96c0 21.5 26 32 41 17l168-168c9.3-9.4 9.3-24.6 0-34z"></path>
       </svg>
     </button>
+    <h5>create by.patrickmonster</h5>
   </div>`;
 
       window.addStyle(
@@ -153,10 +155,6 @@ if (!window.tusu) {
 
       // 배찌 정보를 불러옴
       try {
-        // const { data } = await api.get(
-        //   `/chat/badges?broadcaster_id=${broadcastChannel.id}`
-        // );
-
         const {
           data: { data },
         } = await api.get("/chat/badges/global");
@@ -211,13 +209,21 @@ if (!window.tusu) {
     }
 
     function consoleMessage(msg, color = "red") {
-      if (tusu.autoscroll) scrollDiv(document.ID("console_scroll"));
+      if (tusu.autoscroll_console) scrollDiv(document.ID("console_scroll"));
       return document
         .ID("console")
-        .C("p")
-        .html(`[CONSOLE] ${msg}`)
+        .C("tr")
+        .C("td")
+        .html(msg)
         .styles("background", color)
-        .styles("color", "#fff");
+        .styles("color", "#fff")
+        .styles("width", "100%");
+      // return document
+      //   .ID("console")
+      //   .C("p")
+      //   .html(`[CONSOLE] ${msg}`)
+      //   .styles("background", color)
+      //   .styles("color", "#fff");
     }
 
     function onDialogue(html, f) {
@@ -237,7 +243,7 @@ if (!window.tusu) {
 
     function removeConsole(msg_id, f) {
       try {
-        const list = document.ID("console").getElementsByClassName(msg_id);
+        const list = document.ID("chat").getElementsByClassName(msg_id);
         for (let i = 0; i < list.length; i++)
           if (list[i]) {
             list[i].addClass("delete_message");
@@ -251,6 +257,7 @@ if (!window.tusu) {
     const tusu = {
       autoscroll: true,
       autoscroll_follow: true,
+      autoscroll_console: true,
 
       targetChannel: {},
       targetChannelState: {},
@@ -274,6 +281,7 @@ if (!window.tusu) {
         { v: "4.0.1", title: "방문자 리스트 출력" },
         { v: "4.0.2", title: "채팅 로그 선택시, 사용자 조회" },
         { v: "4.0.3", title: "채팅 저장리밋 - 1만건으로 확장" },
+        { v: "4.0.4", title: "로그창(콘솔분활), 채팅유저 정렬" },
       ],
       modes_bool: { "emote-only": "is_only_emote" },
       modes_func: { "followers-only": () => {}, slow: () => {} },
@@ -465,7 +473,7 @@ if (!window.tusu) {
         roomstate(channel, state) {
           const { chat_mod, modes_bool, modes_func } = tusu;
           for (const k in chat_mod) {
-            if (modes_bool[k]) document.ID(modes_bool).checked = state[k];
+            if (modes_bool[k]) document.ID(modes_bool[k]).checked = state[k];
             if (modes_func[k]) modes_func[k](state[k]);
             if (k == "followers-only") {
               if (state[k] == false) state[k] = 0;
@@ -554,7 +562,7 @@ if (!window.tusu) {
        * @param {String} msg_id 메세지 id
        */
       addChat(user, msg) {
-        const console_div = document.ID("console");
+        const chat_div = document.ID("chat");
 
         // console.log(user, msg);
         // const [comm, ...args] = msg.split();
@@ -564,8 +572,10 @@ if (!window.tusu) {
           user["display-name"] == user.username
             ? user.username
             : `${user["display-name"]}<p style='font-size:0.2em;display:contents;'>${user.username}</p>`;
-        console_div
+        chat_div
           .C("p")
+          .styles("width", "100%")
+          .styles("text-align", "left")
           .addClass("hover_pointer")
           .addClass(user.username)
           .addClass(user.id)
@@ -580,7 +590,7 @@ if (!window.tusu) {
           )
           .on("click", () => tusu.userprofile(user));
 
-        if (window.tusu.autoscroll) scrollDiv(console_div.parentNode);
+        if (window.tusu.autoscroll) scrollDiv(chat_div.parentNode);
       },
 
       /**

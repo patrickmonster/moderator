@@ -218,8 +218,8 @@ function initPopup(){//버튼 캔슬 이벤트
 		</span>
 		<span id="game" class="no-drag">게임</span>
 		<input type="checkbox" title="자동스크롤 on/off" id="is_scroll" class="checkbox" onchange="window.tusu.autoscroll=this.checked" style="float:right;" checked>
-		<div id=console_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.tusu.autoscroll=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
-			<table id=console></table>
+		<div id=chat_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.tusu.autoscroll=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
+			<table id=chat></table>
 		</div>
 		
 		<span style="float: left;">
@@ -252,16 +252,29 @@ function initPopup(){//버튼 캔슬 이벤트
 		</div>
     </div> -->
     <div class="block console_menu">
-		<h2>방문자
-			<span id="chat_length" title="현재까지 방문집계">0</span>명
-			<!-- <input type="checkbox" title="사용자 입장 기록" id="is_join" class="checkbox" checked> -->
-			<button style="display:none" onclick="removeAllClass('over_view');this.parentNode.parentNode.querySelector('.scroll').addClass('over_view');list_user(window.chatClientE.users);document.getElementById('user-input-filter').value=''">리스트</button>
+		<h2>채팅중인 유저
+			<span id="chat_length" title="채팅중인 유저">0</span>명
 		</h2>
-		<!-- <input type="checkbox" class="up_down" onclick="var v = document.getElementById('user-input-filter');this.checked?this.parentNode.styles('height','300px')&&list_user(window.chatClientE.users.filter((a,b)=>a.indexOf(v))):this.parentNode.styles('height','35px');"> -->
 		<div class="scroll" id=user_scroll>
-			<!-- <input id="user-input-filter" placeholder="검색" type="text" value="" onkeypress="var v = this.value;list_user(v!=''?window.chatClientE.users.filter((a,b)=>a.indexOf(v)!=-1):window.chatClientE.users);"> -->
-			<table id=user></table>
+			<table>
+				<colgroup>
+					<col width="65px">
+					<col width="">
+				</colgroup>
+				<tbody id=user></tbody>
+			</table>
 			<div class="back_space" onclick="removeAllClass('over_view')"></div>
+		</div>
+    </div>
+    <div class="block console_menu">
+		<h2>최근이력
+			<input type="checkbox" title="자동스크롤 on/off" id="is_scroll_console" class="checkbox" onchange="window.tusu.autoscroll_console=this.checked" style="float:right;" checked>
+		</h2>
+		<div id=console_scroll class="scroll" style="width: 100%;height: 90%;" onscroll="window.tusu.autoscroll_console=document.getElementById('is_scroll').checked=(this.scrollTop + this.offsetHeight + 20) >= this.scrollHeight;">
+			<table id=console></table>
+		</div>
+		<div class="scroll" id=user_scroll>
+			<span id=log></span>
 		</div>
     </div>
     <!-- <div class="block console_menu">
@@ -317,6 +330,7 @@ function initPopup(){//버튼 캔슬 이벤트
     <div class="block console_option" style="height: auto;">
         <h2>로그아웃</h2>
 		<div>
+			<br><button onclick="window.open('//patrickmonster.github.io/moderator/followers.html'+location.hash)">팔로우 필터</button>
 			<br><button onclick="location.href=`${window.location.origin}${window.location.pathname}`" style="font-size: 1em;">사용자 변경(Logout)</button>
 		</div>
     </div>
@@ -367,8 +381,23 @@ window.addEventListener("load", () => {
 	document.ID('update-log').html(tusu.update.map(({v, title}) => `<li>${v} - ${title}</li>`).join(''))
 	// 사용자 방문 기록
 
-	const usersBord =  document.ID('user')
+	const usersBord =  document.ID('user');
 	tusu.event.joinUser = (user) =>{
+		usersBord.html('');
+		for (const id of Object.keys(tusu.user_data).sort()) {
+			const {nick, color, userid, username, badges} = tusu.user_data[id];
+			const tr = usersBord.C('tr').on('click', ()=>{
+				const chatLog = tusu.chatting_log.filter(({user}) => user.userid == userid);
+				tusu.userprofile({
+					username, nick, color, badges
+				}, chatLog.map((log)=> log.message))
+			}).styles("cursor", "pointer");
+			
+		tr.C('td').html(tusu.getBadges(badges))
+		if ( nick ) tr.C('td').html(nick).styles('float','left');
+		}
+
+
 		const {nick, color, userid, username, badges} = user;
 		const tr = usersBord.C('tr').on('click', ()=>{
 			const chatLog = tusu.chatting_log.filter(({user}) => user.userid == userid);
@@ -376,8 +405,6 @@ window.addEventListener("load", () => {
 				username, nick, color, badges
 			}, chatLog.map((log)=> log.message))
 		}).styles("cursor", "pointer")
-		if ( nick) tr.C('td').html(nick)
-		tr.C('td').html(tusu.getBadges(badges))
 
 		document.ID('chat_length').html(Object.keys(tusu.user_data).length + 1);
 	}

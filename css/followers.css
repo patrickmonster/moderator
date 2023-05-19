@@ -185,12 +185,22 @@ table#console > tr > td {
   float: right;
   width: 30px;
 }
-#command > tr > td:nth-child(2),
+
 #user > tr > td:nth-child(1) {
+  text-align: left;
+}
+
+
+#command > tr > td:nth-child(2),
+#chat > tr > td:nth-child(2)
+/* #user > tr > td:nth-child(1)  */
+{
   text-align: left;
   width: 100%;
 }
-#command > tr > td:nth-child(2) {
+#command > tr > td:nth-child(2) ,
+#chat > tr > td:nth-child(2) 
+{
   width: 75%;
 }
 #user > tr > td:nth-child(n + 2) {
