@@ -241,19 +241,6 @@ if (!window.tusu) {
       };
     }
 
-    function removeConsole(msg_id, f) {
-      try {
-        const list = document.ID("chat").getElementsByClassName(msg_id);
-        for (let i = 0; i < list.length; i++)
-          if (list[i]) {
-            list[i].addClass("delete_message");
-            if (f) f(list[i]);
-          }
-      } catch (e) {
-        console.error(e);
-      } // 오류처리
-    }
-
     const tusu = {
       autoscroll: true,
       autoscroll_follow: true,
@@ -418,6 +405,7 @@ if (!window.tusu) {
           }
         },
         ban(channel, username, reason) {
+          tusu.removeConsole(username);
           pop(
             consoleMessage(`(유저 벤) ${username} ${reason || ""}`, "blue")
               .styles("cursor", "pointer")
@@ -430,6 +418,7 @@ if (!window.tusu) {
           );
         },
         timeout(channel, username, reason, duration) {
+          tusu.removeConsole(username);
           pop(
             consoleMessage(
               `(유저 타임아웃 ${duration}) ${username} ${reason || ""}`,
@@ -445,7 +434,7 @@ if (!window.tusu) {
           );
         },
         messagedeleted(channel, username, deletedMessage, userstate) {
-          removeConsole(userstate.id, (element) => {
+          tusu.removeConsole(userstate.id, (element) => {
             pop(consoleMessage(`(메세지 삭제) ${username}`, "blue"), -1);
           });
         },
@@ -758,7 +747,7 @@ if (!window.tusu) {
        */
       banUser(user) {
         console.log("[ban]", user);
-        this.removeConsole(user);
+        tusu.removeConsole(user);
         if (twitchSocket)
           twitchSocket.ban(
             `#${tusu.targetChannel.login}`,
@@ -774,7 +763,7 @@ if (!window.tusu) {
        */
       timeoutUser(user, time) {
         console.log("[timeout]", time, user);
-        this.removeConsole(user);
+        tusu.removeConsole(user);
         if (twitchSocket)
           twitchSocket.timeout(
             `#${tusu.targetChannel.login}`,
@@ -791,7 +780,7 @@ if (!window.tusu) {
       removeChat(msg_id) {
         // 채팅 전송
         console.log("[remove]", msg_id);
-        this.removeConsole(msg_id);
+        tusu.removeConsole(msg_id);
         if (twitchSocket)
           twitchSocket.deletemessage(`#${tusu.targetChannel.login}`, msg_id);
       },
